@@ -1,123 +1,205 @@
+// client/src/data/oracleData.ts
 import { OracleData, ZodiacSign } from '@shared/schema';
 
-export const oracleData: Record<string, OracleData> = {
-  daily: {
-    title: 'Tirage du Jour',
-    description: 'Une carte pour vous guider et vous inspirer aujourd\'hui',
-    cards: [
-      // Cartes existantes (22)
-      { name: 'Nouveau Départ', meaning: 'Aujourd’hui marque la fin d’un cycle et l’ouverture d’une nouvelle page de votre vie. C’est un moment idéal pour oser entreprendre ce que vous repoussiez depuis longtemps, que ce soit un projet personnel, professionnel ou sentimental. L’univers vous invite à avancer sans crainte et à accueillir les opportunités qui s’offrent à vous. Chaque pas que vous ferez aujourd’hui posera les bases d’un avenir plus épanouissant.'},
-      { name: 'Patience', meaning: 'Ce tirage vous rappelle que certaines choses prennent du temps pour se manifester. Ne vous découragez pas si les résultats tardent à venir : la patience est votre plus grand atout aujourd’hui. Observez, respirez et acceptez le rythme naturel des événements. La tranquillité intérieure que vous cultiverez sera la clé pour attirer la réussite au moment juste.' },
-      { name: 'Créativité', meaning: 'Ce tirage vous rappelle que certaines choses prennent du temps pour se manifester. Ne vous découragez pas si les résultats tardent à venir : la patience est votre plus grand atout aujourd’hui. Observez, respirez et acceptez le rythme naturel des événements. La tranquillité intérieure que vous cultiverez sera la clé pour attirer la réussite au moment juste.' },
-      { name: 'Amour', meaning: 'L’énergie d’aujourd’hui est tournée vers le cœur. Exprimez votre tendresse et votre gratitude envers vos proches, car un simple geste peut avoir un grand impact. Si vous êtes en couple, renforcez vos liens par des attentions sincères. Si vous êtes célibataire, ouvrez-vous à la possibilité de nouvelles rencontres : l’amour pourrait se manifester là où vous ne l’attendiez pas.' },
-      { name: 'Courage', meaning: 'Des défis peuvent se présenter aujourd’hui, mais vous possédez la force et la résilience nécessaires pour les surmonter. Le courage ne signifie pas l’absence de peur, mais la capacité à agir malgré elle. En affrontant vos obstacles avec détermination, vous gagnerez en confiance et en maturité. Chaque pas courageux que vous ferez renforcera votre chemin.' },
-      { name: 'Intuition', meaning: 'Votre voix intérieure est particulièrement forte aujourd’hui. Faites confiance à vos pressentiments, même si vous ne pouvez pas les expliquer rationnellement. Ils vous guideront vers des choix plus alignés avec vos véritables besoins. Prenez un moment de silence pour écouter vos ressentis, car votre intuition détient la réponse aux questions que vous vous posez en ce moment.' },
-      { name: 'Gratitude', meaning: 'Prenez un moment pour apprécier profondément ce que vous avez déjà. Reconnaître vos bénédictions attire encore plus de positif dans votre vie.' },
-      { name: 'Communication', meaning: 'Exprimez-vous avec clarté et bienveillance aujourd’hui. Vos paroles peuvent apaiser, inspirer et créer des liens plus solides.' },
-      { name: 'Équilibre', meaning: 'Cherchez l’harmonie entre vos responsabilités et vos besoins personnels. Prendre soin de vous est essentiel pour maintenir une stabilité intérieure.'},
-      { name: 'Confiance', meaning: 'Croyez en vos capacités et avancez avec assurance. La confiance en vous ouvre la voie vers vos véritables réussites.'},
-      { name: 'Lâcher-prise', meaning: 'Libérez-vous des poids du passé et des inquiétudes inutiles. Acceptez de laisser aller ce que vous ne pouvez contrôler.' },
-      { name: 'Joie', meaning: 'Accueillez la joie dans les petits instants du quotidien. Elle illumine votre cœur et transforme vos énergies.' },
-      { name: 'Sagesse', meaning: 'Prenez le temps de réfléchir avant de poser vos actions. Votre sagesse intérieure vous guidera et vous protégera des mauvaises décisions.' },
-      { name: 'Transformation', meaning: 'Accueillez les changements qui se présentent. Même s’ils paraissent déstabilisants, ils vous conduisent vers une version améliorée de vous-même.' },
-      { name: 'Abondance', meaning: 'Rappelez-vous que vous possédez déjà les ressources nécessaires pour réussir. L’abondance se manifeste lorsque vous croyez pleinement en votre potentiel.'},
-      { name: 'Paix', meaning: 'Cultivez la paix intérieure en libérant les tensions et les conflits. La sérénité vous apportera la clarté et l’harmonie dont vous avez besoin.' },
-      { name: 'Force', meaning: 'Puisez dans votre force intérieure, elle est plus vaste que ce que vous imaginez. Elle vous soutient dans les défis et vous rend plus résilient.'},
-      { name: 'Pardon', meaning: 'Offrez le pardon, à vous-même comme aux autres. Ce geste libère le cœur et ouvre la voie à une véritable guérison intérieure.' },
-      { name: 'Espoir', meaning: 'Gardez espoir, même dans l’adversité. La lumière finit toujours par revenir, comme le soleil après la nuit.' },
-      { name: 'Action', meaning: 'Le moment est venu de passer à l’action. Ne laissez plus vos projets en attente, c’est aujourd’hui que les choses avancent.' },
-      { name: 'Compassion', meaning: 'Faites preuve de compassion envers vous-même et envers les autres. La bienveillance adoucit les cœurs et renforce les liens.' },
-      { name: 'Inspiration', meaning: 'Ouvrez vos yeux et votre esprit à ce qui vous entoure. L’inspiration est partout, prête à nourrir votre créativité et vos idées.'},
+// Interface pour les variations de phrases du tirage en croix
+export interface CardVariations {
+  pour: string[];      // Aspects positifs
+  contre: string[];    // Points d'attention
+  synthese: string[];  // Conseils
+}
 
-      // NOUVELLES CARTES (25 cartes ajoutées = 47 total)
-      { name: 'Détermination', meaning: 'Votre persévérance et votre volonté sont vos meilleurs alliés aujourd’hui. Même face aux obstacles, continuez d’avancer avec confiance, car votre ténacité vous ouvrira la voie vers le succès.' },
-      { name: 'Aventure', meaning: 'Sortez de votre routine et osez découvrir de nouvelles expériences. Une aventure, qu’elle soit grande ou petite, vous attend et enrichira votre esprit comme votre cœur.' },
-      { name: 'Réconciliation', meaning: 'Il est temps de guérir vos blessures intérieures et de faire la paix avec votre passé. La réconciliation apporte la liberté et vous permet d’avancer plus léger.' },
-      { name: 'Innovation', meaning: 'Aujourd’hui, laissez vos idées originales prendre vie. Votre capacité à penser différemment est une richesse qui peut transformer vos projets et inspirer ceux qui vous entourent.' },
-      { name: 'Connexion', meaning: 'Renforcez vos liens avec les autres, mais aussi avec vous-même. Les connexions authentiques nourrissent l’âme et vous rappellent que vous n’êtes jamais seul.' },
-      { name: 'Prospérité', meaning: 'La prospérité entre dans votre vie sous diverses formes : matérielles, émotionnelles ou spirituelles. Accueillez cette abondance avec gratitude et confiance.' },
-      { name: 'Authenticité', meaning: 'Restez fidèle à vos valeurs et à votre véritable nature. Votre authenticité attire les bonnes personnes et vous guide vers des choix alignés avec votre cœur.' },
-      { name: 'Révélation', meaning: 'Une vérité cachée ou une prise de conscience importante va bientôt se manifester. Restez attentif et gardez l’esprit ouvert pour accueillir cette révélation.' },
-      { name: 'Protection', meaning: 'Vous êtes entouré de bienveillance. Faites confiance à cette protection et sachez que vous n’avez rien à craindre.' },
-      { name: 'Renaissance', meaning: 'Un nouveau cycle s’ouvre devant vous. Libérez-vous de ce qui appartient au passé et accueillez cette renaissance comme une chance de vous réinventer.' },
-      { name: 'Clarté', meaning: 'Les réponses que vous cherchez vont bientôt se révéler. Prenez du recul, observez les signes et laissez le brouillard se dissiper : la clarté arrive progressivement et vous permettra de prendre des décisions éclairées.' },
-      { name: 'Passion', meaning: 'Suivez ce qui vous passionne vraiment. Votre enthousiasme est une boussole puissante : nourrissez-le, donnez-lui de l\'espace et laissez-le orienter vos choix vers ce qui vous rend vivant.' },
-      { name: 'Équité', meaning: 'La justice et l\'équilibre vont se rétablir dans vos affaires. Restez intègre et patient : vos actions justes finiront par porter leurs fruits et rétablir l\'harmonie autour de vous.' },
-      { name: 'Harmonie', meaning: 'Tous les éléments de votre vie tendent à s\'aligner aujourd\'hui. Profitez de cette période pour consolider ce qui fonctionne et créer des routines qui renforcent votre bien-être global.' },
-      { name: 'Eveil', meaning: 'Votre conscience s\'élargit et de nouvelles perspectives s\'ouvrent à vous. Accueillez ces prises de conscience : elles peuvent transformer votre regard et orienter vos prochains pas.' },
-      { name: 'Générosité', meaning: 'Donnez sans compter aujourd\'hui, non par devoir mais par cœur. Cet élan généreux créera des cercles de réciprocité et attirera des expériences bienfaisantes en retour.' },
-      { name: 'Persévérance', meaning: 'N\'abandonnez pas maintenant : votre détermination est sur le point de porter ses fruits. Continuez avec constance et discipline, la victoire est plus proche que vous ne le pensez.' },
-      { name: 'Simplicité', meaning: 'La solution est souvent plus simple que ce que l\'on imagine. Allez à l\'essentiel, éliminez le superflu et vous trouverez des réponses claires et efficaces.' },
-      { name: 'Légèreté', meaning: 'Adoptez une attitude légère aujourd\'hui : riez, jouez, délestez-vous des poids inutiles. Cette légèreté vous ouvrira au plaisir et à la créativité.' },
-      { name: 'Ancrage', meaning: 'Revenez à vos racines pour trouver stabilité et force. Les pratiques simples (respiration, marche, routines) vous aideront à vous recentrer et à avancer plus sereinement.' },
-      { name: 'Mystère', meaning: 'Acceptez ce que vous ne pouvez pas encore comprendre. Le mystère a sa beauté : en laissant de l\'espace à l\'inconnu, vous permettez aux révélations de se déployer à leur rythme.' },
-      { name: 'Célébration', meaning: 'C\'est le moment de célébrer vos succès, même les plus discrets. Reconnaître vos accomplissements nourrit la confiance et attire davantage de raisons de se réjouir.' },
-      { name: 'Guidance', meaning: 'Une aide ou un signe inattendu va se présenter. Restez attentif aux synchronicités et aux conseils discrets : ils vous orienteront vers une voie bénéfique.' },
-      { name: 'Purification', meaning: 'Nettoyez votre espace et votre esprit : désencombrez, respirez, recentrez-vous. Faire place au nouveau crée l\'espace nécessaire aux changements positifs.' },
-      { name: 'Vision', meaning: 'Votre vision du futur se clarifie aujourd\'hui. Identifiez la direction qui vous attire et avancez avec confiance vers cet horizon nouvellement révélé.' },
+// Variations pour chaque carte (tirage en croix)
+export const loveOracleVariations: Record<string, CardVariations> = {
+  'lerendezvous': {
+    pour: [
+      "Une rencontre prometteuse se profile à l'horizon. Restez ouvert{genderSuffix} aux nouvelles opportunités.",
+      "Le destin vous offre une occasion de rapprochement. Saisissez-la avec confiance.",
+      "Une connexion inattendue pourrait transformer votre vie amoureuse. Faites preuve d'audace."
+    ],
+    contre: [
+      "Attention à ne pas laisser passer une opportunité par peur ou hésitation.",
+      "Un rendez-vous manqué pourrait créer des regrets. Soyez présent{genderSuffix} et attentif{genderSuffix}.",
+      "La timidité ou le manque de confiance pourrait vous empêcher de saisir cette chance."
+    ],
+    synthese: [
+      "L'amour frappe à votre porte. Osez ouvrir votre cœur et accueillir cette nouvelle énergie.",
+      "Le moment est venu d'agir. Une belle rencontre vous attend si vous vous montrez disponible.",
+      "Cette période est propice aux nouvelles connexions. Faites confiance au timing de l'univers."
     ]
   },
-  horoscope: {
-    title: 'Horoscope du Jour',
-    description: 'Découvrez ce que les astres vous réservent aujourd\'hui selon votre signe',
-    cards: [] // L'horoscope n'utilise pas de cartes
+
+  'lemessage': {
+    pour: [
+      "Une communication importante est sur le point de clarifier la situation. Écoutez attentivement.",
+      "Les mots justes seront trouvés pour exprimer vos sentiments profonds.",
+      "Un échange sincère peut transformer votre relation de manière positive."
+    ],
+    contre: [
+      "Attention aux malentendus ou aux non-dits qui pourraient créer de la confusion.",
+      "Un silence prolongé risque d'installer le doute. Il est temps de communiquer.",
+      "Les messages ambigus ou contradictoires peuvent créer de la distance émotionnelle."
+    ],
+    synthese: [
+      "La clé réside dans une communication claire et honnête. Exprimez ce que vous ressentez vraiment.",
+      "Les mots ont un pouvoir : utilisez-les avec sagesse pour construire plutôt que détruire.",
+      "Un dialogue ouvert peut résoudre bien des tensions. Ne laissez pas le silence s'installer."
+    ]
   },
-  tarot: {
-    title: 'Tarot de Marseille',
-    description: '"Les 22 arcanes majeurs dévoilent les mystères de votre destinée"',
+
+  'ledesir': {
+    pour: [
+      "La passion et l'attirance sont au rendez-vous. Laissez-vous porter par cette énergie ardente.",
+      "Votre magnétisme attire l'attention. Profitez de ce moment d'intense connexion.",
+      "Le désir mutuel crée une alchimie puissante. Savourez cette intensité émotionnelle."
+    ],
+    contre: [
+      "Attention à ne pas confondre désir passager et amour durable. Prenez du recul.",
+      "L'intensité physique ne doit pas masquer un manque de profondeur émotionnelle.",
+      "Le désir peut aveugler. Assurez-vous que vos intentions et celles de l'autre sont alignées."
+    ],
+    synthese: [
+      "Le désir est un moteur, mais l'amour vrai demande plus. Cherchez l'équilibre entre passion et connexion.",
+      "Cette attirance intense peut être le début de quelque chose de profond, à condition de ne pas brûler les étapes.",
+      "Profitez de ce feu, mais n'oubliez pas de nourrir également la complicité et la tendresse."
+    ]
+  },
+
+  'lecoeurouvert': {
+    pour: [
+      "Votre vulnérabilité devient votre force. En ouvrant votre cœur, vous invitez l'amour authentique.",
+      "La sincérité de vos émotions touche l'autre profondément. Continuez à être vous-même.",
+      "Cette ouverture émotionnelle crée une connexion rare et précieuse. Chérissez-la."
+    ],
+    contre: [
+      "Attention à ne pas vous exposer trop vite à quelqu'un qui n'est pas prêt{genderSuffix} à recevoir.",
+      "Votre sensibilité peut être blessée si vous ne posez pas de limites saines.",
+      "Ouvrir son cœur ne signifie pas perdre son discernement. Protégez votre énergie."
+    ],
+    synthese: [
+      "L'authenticité attire l'authenticité. En étant vrai{genderSuffix}, vous attirez des connexions sincères.",
+      "Un cœur ouvert est un cœur courageux. Cette vulnérabilité est le chemin vers l'amour véritable.",
+      "Partagez vos émotions avec sagesse, en choisissant des personnes dignes de votre confiance."
+    ]
+  },
+
+  'lecoeurferme': {
+    pour: [
+      "Cette protection vous permet de prendre le temps nécessaire pour guérir et vous reconstruire.",
+      "Votre prudence actuelle vous évite de vous engager dans une situation qui n'est pas faite pour vous.",
+      "Ce temps de retrait est une période de réflexion salutaire avant de vous ouvrir à nouveau."
+    ],
+    contre: [
+      "Un cœur trop fermé risque de manquer des opportunités d'amour sincère par peur du passé.",
+      "Les blessures anciennes vous empêchent d'avancer. Il est temps de libérer ces blocages.",
+      "En vous protégeant à l'excès, vous vous isolez et empêchez de belles connexions de se créer."
+    ],
+    synthese: [
+      "Il est sain de se protéger, mais ne laissez pas la peur vous priver d'aimer à nouveau.",
+      "Trouvez l'équilibre entre prudence et ouverture. Votre cœur mérite de se rouvrir en douceur.",
+      "Cette phase de protection touche à sa fin. Préparez-vous à accueillir l'amour avec plus de sagesse."
+    ]
+  },
+
+  'lechoix': {
+    pour: [
+      "Plusieurs chemins s'offrent à vous. Écoutez votre intuition pour faire le bon choix.",
+      "Cette période d'hésitation vous permet de clarifier ce que vous voulez vraiment.",
+      "Chaque option a son potentiel. Prenez le temps d'écouter votre cœur avant de décider."
+    ],
+    contre: [
+      "L'indécision prolongée risque de créer de la confusion et de la frustration pour tous.",
+      "En voulant tout avoir, vous risquez de tout perdre. Il est temps de faire un choix.",
+      "Jouer sur deux tableaux mène rarement à l'épanouissement. La clarté est nécessaire."
+    ],
+    synthese: [
+      "Votre cœur connaît la réponse. Cessez de sur-analyser et faites confiance à votre ressenti.",
+      "Un choix conscient vaut mieux que l'indécision. Prenez votre décision et assumez-la pleinement.",
+      "Chaque chemin a ses leçons. Choisissez celui qui résonne le plus avec vos valeurs profondes."
+    ]
+  },
+
+  // Ajoutez toutes les autres cartes ici...
+  // (Je vous ai montré le pattern, continuez avec les 16 autres cartes)
+
+  'leretour': {
+    pour: [
+      "Une personne du passé revient avec des intentions nouvelles et plus matures.",
+      "Ce retour offre une seconde chance de construire quelque chose de plus solide.",
+      "Les leçons du passé ont permis une évolution. Cette reconnexion a du potentiel."
+    ],
+    contre: [
+      "Attention à ne pas répéter les mêmes schémas qui ont mené à la séparation.",
+      "La nostalgie peut embellir le passé. Assurez-vous que ce retour est vraiment souhaitable.",
+      "Un retour en arrière peut empêcher d'avancer vers quelqu'un de plus adapté{genderSuffix}."
+    ],
+    synthese: [
+      "Si cette personne revient, posez-vous les bonnes questions : qu'est-ce qui a changé ?",
+      "Le passé peut éclairer l'avenir, mais ne doit pas le dicter. Choisissez en conscience.",
+      "Un retour n'est bénéfique que si les deux ont évolué. Sinon, c'est un cycle qui se répète."
+    ]
+  },
+
+  // ... (continuez pour toutes les 22 cartes)
+};
+
+export const oracleData: Record<string, OracleData> = {
+ 
+  loveOracle: {
+    title: 'Oracle de l\'Amour',
+    description: '22 cartes modernes pour éclairer votre vie amoureuse',
     cards: [
-      { name: 'Le Fou', meaning: 'Nouveaux départs, spontanéité, liberté' },
-      { name: 'Le Bateleur', meaning: 'Créativité, communication, nouveau projet' },
-      { name: 'La Papesse', meaning: 'Intuition, mystère, connaissance cachée' },
-      { name: 'L\'Imperatrice', meaning: 'Fertilité, abondance, créativité féminine' },
-      { name: 'L\'Empereur', meaning: 'Autorité, structure, leadership' },
-      { name: 'Le Pape', meaning: 'Sagesse traditionnelle, guidance spirituelle' },
-      { name: 'L\'Amoureux', meaning: 'Choix, relations, harmonie' },
-      { name: 'Le Chariot', meaning: 'Victoire, maîtrise de soi, progression' },
-      { name: 'La Justice', meaning: 'Équilibre, vérité, conséquences' },
-      { name: 'L\'Hermite', meaning: 'Introspection, sagesse intérieure, guidance' },
-      { name: 'La Roue de Fortune', meaning: 'Changement, cycles, destinée' },
-      { name: 'La Force', meaning: 'Courage, patience, maîtrise intérieure' },
-      { name: 'Le Pendu', meaning: 'Sacrifice, nouvelle perspective, lâcher-prise' },
-      { name: 'L\'Arcane sans nom', meaning: 'Transformation profonde, fin de cycle' },
-      { name: 'Temperance', meaning: 'Modération, guérison, équilibre' },
-      { name: 'Le Diable', meaning: 'Dépendances, illusions, matérialisme' },
-      { name: 'La Maison Dieu', meaning: 'Révélation soudaine, changement radical' },
-      { name: 'L\'Etoile', meaning: 'Espoir, inspiration, guidance divine' },
-      { name: 'La Lune', meaning: 'Illusions, subconscient, intuition' },
-      { name: 'Le Soleil', meaning: 'Joie, succès, vitalité' },
-      { name: 'Le Jugement', meaning: 'Éveil spirituel, renaissance, pardon' },
-      { name: 'Le Monde', meaning: 'Accomplissement, réussite, cycle complet' }
+      { name: 'Le Rendez-Vous', meaning: 'Une rencontre, une occasion' },
+      { name: 'Le Message', meaning: 'Communication, réponse, silence' },
+      { name: 'Le Desir', meaning: 'Attirance, passion, tentation' },
+      { name: 'Le Coeur Ouvert', meaning: 'Vulnérabilité, sincérité' },
+      { name: 'Le Coeur Ferme', meaning: 'Peurs, blocages, protection' },
+      { name: 'Le Choix', meaning: 'Indécision, deux personnes, deux chemins' },
+      { name: 'Le Retour', meaning: 'Quelqu\'un du passé, souvenir, nostalgie' },
+      { name: 'La Distance', meaning: 'Froid, éloignement, séparation' },
+      { name: 'L\'Union', meaning: 'Engagement, construction, couple' },
+      { name: 'Le Masque', meaning: 'Secrets, intentions cachées' },
+      { name: 'La Passion', meaning: 'Intensité, feu, impulsivité' },
+      { name: 'La Chance', meaning: 'Opportunité amoureuse' },
+      { name: 'Le Destin', meaning: 'Inévitable, synchronicité' },
+      { name: 'Le Silence', meaning: 'Pas de nouvelles, retrait' },
+      { name: 'La Verite', meaning: 'Révélation, clarification' },
+      { name: 'Le Cadeau', meaning: 'Attention, geste, surprise' },
+      { name: 'La Blessure', meaning: 'Déception, peur, guérison' },
+      { name: 'Le Nouveau Depart', meaning: 'Renouveau, changement, nouveau cycle' },
+      { name: 'La Fusion', meaning: 'Connexion profonde, âme sœur' },
+      { name: 'La Tentation', meaning: 'Quelqu\'un ou quelque chose qui perturbe' },
+      { name: 'La Protection', meaning: 'Guidance, intuition, prudence' },
+      { name: 'La Liberation', meaning: 'Lâcher prise, fin, délivrance' }
     ]
   },
-  angels: {
-    title: 'Oracle des Anges',
-    description: 'Connectez-vous avec vos guides angéliques pour recevoir leurs messages d\'amour',
+
+  // ✅ NOUVEAU : Oracle Lunaire
+  lunar: {
+    title: 'Oracle Lunaire',
+    description: 'Les phases de la Lune révèlent votre chemin intérieur',
     cards: [
-      { name: 'Archange Michel', meaning: 'Protection divine, courage et force' },
-      { name: 'Archange Gabriel', meaning: 'Messages divins, créativité et communication' },
-      { name: 'Archange Raphael', meaning: 'Guérison physique et émotionnelle' },
-      { name: 'Archange Uriel', meaning: 'Sagesse divine et illumination' },
-      { name: 'Ange Gardien', meaning: 'Protection personnelle et guidance' },
-      { name: 'Ange de l\'Amour', meaning: 'Relations harmonieuses et amour inconditionnel' },
-      { name: 'Ange de la Paix', meaning: 'Sérénité intérieure et calme' },
-      { name: 'Ange de la Prosperite', meaning: 'Abondance et réussite matérielle' },
-      { name: 'Ange de la Guerison', meaning: 'Rétablissement et bien-être' },
-      { name: 'Ange de la Sagesse', meaning: 'Connaissance spirituelle et discernement' },
-      { name: 'Ange de la Joie', meaning: 'Bonheur et optimisme' },
-      { name: 'Ange de la Foi', meaning: 'Confiance en l\'univers et espoir' },
-      { name: 'Ange de la Creativite', meaning: 'Inspiration artistique et innovation' },
-      { name: 'Ange de la Purification', meaning: 'Nettoyage énergétique et renouveau' },
-      { name: 'Ange de la Compassion', meaning: 'Empathie et bienveillance' },
-      { name: 'Ange de la Transformation', meaning: 'Changements positifs et évolution' },
-      { name: 'Ange de l\'Abondance', meaning: 'Richesse spirituelle et matérielle' },
-      { name: 'Ange de la Liberation', meaning: 'Liberté des peurs et limitations' },
-      { name: 'Ange de la Gratitude', meaning: 'Reconnaissance et appréciation' },
-      { name: 'Ange de la Manifestation', meaning: 'Réalisation des rêves et projets' },
-      { name: 'Ange de l\'Harmonie', meaning: 'Équilibre dans tous les aspects de la vie' },
-      { name: 'Ange de la Nouvelle Vie', meaning: 'Nouveaux commencements et renaissance' }
+      // 🌑 NOUVELLE LUNE
+      { name: 'intention', meaning: 'Nouveaux départs et intentions', phase: 'newMoon' },
+      { name: 'intuition', meaning: 'Écoute de ta voix intérieure', phase: 'newMoon' },
+      { name: 'renouveau', meaning: 'Page blanche et nouvelles possibilités', phase: 'newMoon' },
+
+      // 🌓 PREMIER QUARTIER
+      { name: 'motivation', meaning: 'Élan et énergie pour avancer', phase: 'firstQuarter' },
+      { name: 'courage', meaning: 'Force intérieure face aux défis', phase: 'firstQuarter' },
+      { name: 'epanouissement', meaning: 'Croissance et réalisation personnelle', phase: 'firstQuarter' },
+
+      // 🌕 PLEINE LUNE
+      { name: 'clarte', meaning: 'Compréhension et vision limpide', phase: 'fullMoon' },
+      { name: 'serenite', meaning: 'Paix intérieure et harmonie', phase: 'fullMoon' },
+      { name: 'bilan', meaning: 'Aboutissement et prise de conscience', phase: 'fullMoon' },
+
+      // 🌗 DERNIER QUARTIER
+      { name: 'detachement', meaning: 'Lâcher prise sur ce qui ne sert plus', phase: 'lastQuarter' },
+      { name: 'prisederecul', meaning: 'Introspection et observation', phase: 'lastQuarter' },
+      { name: 'retourasoi', meaning: 'Reconnexion à ton essence', phase: 'lastQuarter' }
     ]
   },
+
   runes: {
     title: 'Runes Nordiques',
     description: 'L\'ancienne sagesse des Vikings vous révèle votre chemin de guerre et de victoire',

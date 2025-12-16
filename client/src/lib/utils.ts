@@ -174,35 +174,6 @@ export const selectRandomCardsWithoutRepeat = (
 };
 
 /**
- * Génère un tirage d'horoscope varié
- */
-export const generateHoroscopePrediction = (zodiacSign: string) => {
-  const predictions = [
-    'Énergique', 'Confiant', 'Déterminé', 'Passionné', 'Optimiste', 
-    'Dynamique', 'Paisible', 'Sensuel', 'Stable', 'Généreux',
-    'Patient', 'Harmonieux', 'Curieux', 'Communicatif', 'Vif',
-    'Sociable', 'Adaptable', 'Créatif', 'Émotionnel', 'Protecteur'
-  ];
-
-  const colors = [
-    'Rouge', 'Orange vif', 'Bordeaux', 'Corail', 'Vert émeraude',
-    'Rose tendre', 'Beige doré', 'Bleu ciel', 'Argent', 'Lavande'
-  ];
-
-  const compatibilities = [
-    'Lion, Sagittaire', 'Gémeaux, Verseau', 'Balance, Lion',
-    'Verseau, Gémeaux', 'Vierge, Capricorne', 'Cancer, Poissons'
-  ];
-
-  return {
-    mood: predictions[getSecureRandomInt(0, predictions.length - 1)],
-    luckyNumber: getSecureRandomInt(1, 99),
-    luckyColor: colors[getSecureRandomInt(0, colors.length - 1)],
-    compatibility: compatibilities[getSecureRandomInt(0, compatibilities.length - 1)]
-  };
-};
-
-/**
  * Utilitaire pour déboguer l'aléatoire
  */
 export const testRandomDistribution = (samples: number = 10000): void => {

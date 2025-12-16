@@ -85,15 +85,13 @@ const GrimoireModal = ({
 
   const getOracleBadge = (type: string) => {
     const badges = {
-      tarot: { emoji: '🔮', label: t("grimoire.oracle.tarot"), color: 'bg-purple-600' },
+      loveOracle: { emoji: '💘', label: t("grimoire.oracle.loveOracle"), color: 'bg-pink-600' },
       angels: { emoji: '👼', label: t("grimoire.oracle.angels"), color: 'bg-blue-500' },
       runes: { emoji: 'ᚱ', label: t("grimoire.oracle.runes"), color: 'bg-amber-600' },
-      oracle: { emoji: '☀️', label: t("grimoire.oracle.daily"), color: 'bg-yellow-500' },
       crystalBall: { emoji: '🔮', label: t("grimoire.oracle.crystalBall"), color: 'bg-indigo-600' },
-      horoscope: { emoji: '♈', label: t("grimoire.oracle.horoscope"), color: 'bg-pink-600' },
-      daily: { emoji: '☀️', label: t("grimoire.oracle.daily"), color: 'bg-yellow-500' },
+      horoscope: { emoji: '♈', label: t("grimoire.oracle.horoscope"), color: 'bg-purple-600' },
     };
-    return badges[type as keyof typeof badges] || badges.oracle;
+    return badges[type as keyof typeof badges] || { emoji: '🔮', label: type, color: 'bg-purple-600' };
   };
 
   const normalizeCardName = (cardName: string | undefined | null): string => {
@@ -104,28 +102,32 @@ const GrimoireModal = ({
 
     return cardName
       .trim()
-      .replace(/[''\s-]/g, '')  // ✅ Supprime apostrophes, espaces ET tirets
+      .replace(/[''\s-]/g, '')
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
   };
 
-    const translateCardName = (cardName: string | undefined, readingType: string): string => {
-      if (!cardName || typeof cardName !== 'string') {
-        console.warn('⚠️ translateCardName - cardName invalide:', cardName);
-        return '';
-      }
+  const translateCardName = (cardName: string | undefined, readingType: string): string => {
+    if (!cardName || typeof cardName !== 'string') {
+      console.warn('⚠️ translateCardName - cardName invalide:', cardName);
+      return '';
+    }
 
-      let oracleKey = 'daily'; // ✅ Par défaut 'daily'
-      if (readingType === 'tarot') oracleKey = 'tarot';
-      else if (readingType === 'angels') oracleKey = 'angels';
-      else if (readingType === 'runes') oracleKey = 'runes';
-      else if (readingType === 'oracle') oracleKey = 'daily'; // ✅ oracle → daily
-      else if (readingType === 'daily') oracleKey = 'daily';
+    // ✅ Mapping correct des types d'oracles
+    const oracleKeyMap: Record<string, string> = {
+      'loveOracle': 'loveOracle',
+      'angels': 'angels',
+      'runes': 'runes',
+      'tarot': 'tarot',
+      'oracle': 'oracle',
+      'daily': 'daily'
+    };
 
+    const oracleKey = oracleKeyMap[readingType] || readingType;
     const normalizedName = normalizeCardName(cardName);
 
-      // ✅ Si normalisation échoue, retourne l'original
-      if (!normalizedName) return cardName;
+    // ✅ Si normalisation échoue, retourne l'original
+    if (!normalizedName) return cardName;
 
     console.log('🔍 Traduction carte:', {
       original: cardName,
@@ -137,8 +139,6 @@ const GrimoireModal = ({
     const possibleKeys = [
       `cards.${oracleKey}.${normalizedName}.name`,
       `cards.${oracleKey}.${normalizedName}`,
-      `${oracleKey}.cards.${normalizedName}.name`,
-      `${oracleKey}.cards.${normalizedName}`,
     ];
 
     for (const key of possibleKeys) {
@@ -308,7 +308,7 @@ const GrimoireModal = ({
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {reading.cards
-                          .filter(card => card && typeof card === 'string') // ✅ Filtre les valeurs invalides
+                          .filter(card => card && typeof card === 'string')
                           .map((card, idx) => {
                             const translatedCard = translateCardName(card, reading.type);
                             return (

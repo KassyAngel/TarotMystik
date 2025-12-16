@@ -1,23 +1,18 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.cartomystik.app',
-  appName: 'CartoMystik',
-  webDir: 'dist/public',
+  appId: 'com.tarotmystik.app',
+  appName: 'TarotMystik',
+  webDir: 'dist',
   server: {
-    cleartext: false,
-    allowNavigation: [
-      'cartomystikappk.onrender.com',
-      '*.stripe.com',  // ✅ Autoriser Stripe
-      'checkout.stripe.com'  // ✅ Autoriser Stripe Checkout
-    ]
-  },
-  android: {
-    allowMixedContent: false
+    androidScheme: 'https',
+    cleartext: true
   },
   plugins: {
-    CapacitorHttp: {
-      enabled: true
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: "#1a1a2e",
+      showSpinner: false
     }
   }
 };

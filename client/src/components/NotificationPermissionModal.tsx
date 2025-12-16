@@ -58,7 +58,7 @@ export async function scheduleNotificationWithLanguage(t: (key: string) => strin
           smallIcon: 'ic_notification',
           largeIcon: 'ic_launcher',
           largeBody: randomVariant.body,
-          summaryText: 'CartoMystik',
+          summaryText: 'TarotMystik',
           actionTypeId: 'OPEN_APP',
           extra: {
             action: 'daily_reading'

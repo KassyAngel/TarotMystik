@@ -5,30 +5,35 @@ import NamePage from './NamePage';
 import DatePage from './DatePage';
 import GenderPage from './GenderPage';
 import OracleSelection from './OracleSelection';
+import GameModeSelection from './GameModeSelection';
 import CardGame from './CardGame';
+import CrossSpreadGame from '@/components/CrossSpreadGame';
 import RevelationPage from './RevelationPage';
 import InterpretationPage from './InterpretationPage';
-import HoroscopePage from './HoroscopePage';
-import BonusRollPage from './BonusRollPage';
-import CrystalBallPage from './CrystalBallPage';
+import CrossSpreadInterpretation from './CrossSpreadInterpretation';
+import WheelPage from './WheelPage';
+import LoveCalculatorPage from './LoveCalculatorPage';
+import PendulumPage from './PendulumPage';
+import LunarPhasePage from './LunarPhasePage';
+import LunarCardGame from './LunarCardGame';
+import LunarInterpretation from './LunarInterpretation';
 import ResponsiveTest from '@/components/ResponsiveTest';
-import { ZodiacSign } from '@shared/schema';
+import { ZodiacSign, OracleCard } from '@shared/schema';
 import { oracleData } from '@/data/oracleData';
 import { useUser } from '@/contexts/UserContext';
 
 type AppStep =
-  | 'landing'
-  | 'name'
-  | 'date'
-  | 'gender'
-  | 'oracle'
-  | 'game'
-  | 'revelation'
-  | 'interpretation'
-  | 'horoscope'
-  | 'crystalBall'
-  | 'bonusRoll'
+  | 'landing' | 'name' | 'date' | 'gender'
+  | 'oracle' | 'modeSelection' | 'game' | 'revelation' | 'interpretation'
+  | 'pendulum'
+  | 'wheel'
+  | 'loveCalculator'
+  | 'lunarPhase' | 'lunarGame' | 'lunarInterpretation'
   | 'responsiveTest';
+
+type CardBasedOracleType = 'loveOracle' | 'lunar' | 'runes';
+type OracleType = CardBasedOracleType | 'pendulum' | 'wheel' | 'loveCalculator';
+type GameMode = 'classic' | 'cross';
 
 interface OracleMystiqueAppProps {
   onSaveReading?: (reading: any) => Promise<void>;
@@ -45,8 +50,12 @@ export default function OracleMystiqueApp({
 }: OracleMystiqueAppProps) {
   const [currentStep, setCurrentStep] = useState<AppStep>('landing');
   const { user, setUser, clearUser } = useUser();
-  const [selectedOracle, setSelectedOracle] = useState('');
+  const [selectedOracle, setSelectedOracle] = useState<OracleType | ''>('');
+  const [selectedGameMode, setSelectedGameMode] = useState<GameMode>('classic');
   const [selectedCardIndices, setSelectedCardIndices] = useState<number[]>([]);
+
+  const [selectedLunarPhase, setSelectedLunarPhase] = useState<string>('');
+  const [selectedLunarCard, setSelectedLunarCard] = useState<OracleCard | null>(null);
 
   useEffect(() => {
     if (onStepChange) {
@@ -82,27 +91,43 @@ export default function OracleMystiqueApp({
     setCurrentStep('oracle');
   };
 
-  // ✅ CORRIGÉ : N'appeler la pub QUE pour les tirages comptabilisés
   const handleOracleSelect = async (oracleType: string) => {
     console.log(`🎯 Oracle sélectionné: "${oracleType}"`);
 
-    // ⚡ Vérifier pub interstitielle UNIQUEMENT pour les tirages comptabilisés
-    // ❌ PAS pour horoscope et bonusRoll (ont leur propre système)
-    const typesWithInterstitialAd = ['tarot', 'oracle', 'angels', 'runes', 'crystalBall', 'crystal'];
+    const typesWithInterstitialAd = ['loveOracle', 'lunar', 'runes', 'pendulum'];
 
     if (typesWithInterstitialAd.includes(oracleType) && shouldShowAdBeforeReading) {
-      console.log('🎬 Vérification pub avant tirage...');
       await shouldShowAdBeforeReading(oracleType);
-    } else {
-      console.log(`⏭️ "${oracleType}" exclu de la pub interstitielle (système propre)`);
     }
 
-    // ✅ PUIS lancer le tirage
-    setSelectedOracle(oracleType);
-    if (oracleType === 'horoscope') setCurrentStep('horoscope');
-    else if (oracleType === 'crystalBall') setCurrentStep('crystalBall');
-    else if (oracleType === 'bonusRoll') setCurrentStep('bonusRoll');
+    setSelectedOracle(oracleType as OracleType);
+
+    if (oracleType === 'pendulum') setCurrentStep('pendulum');
+    else if (oracleType === 'wheel') setCurrentStep('wheel');
+    else if (oracleType === 'loveCalculator') setCurrentStep('loveCalculator');
+    else if (oracleType === 'lunar') setCurrentStep('lunarPhase');
+    else if (isCardBasedOracle(oracleType as OracleType)) setCurrentStep('modeSelection');
     else setCurrentStep('game');
+  };
+
+  const handleLunarPhaseSelect = (phase: string) => {
+    setSelectedLunarPhase(phase);
+    setCurrentStep('lunarGame');
+  };
+
+  const handleLunarCardSelect = (data: { card: OracleCard; phase: string }) => {
+    setSelectedLunarCard(data.card);
+    setCurrentStep('lunarInterpretation');
+  };
+
+  const handleBackToLunarPhaseFromInterpretation = () => {
+    setSelectedLunarCard(null);
+    setCurrentStep('lunarPhase');
+  };
+
+  const handleGameModeSelect = (mode: GameMode) => {
+    setSelectedGameMode(mode);
+    setCurrentStep('game');
   };
 
   const handleCardsSelected = (cardIndices: number[]) => {
@@ -116,7 +141,9 @@ export default function OracleMystiqueApp({
   const handleBackToDate = () => setCurrentStep('date');
   const handleBackToGender = () => setCurrentStep('gender');
   const handleBackToOracle = () => setCurrentStep('oracle');
-  const handleGoToCrystalBall = () => setCurrentStep('crystalBall');
+  const handleBackToModeSelection = () => setCurrentStep('modeSelection');
+  const handleGoToPendulum = () => setCurrentStep('pendulum');
+  const handleBackToLunarPhase = () => setCurrentStep('lunarPhase');
 
   const handleBackToHome = () => {
     clearUser();
@@ -124,9 +151,17 @@ export default function OracleMystiqueApp({
     setCurrentStep('landing');
     setSelectedOracle('');
     setSelectedCardIndices([]);
+    setSelectedLunarPhase('');
+    setSelectedLunarCard(null);
   };
 
   const oracle = selectedOracle ? oracleData[selectedOracle] : null;
+
+  const cardBasedOracles: CardBasedOracleType[] = ['loveOracle', 'lunar', 'runes'];
+
+  const isCardBasedOracle = (type: OracleType | ''): type is CardBasedOracleType => {
+    return cardBasedOracles.includes(type as CardBasedOracleType);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -154,64 +189,129 @@ export default function OracleMystiqueApp({
           />
         )}
 
-        {currentStep === 'game' && oracle && (
-          <CardGame
+        {currentStep === 'lunarPhase' && (
+          <LunarPhasePage
             user={user}
-            oracle={oracle}
-            oracleType={selectedOracle as any}
-            onCardsSelected={handleCardsSelected}
-            onSaveReading={onSaveReading}
+            onPhaseSelect={handleLunarPhaseSelect}
             onBack={handleBackToOracle}
           />
         )}
 
-        {currentStep === 'revelation' && oracle && (
+        {currentStep === 'lunarGame' && (
+          <LunarCardGame
+            user={user}
+            selectedPhase={selectedLunarPhase}
+            onCardSelected={handleLunarCardSelect}
+            onBack={handleBackToLunarPhase}
+            onSaveReading={onSaveReading}
+          />
+        )}
+
+        {currentStep === 'lunarInterpretation' && selectedLunarCard && (
+          <LunarInterpretation
+            user={user}
+            selectedCard={selectedLunarCard}
+            selectedPhase={selectedLunarPhase}
+            onBack={handleBackToLunarPhaseFromInterpretation}
+            onHome={handleBackToOracle}
+          />
+        )}
+
+        {currentStep === 'modeSelection' && oracle && isCardBasedOracle(selectedOracle) && (
+          <GameModeSelection
+            user={user}
+            oracleTitle={oracle.title}
+            oracleDescription={oracle.description}
+            onModeSelect={handleGameModeSelect}
+            onBack={handleBackToOracle}
+          />
+        )}
+
+        {currentStep === 'game' && oracle && isCardBasedOracle(selectedOracle) && (
+          <>
+            {selectedGameMode === 'classic' ? (
+              <CardGame
+                user={user}
+                oracle={oracle}
+                oracleType={selectedOracle}
+                onCardsSelected={handleCardsSelected}
+                onSaveReading={onSaveReading}
+                onBack={handleBackToModeSelection}
+              />
+            ) : (
+              <CrossSpreadGame
+                user={user}
+                oracle={oracle}
+                oracleType={selectedOracle}
+                onCardsSelected={handleCardsSelected}
+                onSaveReading={onSaveReading}
+                onBack={handleBackToModeSelection}
+              />
+            )}
+          </>
+        )}
+
+        {currentStep === 'revelation' && oracle && isCardBasedOracle(selectedOracle) && (
           <RevelationPage
             user={user}
             oracle={oracle}
-            oracleType={selectedOracle as any}
+            oracleType={selectedOracle}
             selectedCardIndices={selectedCardIndices}
             onBack={handleBackToOracle}
             onRevealInterpretation={handleRevealInterpretation}
           />
         )}
 
-        {currentStep === 'interpretation' && oracle && (
-          <InterpretationPage
+        {currentStep === 'interpretation' && oracle && isCardBasedOracle(selectedOracle) && (
+          <>
+            {selectedCardIndices.length === 5 ? (
+              <CrossSpreadInterpretation
+                user={user}
+                oracle={oracle}
+                oracleType={selectedOracle}
+                selectedCardIndices={selectedCardIndices}
+                selectedCards={selectedCardIndices.map(index => oracle.cards[index])}
+                onHome={handleBackToOracle}
+                onBackToMode={handleBackToModeSelection}
+              />
+            ) : (
+              <InterpretationPage
+                user={user}
+                oracle={oracle}
+                oracleType={selectedOracle}
+                selectedCardIndices={selectedCardIndices}
+                selectedCards={selectedCardIndices.map(index => oracle.cards[index])}
+                onBack={handleBackToCards}
+                onHome={handleBackToOracle}
+                onBackToMode={handleBackToModeSelection}
+                onPendulum={handleGoToPendulum}
+                onSaveReading={onSaveReading}
+              />
+            )}
+          </>
+        )}
+
+        {currentStep === 'pendulum' && (
+          <PendulumPage
             user={user}
-            oracle={oracle}
-            oracleType={selectedOracle as any}
-            selectedCardIndices={selectedCardIndices}
-            selectedCards={selectedCardIndices.map(index => oracle.cards[index])}
-            onBack={handleBackToCards}
-            onHome={handleBackToOracle}
-            onCrystalBall={handleGoToCrystalBall}
+            onBack={handleBackToOracle}
             onSaveReading={onSaveReading}
           />
         )}
 
-        {currentStep === 'horoscope' && (
-          <HoroscopePage
+        {currentStep === 'wheel' && (
+          <WheelPage
             user={user}
             onBack={handleBackToOracle}
-            onHome={handleBackToHome}
-            onSaveReading={onSaveReading}
             isPremium={isPremium}
           />
         )}
 
-        {currentStep === 'crystalBall' && (
-          <CrystalBallPage
+        {currentStep === 'loveCalculator' && (
+          <LoveCalculatorPage
             user={user}
             onBack={handleBackToOracle}
             onSaveReading={onSaveReading}
-          />
-        )}
-
-        {currentStep === 'bonusRoll' && (
-          <BonusRollPage
-            user={user}
-            onBack={handleBackToOracle}
             isPremium={isPremium}
           />
         )}

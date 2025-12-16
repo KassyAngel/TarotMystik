@@ -1,75 +1,116 @@
+// ============================================
+// client/src/components/TarotCard.tsx - VERSION FINALE CORRIGÉE
+// ============================================
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { OracleType } from '@shared/schema';
 
-  interface TarotCardProps {
-    number: number;
-    isSelected?: boolean;
-    isSelectable?: boolean;
-    onClick?: () => void;
-    className?: string;
-    cardName?: string;
-    oracleType?: 'tarot' | 'angels' | 'runes' | 'oracle' | 'daily'; // ✅ Ajoute 'daily'
-  }
+interface TarotCardProps {
+  number: number;
+  isSelected?: boolean;
+  isSelectable?: boolean;
+  onClick?: () => void;
+  className?: string;
+  cardName?: string;
+  oracleType?: 'loveOracle' | 'lunar' | 'runes' | 'oracle';
+}
 
-  export default function TarotCard({ 
-    number, 
-    isSelected, 
-    isSelectable = true,
-    onClick, 
-    className,
-    cardName,
-    oracleType = 'tarot'
-  }: TarotCardProps) {
-    const [isHovered, setIsHovered] = useState(false);
-    const { t, language } = useLanguage();
+export default function TarotCard({ 
+  number, 
+  isSelected, 
+  isSelectable = true,
+  onClick, 
+  className,
+  cardName,
+  oracleType = 'loveOracle'
+}: TarotCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const { t } = useLanguage();
 
-    const handleClick = () => {
-      if (isSelectable) {
-        console.log(`Card ${number} selected`);
-        onClick?.();
-      }
-    };
+  const handleClick = () => {
+    if (isSelectable) {
+      onClick?.();
+    }
+  };
 
-    const isBack = number === 0;
+  const isBack = number === 0;
 
-    const normalizeCardName = (name: string): string => {
-      return name
-        .trim()
-        .replace(/[''\s-]/g, '')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
-    };
+  const normalizeForImage = (name: string): string => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[''\s-]/g, '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  };
 
-    const getTranslatedCardName = (): string => {
-      if (!cardName) return '';
+  const normalizeForTranslation = (name: string): string => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[''\s-]/g, '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  };
 
-      const normalized = normalizeCardName(cardName);
-      const translationKey = `cards.${oracleType}.${normalized}.name`;
+  const getTranslatedCardName = (): string => {
+    if (!cardName) return '';
+    const normalized = normalizeForTranslation(cardName);
+    const translationKey = `cards.${oracleType}.${normalized}.name`;
+    const translated = t(translationKey);
 
-      console.log(`🔍 TarotCard [${language}]: "${cardName}" → key: "${translationKey}"`);
+    return translated !== translationKey ? translated : cardName;
+  };
 
-      const translated = t(translationKey);
-      if (translated !== translationKey) {
-        console.log(`   ✅ Trouvé: "${translated}"`);
-        return translated;
-      }
+  // ✅ Utiliser le bon dossier selon l'oracle
+  const getOracleFolderName = (): string => {
+    switch(oracleType) {
+      case 'lunar':
+        return 'luneOracle';
+      case 'loveOracle':
+        return 'loveOracle';
+      case 'runes':
+        return 'runes';
+      default:
+        return 'loveOracle';
+    }
+  };
 
-      console.log(`   ⚠️ Pas de traduction`);
-      return cardName;
-    };
+  const getCardImagePath = (): string => {
+    if (!cardName) return '';
+    const normalized = normalizeForImage(cardName);
+    const folder = getOracleFolderName();
+    const path = `/Image/${folder}/${normalized}.jpg`;
+
+    return path;
+  };
+
+  // ✅ CORRECTION : Fonction pour obtenir le dos de carte selon l'oracle
+  const getBackImagePath = (): string => {
+    switch(oracleType) {
+      case 'lunar':
+        return '/Image/luneOracle/card-verso-luna.jpg';
+      case 'loveOracle':
+        return '/Image/card-back.jpg'; // ← CORRECTION ICI : chemin direct pour Love Oracle
+      case 'runes':
+        return '/Image/runes/card-back.jpg';
+      case 'oracle':
+        return '/Image/card-back.jpg';
+      default:
+        return '/Image/card-back.jpg';
+    }
+  };
 
   return (
     <div
       className={cn(
-        'w-24 h-36 sm:w-28 sm:h-40 md:w-32 md:h-44 rounded-xl cursor-pointer min-h-[44px]',
-        'touch-manipulation flex items-center justify-center transition-all duration-300',
-        'relative overflow-hidden',
-        isSelectable && 'hover:scale-105',
-        isSelected && 'selected scale-105 ring-4 ring-[#ffd700] ring-offset-2 ring-offset-purple-900',
+        'w-24 h-36 sm:w-28 sm:h-40 md:w-32 md:h-44 rounded-2xl cursor-pointer min-h-[44px]',
+        'touch-manipulation flex flex-col items-center justify-center transition-all duration-500',
+        'relative overflow-visible',
+        isSelectable && 'hover:scale-105 hover:-translate-y-2',
+        isSelected && 'scale-105 -translate-y-2',
         !isSelectable && 'cursor-default opacity-50',
-        !isBack && 'mystical-card',
         className
       )}
       onClick={handleClick}
@@ -77,56 +118,90 @@ import { OracleType } from '@shared/schema';
       onMouseLeave={() => setIsHovered(false)}
       data-testid={`card-${number}`}
     >
-      {isBack ? (
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-violet-900">
-          <div className="absolute inset-0 opacity-40">
-            <div className="absolute top-[20%] left-[30%] w-16 h-16 bg-blue-500/30 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-[30%] right-[25%] w-20 h-20 bg-purple-500/20 rounded-full blur-3xl"></div>
+      {/* ==== CARTE (dos ou face) ==== */}
+      <div className="relative w-full h-full">
+        {isBack ? (
+          /* DOS DE CARTE */
+          <div className="absolute inset-0 rounded-2xl overflow-hidden">
+            <img 
+              src={getBackImagePath()}
+              alt="Dos de carte"
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ opacity: 1, filter: 'none' }}
+              onError={(e) => {
+                console.error('❌ Erreur chargement dos de carte:', getBackImagePath());
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+            <div className="absolute inset-2 rounded-xl border border-[#c9a87f]/30 pointer-events-none"></div>
           </div>
-
-          <div className="absolute inset-0">
-            <div className="absolute top-[15%] left-[20%] w-1 h-1 bg-yellow-200 rounded-full animate-pulse"></div>
-            <div className="absolute top-[40%] right-[15%] w-1 h-1 bg-white rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
-            <div className="absolute bottom-[25%] left-[15%] w-1 h-1 bg-yellow-100 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
-            <div className="absolute top-[60%] left-[70%] w-0.5 h-0.5 bg-white/80 rounded-full animate-pulse" style={{animationDelay: '1.5s'}}></div>
-            <div className="absolute top-[80%] right-[40%] w-0.5 h-0.5 bg-yellow-200/80 rounded-full animate-pulse" style={{animationDelay: '0.8s'}}></div>
-            <div className="absolute top-[30%] left-[50%] w-0.5 h-0.5 bg-white/60 rounded-full animate-pulse" style={{animationDelay: '1.2s'}}></div>
-          </div>
-
-          <div className="absolute inset-2 rounded-lg border-2 border-[#ffd700]/30"></div>
-
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative">
-              <div className="absolute inset-0 blur-xl bg-[#ffd700]/20 scale-150"></div>
-              <div className="relative text-4xl sm:text-5xl text-[#ffd700] drop-shadow-[0_0_10px_rgba(255,215,0,0.8)] font-serif">
-                ☽
-              </div>
+        ) : (
+          /* FACE RÉVÉLÉE */
+          cardName ? (
+            <div className="absolute inset-0 rounded-2xl overflow-hidden shadow-xl">
+              {!imageError ? (
+                <>
+                  {/* Image de la carte */}
+                  <img 
+                    src={getCardImagePath()}
+                    alt={getTranslatedCardName()}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ 
+                      opacity: 1, 
+                      filter: 'none',
+                      imageRendering: 'crisp-edges',
+                      WebkitBackfaceVisibility: 'hidden',
+                      backfaceVisibility: 'hidden'
+                    }}
+                    onError={() => {
+                      console.error('❌ Erreur chargement image carte:', getCardImagePath());
+                      setImageError(true);
+                    }}
+                  />
+                  {/* Bordure très subtile */}
+                  <div className="absolute inset-2 rounded-xl border border-[#c9a87f]/15 pointer-events-none"></div>
+                </>
+              ) : (
+                /* Fallback si l'image ne charge pas */
+                <div className="absolute inset-0 bg-gradient-to-br from-[#1a2d45] via-[#223549] to-[#152238] rounded-2xl p-3 flex items-center justify-center border-2 border-[#ff6692]/30">
+                  <div className="absolute inset-2 rounded-xl border border-[#c9a87f]/40"></div>
+                  <div className="absolute inset-0 bg-gradient-radial from-[#ff6692]/8 via-transparent to-transparent"></div>
+                  <div className="relative z-10 text-center px-2">
+                    <span className="text-[#e8d4b8] font-semibold text-xs sm:text-sm md:text-base leading-tight block drop-shadow-[0_2px_4px_rgba(255,102,146,0.3)]">
+                      {getTranslatedCardName()}
+                    </span>
+                    <div className="text-[#ff6692]/40 text-[10px] mt-1.5">♥</div>
+                  </div>
+                  <div className="absolute top-1.5 left-1.5 text-[#ff6692]/30 text-[8px]">♥</div>
+                  <div className="absolute top-1.5 right-1.5 text-[#ff6692]/30 text-[8px]">♥</div>
+                  <div className="absolute bottom-1.5 left-1.5 text-[#ff6692]/30 text-[8px]">♥</div>
+                  <div className="absolute bottom-1.5 right-1.5 text-[#ff6692]/30 text-[8px]">♥</div>
+                </div>
+              )}
             </div>
-          </div>
+          ) : number > 0 ? (
+            <span className="text-[#e8d4b8] font-bold">{number}</span>
+          ) : null
+        )}
 
-          <div className="absolute top-3 left-3 text-[#ffd700]/40 text-xs">✦</div>
-          <div className="absolute top-3 right-3 text-[#ffd700]/40 text-xs">✦</div>
-          <div className="absolute bottom-3 left-3 text-[#ffd700]/40 text-xs">✦</div>
-          <div className="absolute bottom-3 right-3 text-[#ffd700]/40 text-xs">✦</div>
-
-          {isHovered && (
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent animate-shimmer"></div>
-          )}
-        </div>
-      ) : (
-        cardName ? (
-          <div className="text-center px-2">
-            <span className="text-[#ffd700] font-bold text-xs sm:text-sm md:text-base leading-tight block">
-              {getTranslatedCardName()}
-            </span>
-            <div className="text-yellow-400/50 text-[10px] mt-1">✦ ✧ ✦</div>
-          </div>
-        ) : number > 0 ? (
-          <span className="text-center leading-tight text-sm sm:text-base md:text-lg font-bold text-[#ffd700]">
-            {number}
-          </span>
-        ) : null
-      )}
+        {/* Effet de sélection - Halo rose-doré */}
+        {isSelected && (
+          <>
+            <div className="absolute -inset-0.5 rounded-2xl border-2 border-[#ff6692] animate-pulse-romantic"></div>
+            <div className="absolute -inset-1 rounded-2xl bg-[#ff6692]/25 blur-lg"></div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
+
+// ============================================
+// RÉCAPITULATIF DES VERSOS
+// ============================================
+/*
+Love Oracle  → /Image/card-back.jpg
+Lunar Oracle → /Image/luneOracle/card-verso-luna.jpg
+Runes        → /Image/runes/card-back.jpg
+Default      → /Image/card-back.jpg
+*/

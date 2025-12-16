@@ -229,7 +229,7 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
         {/* Footer */}
         <div className="p-4 border-t border-purple-500/30 mt-4">
           <p className="text-purple-300 text-xs text-center">
-            CartoMystik v1.0
+            TarotMystik v1.0
           </p>
         </div>
       </div>

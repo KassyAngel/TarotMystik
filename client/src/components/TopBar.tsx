@@ -93,7 +93,7 @@ export default function TopBar({ onOpenGrimoire, onOpenPremium, isPremium }: Top
           {/* Centre : Logo/Titre élégant */}
           <div className="flex items-center gap-3">
             <h1 className="text-2xl md:text-3xl font-serif bg-gradient-to-r from-yellow-200 via-yellow-300 to-amber-400 bg-clip-text text-transparent font-bold tracking-wide">
-              CartoMystik
+              TarotMystik
             </h1>
           </div>
 

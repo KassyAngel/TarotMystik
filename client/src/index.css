@@ -892,7 +892,7 @@ h1, h2, h3 {
       to { opacity: 1; transform: scale(1); }
     }
     /* ========================================
-       ANIMATIONS CRYSTAL BALL
+       ANIMATIONS PendulumPage
        À ajouter dans index.css ou globals.css
        ======================================== */
 
@@ -1029,6 +1029,290 @@ h1, h2, h3 {
 
     .animate-fade-in-scale {
       animation: fade-in-scale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    /* ============================================
+       THÈME TAROT DE L'AMOUR - BLEU NUIT & ROSE/OR
+       Mystique, Classe, Romantique
+       ============================================ */
+
+    /* Remplacer les backgrounds violets par bleu nuit */
+    body {
+      background: linear-gradient(135deg, #0a1420 0%, #0d1b2e 25%, #152238 50%, #0d1b2e 75%, #0a1420 100%) !important;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Supprimer tous les fonds violets restants */
+    .bg-purple-900,
+    .bg-purple-800,
+    .bg-purple-700,
+    .from-purple-900,
+    .via-purple-900,
+    .to-purple-900 {
+      background: linear-gradient(135deg, #0a1420, #0d1b2e, #152238) !important;
+    }
+
+    /* Textes violets → Doré ou Rose */
+    .text-purple-200,
+    .text-purple-300,
+    .text-purple-400 {
+      color: #e8d4b8 !important;
+    }
+
+    .text-purple-500,
+    .text-purple-600 {
+      color: #c9a87f !important;
+    }
+
+    /* Bordures violettes → Dorées ou Rose */
+    .border-purple-500,
+    .border-purple-600,
+    .border-purple-700 {
+      border-color: rgba(201, 168, 127, 0.4) !important;
+    }
+
+    /* ============================================
+       FOND GLOBAL AVEC EFFET ROMANTIQUE
+       ============================================ */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(255, 102, 146, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(201, 168, 127, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(29, 46, 69, 0.4) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ============================================
+       CARTES - TOUCHES ROMANTIQUES
+       ============================================ */
+    .mystical-card {
+      background: linear-gradient(145deg, 
+        rgba(13, 27, 46, 0.95) 0%, 
+        rgba(21, 35, 56, 0.90) 50%, 
+        rgba(13, 27, 46, 0.95) 100%) !important;
+      border: 2px solid rgba(201, 168, 127, 0.4) !important;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 102, 146, 0.1),
+        inset 0 -1px 0 rgba(10, 20, 32, 0.5) !important;
+    }
+
+    .mystical-card:hover {
+      border-color: rgba(255, 102, 146, 0.6) !important;
+      box-shadow: 
+        0 12px 40px rgba(255, 102, 146, 0.2),
+        0 0 30px rgba(201, 168, 127, 0.15) !important;
+    }
+
+    .mystical-card.selected,
+    .mystical-card-flipped {
+      border-color: rgba(255, 102, 146, 0.7) !important;
+      box-shadow: 
+        0 0 40px rgba(255, 102, 146, 0.4),
+        0 0 20px rgba(201, 168, 127, 0.3) !important;
+    }
+
+    /* ============================================
+       BOUTONS - STYLE ROMANTIQUE
+       ============================================ */
+    .mystical-btn {
+      background: linear-gradient(145deg, 
+        rgba(141, 95, 71, 0.9) 0%, 
+        rgba(109, 76, 65, 0.95) 50%,
+        rgba(141, 95, 71, 0.9) 100%) !important;
+      border: 2px solid rgba(201, 168, 127, 0.5) !important;
+      box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 102, 146, 0.15) !important;
+    }
+
+    .mystical-btn:hover {
+      background: linear-gradient(145deg, 
+        rgba(173, 127, 103, 0.95) 0%, 
+        rgba(141, 95, 71, 1) 50%,
+        rgba(173, 127, 103, 0.95) 100%) !important;
+      border-color: rgba(255, 102, 146, 0.6) !important;
+      box-shadow: 
+        0 6px 30px rgba(255, 102, 146, 0.3),
+        0 0 20px rgba(201, 168, 127, 0.2) !important;
+    }
+
+    /* ============================================
+       TITRES - EFFET ROMANTIQUE DORÉ/ROSE
+       ============================================ */
+    .mystical-title {
+      background: linear-gradient(135deg, 
+        #e8d4b8 0%, 
+        #ff6692 30%, 
+        #c9a87f 60%,
+        #e8d4b8 100%) !important;
+      -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      background-clip: text !important;
+      text-shadow: 0 0 30px rgba(255, 102, 146, 0.3) !important;
+      animation: shimmer-romantic 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer-romantic {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.2); }
+    }
+
+    /* ============================================
+       INPUTS - STYLE ROMANTIQUE
+       ============================================ */
+    .mystical-input {
+      background: rgba(13, 27, 46, 0.6) !important;
+      border: 2px solid rgba(201, 168, 127, 0.3) !important;
+      color: #e8d4b8 !important;
+    }
+
+    .mystical-input:focus {
+      border-color: rgba(255, 102, 146, 0.6) !important;
+      box-shadow: 
+        0 0 20px rgba(255, 102, 146, 0.2),
+        0 0 10px rgba(201, 168, 127, 0.15) !important;
+    }
+
+    /* ============================================
+       EFFETS ÉTOILES ROMANTIQUES
+       ============================================ */
+    .star {
+      background: linear-gradient(135deg, #c9a87f 0%, #ff6692 50%, #e8d4b8 100%) !important;
+      animation: twinkle-romantic 3s infinite;
+    }
+
+    @keyframes twinkle-romantic {
+      0%, 100% { 
+        opacity: 0.3; 
+        transform: scale(1);
+        filter: hue-rotate(0deg);
+      }
+      50% { 
+        opacity: 1; 
+        transform: scale(1.5);
+        filter: hue-rotate(15deg);
+      }
+    }
+
+    /* ============================================
+       CARTES FLIP - TOUCHES ROSES
+       ============================================ */
+    .flip-card-front {
+      background: linear-gradient(145deg, 
+        #0d1b2e 0%, 
+        #152238 50%,
+        #0d1b2e 100%) !important;
+      border: 3px solid rgba(201, 168, 127, 0.4) !important;
+    }
+
+    .flip-card-back {
+      background: linear-gradient(145deg, 
+        #152238 0%, 
+        #1a2d45 50%,
+        #152238 100%) !important;
+      border: 3px solid rgba(255, 102, 146, 0.5) !important;
+      box-shadow: 
+        0 0 30px rgba(255, 102, 146, 0.3),
+        inset 0 0 20px rgba(201, 168, 127, 0.1) !important;
+    }
+
+    /* ============================================
+       SPARKLES & PARTICULES ROMANTIQUES
+       ============================================ */
+    .sparkle {
+      background: radial-gradient(circle, 
+        #ff6692 0%, 
+        #c9a87f 50%, 
+        transparent 100%) !important;
+      box-shadow: 0 0 10px rgba(255, 102, 146, 0.6) !important;
+    }
+
+    /* ============================================
+       OMBRES TEXTE - AMÉLIORATION VISIBILITÉ
+       ============================================ */
+    .text-amber-100,
+    .text-amber-200,
+    .text-amber-300 {
+      text-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.9),
+        0 0 15px rgba(255, 102, 146, 0.2) !important;
+    }
+
+    h1, h2, h3 {
+      text-shadow: 
+        0 3px 12px rgba(0, 0, 0, 0.9),
+        0 0 20px rgba(255, 102, 146, 0.2) !important;
+    }
+
+    /* ============================================
+       ANIMATIONS SUPPLÉMENTAIRES
+       ============================================ */
+    @keyframes pulse-romantic {
+      0%, 100% { 
+        box-shadow: 0 0 20px rgba(255, 102, 146, 0.3); 
+      }
+      50% { 
+        box-shadow: 0 0 40px rgba(255, 102, 146, 0.6); 
+      }
+    }
+
+    .animate-pulse-romantic {
+      animation: pulse-romantic 2s ease-in-out infinite;
+    }
+
+    /* ============================================
+       SCROLLBAR PERSONNALISÉE
+       ============================================ */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(10, 20, 32, 0.5);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #c9a87f 0%, #ff6692 100%);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #e8d4b8 0%, #ff8aab 100%);
+    }
+
+    /* ============================================
+       CLASSES UTILITAIRES ROMANTIQUES
+       ============================================ */
+    .romantic-glow {
+      box-shadow: 
+        0 0 20px rgba(255, 102, 146, 0.3),
+        0 0 40px rgba(201, 168, 127, 0.2);
+    }
+
+    .romantic-border {
+      border: 2px solid rgba(255, 102, 146, 0.4);
+    }
+
+    .romantic-bg {
+      background: linear-gradient(135deg, 
+        rgba(13, 27, 46, 0.8) 0%, 
+        rgba(21, 35, 56, 0.8) 100%);
+    }
+
+    /* ============================================
+       RESPONSIVE - PETITS ÉCRANS
+       ============================================ */
+    @media (max-width: 640px) {
+      body::before {
+        background: 
+          radial-gradient(circle at 30% 40%, rgba(255, 102, 146, 0.06) 0%, transparent 35%),
+          radial-gradient(circle at 70% 60%, rgba(201, 168, 127, 0.04) 0%, transparent 45%);
+      }
     }
   }
   }

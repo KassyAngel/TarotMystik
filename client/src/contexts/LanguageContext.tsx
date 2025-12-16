@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { Language } from '@/data/translations'; // Garde le type unique
-import { translations as generalTranslations } from '@/data/translations';
-import { translations as horoscopeTranslations } from '@/data/translationHoroscope';
+import { Language } from '@/data/translations';
+import { translations } from '@/data/translations';
 import { saveLanguage, getSavedLanguage } from '@/lib/userStorage';
 import { scheduleNotificationWithLanguage } from '@/components/NotificationPermissionModal';
 
@@ -43,13 +42,9 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     saveLanguage(lang);
   }, [language]);
 
-  // Fonction de traduction optimisée
+  // Fonction de traduction
   const t = useCallback((key: string, params?: Record<string, any>) => {
-    // Priorité : horoscopeTranslations puis generalTranslations
-    let translation =
-      horoscopeTranslations[language][key] ||
-      generalTranslations[language][key] ||
-      key;
+    let translation = translations[language][key] || key;
 
     if (params) {
       Object.entries(params).forEach(([paramKey, paramValue]) => {
@@ -57,6 +52,7 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
         translation = translation.replace(regex, String(paramValue || ''));
       });
     }
+
     return translation;
   }, [language]);
 

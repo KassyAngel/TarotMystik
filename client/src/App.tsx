@@ -1,3 +1,4 @@
+// client/src/App.tsx - VERSION SANS API
 import { useState, useEffect } from "react";
 import GrimoireModal from './pages/GrimoireModal';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
@@ -16,13 +17,11 @@ import OracleMystiqueApp from "@/pages/OracleMystiqueApp";
 import NotFound from "@/pages/not-found";
 import { initialize as initializeAdMob, showBanner, hideBanner, showInterstitialAd, preloadInterstitial } from './admobService';
 import { initializeRevenueCat } from './services/revenueCatService';
-import { config } from '@/config';
-import { getUserEmail } from '@/lib/userStorage';
 import { getDeviceId } from '@/lib/deviceId';
 
 export interface Reading {
   id: string;
-  type: 'tarot' | 'oracle' | 'crystal' | 'horoscope' | 'angels' | 'runes' | 'crystalBall' | 'mysteryDice' | 'bonusRoll';
+  type: 'loveOracle' | 'oracle' | 'pendulum' | 'angels' | 'runes' | 'wheel' | 'loveCalculator';
   oracleTitle?: string;
   date: Date;
   cards?: string[];
@@ -35,8 +34,7 @@ export interface Reading {
 type AppStep =
   | 'landing' | 'name' | 'date' | 'gender'
   | 'oracle' | 'game' | 'revelation' | 'interpretation'
-  | 'horoscope' | 'crystalBall' | 'mysteryDice' | 'bonusRoll'
-  | 'responsiveTest';
+  | 'pendulum' | 'wheel' | 'loveCalculator';  
 
 function Router({ onSaveReading, onStepChange, shouldShowAdBeforeReading, isPremium }: {
   onSaveReading: (reading: any) => Promise<void>;
@@ -61,8 +59,36 @@ function Router({ onSaveReading, onStepChange, shouldShowAdBeforeReading, isPrem
   );
 }
 
+// ✅ Stockage local pour les lectures
+const STORAGE_KEY = 'tarotmystik_readings';
+
+function loadReadingsFromStorage(): Reading[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return [];
+
+    const parsed = JSON.parse(stored);
+    return parsed.map((r: any) => ({
+      ...r,
+      date: new Date(r.date)
+    }));
+  } catch (error) {
+    console.error('❌ Erreur chargement lectures:', error);
+    return [];
+  }
+}
+
+function saveReadingsToStorage(readings: Reading[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(readings));
+    console.log('✅ Lectures sauvegardées:', readings.length);
+  } catch (error) {
+    console.error('❌ Erreur sauvegarde lectures:', error);
+  }
+}
+
 function App() {
-  const [isPremium, setIsPremium] = useState(false);
+  const [isPremium] = useState(false); // TODO: Intégrer RevenueCat pour vérifier le statut
   const [readings, setReadings] = useState<Reading[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGrimoireOpen, setIsGrimoireOpen] = useState(false);
@@ -73,6 +99,7 @@ function App() {
   const [bannerShown, setBannerShown] = useState(false);
   const [deviceId, setDeviceId] = useState<string>('');
 
+  // ✅ Initialiser Device ID
   useEffect(() => {
     const initDeviceId = async () => {
       const id = await getDeviceId();
@@ -82,41 +109,16 @@ function App() {
     initDeviceId();
   }, []);
 
-  useEffect(() => {
-    const migrateData = async () => {
-      if (!deviceId) return;
-
-      const migrationDone = localStorage.getItem('migration_done');
-      if (migrationDone) return;
-
-      try {
-        const response = await fetch(`${config.apiBaseUrl}/api/readings/migrate`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Device-ID': deviceId 
-          },
-          credentials: 'include'
-        });
-
-        if (response.ok) {
-          localStorage.setItem('migration_done', 'true');
-          console.log('✅ Migration des données terminée');
-        }
-      } catch (error) {
-        console.error('❌ Erreur migration:', error);
-      }
-    };
-
-    migrateData();
-  }, [deviceId]);
-
+  // ✅ Initialiser services (AdMob + RevenueCat)
   useEffect(() => {
     const initServices = async () => {
       try {
         await initializeAdMob();
         await initializeRevenueCat();
         console.log('✅ Services AdMob + RevenueCat initialisés');
+
+        // TODO: Vérifier le statut Premium via RevenueCat
+        // setIsPremium(await checkPremiumStatus());
       } catch (error) {
         console.error('❌ Erreur initialisation services:', error);
       }
@@ -124,6 +126,7 @@ function App() {
     initServices();
   }, []);
 
+  // ✅ Gérer l'affichage de la bannière
   useEffect(() => {
     if (isPremium) {
       console.log('👑 Premium actif : bannière cachée');
@@ -148,6 +151,7 @@ function App() {
 
   const showTopBar = !['landing', 'name', 'date', 'gender'].includes(currentStep);
 
+  // ✅ Vérifier permissions notifications
   useEffect(() => {
     const checkNotificationPermission = () => {
       const permission = localStorage.getItem('notificationPermission');
@@ -158,167 +162,50 @@ function App() {
     checkNotificationPermission();
   }, [currentStep]);
 
+  // ✅ Charger les lectures depuis le localStorage
   useEffect(() => {
     if (!deviceId) return;
-    loadUserData();
-    checkPremiumExpiration();
 
-    const interval = setInterval(() => {
-      loadUserData();
-    }, 60 * 60 * 1000);
-
-    return () => clearInterval(interval);
+    console.log('📖 Chargement lectures depuis localStorage...');
+    const stored = loadReadingsFromStorage();
+    setReadings(stored);
+    setIsLoading(false);
+    console.log('✅ Lectures chargées:', stored.length);
   }, [deviceId]);
 
-  const loadUserData = async () => {
-    if (!deviceId) {
-      console.log('⏳ Device ID pas encore initialisé, on attend...');
-      return;
-    }
-
-    try {
-      const savedEmail = await getUserEmail();
-
-      const premiumResponse = await fetch(`${config.apiBaseUrl}/api/user/premium-status`, {
-        credentials: 'include',
-        headers: savedEmail ? { 'x-user-email': savedEmail } : {},
-      });
-      const premiumData = await premiumResponse.json();
-      setIsPremium(premiumData.isPremium);
-
-      console.log('✅ Statut Premium:', premiumData.isPremium, savedEmail ? `(email: ${savedEmail})` : '(sans email)');
-
-      const readingsResponse = await fetch(`${config.apiBaseUrl}/api/readings`, {
-        credentials: 'include',
-        headers: {
-          'X-Device-ID': deviceId
-        }
-      });
-
-      if (!readingsResponse.ok) {
-        const errorData = await readingsResponse.json();
-        console.error('❌ Erreur chargement tirages:', errorData);
-        setIsLoading(false);
-        return;
-      }
-
-      const readingsData = await readingsResponse.json();
-      setReadings(
-        readingsData.readings.map((r: any) => ({
-          ...r,
-          date: new Date(r.date)
-        }))
-      );
-
-      console.log('✅ Données chargées:', readingsData.readings.length, 'tirages pour device:', deviceId);
-    } catch (error) {
-      console.error('❌ Erreur chargement données:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const checkPremiumExpiration = async () => {
-    try {
-      const response = await fetch(`${config.apiBaseUrl}/api/user/premium-expiration-alert`, {
-        credentials: 'include'
-      });
-      const data = await response.json();
-
-      if (data.shouldAlert) {
-        let alertMessage = '';
-
-        if (data.alertType === 'expired') {
-          alertMessage = `⚠️ Votre accès Premium a expiré.\n\nVous pouvez souscrire à nouveau pour profiter des avantages Premium.`;
-        } else if (data.alertType === 'warning') {
-          const days = data.daysRemaining;
-          const expirationDate = new Date(data.expirationDate).toLocaleDateString('fr-FR');
-          alertMessage = `🔔 Votre accès Premium expire dans ${days} jour${days > 1 ? 's' : ''}.\n\nDate d'expiration : ${expirationDate}\n\nPour renouveler, rendez-vous dans le menu Premium.`;
-        }
-
-        if (alertMessage) {
-          setTimeout(() => {
-            alert(alertMessage);
-            if (data.alertType === 'expired') {
-              setTimeout(() => window.location.reload(), 1000);
-            }
-          }, 2000);
-        }
-      }
-    } catch (error) {
-      console.error('❌ Erreur vérification expiration Premium:', error);
-    }
-  };
-
+  // ✅ Sauvegarder une note
   const handleSaveNote = async (readingId: string, note: string) => {
-    if (!deviceId) return;
-
-    try {
-      await fetch(`${config.apiBaseUrl}/api/readings/${readingId}/note`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Device-ID': deviceId
-        },
-        credentials: 'include',
-        body: JSON.stringify({ note })
-      });
-
-      setReadings(prev =>
-        prev.map(r => r.id === readingId ? { ...r, notes: note } : r)
+    setReadings(prev => {
+      const updated = prev.map(r => 
+        r.id === readingId ? { ...r, notes: note } : r
       );
-    } catch (error) {
-      console.error('❌ Erreur sauvegarde note:', error);
-    }
+      saveReadingsToStorage(updated);
+      return updated;
+    });
+    console.log('✅ Note sauvegardée pour:', readingId);
   };
 
+  // ✅ Toggle favori
   const handleToggleFavorite = async (readingId: string) => {
-    if (!deviceId) return;
-
-    const reading = readings.find(r => r.id === readingId);
-    if (!reading) return;
-
-    try {
-      await fetch(`${config.apiBaseUrl}/api/readings/${readingId}/favorite`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Device-ID': deviceId
-        },
-        credentials: 'include',
-        body: JSON.stringify({ isFavorite: !reading.isFavorite })
-      });
-
-      setReadings(prev =>
-        prev.map(r => r.id === readingId ? { ...r, isFavorite: !r.isFavorite } : r)
+    setReadings(prev => {
+      const updated = prev.map(r =>
+        r.id === readingId ? { ...r, isFavorite: !r.isFavorite } : r
       );
-    } catch (error) {
-      console.error('❌ Erreur toggle favori:', error);
-    }
+      saveReadingsToStorage(updated);
+      return updated;
+    });
+    console.log('✅ Favori togglé pour:', readingId);
   };
 
+  // ✅ Vider le grimoire
   const clearAllReadings = async () => {
-    if (!deviceId) return;
-
-    try {
-      console.log('🗑️ Suppression de tous les tirages du Grimoire...');
-      const response = await fetch(`${config.apiBaseUrl}/api/readings`, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'X-Device-ID': deviceId
-        }
-      });
-
-      if (!response.ok) throw new Error('Erreur lors de la suppression');
-      setReadings([]);
-      console.log('🔥 Grimoire vidé !');
-    } catch (error) {
-      console.error('❌ Erreur vidage grimoire:', error);
-      alert('Une erreur est survenue lors de la suppression des tirages.');
-    }
+    console.log('🗑️ Suppression de tous les tirages du Grimoire...');
+    setReadings([]);
+    localStorage.removeItem(STORAGE_KEY);
+    console.log('🔥 Grimoire vidé !');
   };
 
+  // ✅ Vérifier si on doit afficher une pub
   const shouldShowAdBeforeReading = async (oracleType: string): Promise<boolean> => {
     console.log(`🎯 [PUB CHECK] Oracle sélectionné: "${oracleType}"`);
 
@@ -327,8 +214,8 @@ function App() {
       return false;
     }
 
-    if (oracleType === 'horoscope' || oracleType === 'bonusRoll') {
-      console.log(`⏭️ "${oracleType}" exclu : pas de pub interstitielle (système propre)`);
+    if (oracleType === 'wheel') {  
+      console.log(`⏭️ "${oracleType}" exclu : pas de pub interstitielle`);
       return false;
     }
 
@@ -355,58 +242,39 @@ function App() {
     return shouldShow;
   };
 
+  // ✅ Ajouter une lecture
   const addReading = async (reading: Omit<Reading, 'id' | 'notes' | 'isFavorite'>) => {
-    if (!deviceId) return;
-
-    const typesExcludedFromGrimoire = ['crystalBall', 'horoscope', 'mysteryDice', 'bonusRoll'];
+    const typesExcludedFromGrimoire = ['pendulum', 'mysteryDice', 'wheel'];
     const shouldSaveInGrimoire = !typesExcludedFromGrimoire.includes(reading.type);
 
-    const typesCountedForAds = ['tarot', 'oracle', 'angels', 'runes', 'crystalBall', 'crystal'];
+    const typesCountedForAds = ['loveOracle', 'lunar', 'runes', 'pendulum'];
     const shouldIncrementCounter = typesCountedForAds.includes(reading.type);
 
-    try {
-      console.log(`📤 Sauvegarde tirage: "${reading.type}" | Grimoire: ${shouldSaveInGrimoire} | Compteur: ${shouldIncrementCounter}`);
+    console.log(`📤 Nouveau tirage: "${reading.type}" | Grimoire: ${shouldSaveInGrimoire} | Compteur: ${shouldIncrementCounter}`);
 
-      if (shouldSaveInGrimoire) {
-        const response = await fetch(`${config.apiBaseUrl}/api/readings`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-Device-ID': deviceId
-          },
-          credentials: 'include',
-          body: JSON.stringify(reading)
-        });
+    if (shouldSaveInGrimoire) {
+      const newReading: Reading = {
+        ...reading,
+        id: `reading_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+        notes: '',
+        isFavorite: false
+      };
 
-        if (response.status === 403) {
-          console.log('⚠️ Erreur 403 ignorée');
-        } else if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`❌ Erreur HTTP ${response.status}:`, errorText);
-          throw new Error(`Erreur HTTP: ${response.status}`);
-        } else {
-          const newReading = await response.json();
-          setReadings(prev => [
-            { ...newReading, date: new Date(newReading.date) },
-            ...prev
-          ]);
-          console.log('✅ Tirage enregistré dans le Grimoire:', newReading.id);
-        }
-      }
+      setReadings(prev => {
+        const updated = [newReading, ...prev];
+        saveReadingsToStorage(updated);
+        return updated;
+      });
 
-      if (shouldIncrementCounter) {
-        setReadingCount(prev => {
-          const newCount = prev + 1;
-          console.log(`📊 ✅ Compteur mis à jour: ${prev} → ${newCount} (type: ${reading.type})`);
-          return newCount;
-        });
-      } else {
-        console.log(`📊 ⏭️ Type "${reading.type}" NON comptabilisé (système pub propre)`);
-      }
+      console.log('✅ Tirage enregistré dans le Grimoire:', newReading.id);
+    }
 
-    } catch (error) {
-      console.error('❌ Erreur ajout tirage:', error);
-      alert('⚠️ Erreur lors de la sauvegarde du tirage.');
+    if (shouldIncrementCounter) {
+      setReadingCount(prev => {
+        const newCount = prev + 1;
+        console.log(`📊 ✅ Compteur mis à jour: ${prev} → ${newCount}`);
+        return newCount;
+      });
     }
   };
 

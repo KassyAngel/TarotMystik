@@ -3,10 +3,11 @@ import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
 import { UserSession } from '@shared/schema';
 
-const USER_STORAGE_KEY = 'mystic_user_session';
-const LANGUAGE_KEY = 'mystic_language';
-const DEVICE_ID_KEY = 'mystic_device_id';
-const USER_EMAIL_KEY = 'mystic_user_email';
+// ✅ MODIFIÉ : Changement des clés de stockage pour TarotMystik
+const USER_STORAGE_KEY = 'tarotmystik_user_session';
+const LANGUAGE_KEY = 'tarotmystik_language';
+const DEVICE_ID_KEY = 'tarotmystik_device_id';
+const USER_EMAIL_KEY = 'tarotmystik_user_email';
 
 // Détecte si on est sur mobile
 const isNative = Capacitor.isNativePlatform();
