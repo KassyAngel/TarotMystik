@@ -8,7 +8,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.cartomystik.app"
+    namespace "com.tarotmystik.app"
     compileSdkVersion rootProject.ext.compileSdkVersion
     
     compileOptions {
@@ -17,11 +17,11 @@ android {
     }
     
     defaultConfig {
-        applicationId "com.cartomystik.app"
+        applicationId "com.tarotmystik.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 23         // ✅ Incrémente de 1
-versionName "1.0.22"    // ✅ Optionnel mais recommandé
+        versionCode 1         // ✅ Incrémente de 1
+versionName "1.0.1"    // ✅ Optionnel mais recommandé
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
