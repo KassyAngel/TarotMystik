@@ -1,5 +1,5 @@
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 
 interface LegalModalProps {
@@ -35,7 +35,6 @@ export default function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
     const fullPath = isNative ? `./${fileName}` : `/${fileName}`;
 
     console.log('📄 Chargement page légale:', fullPath, 'isNative:', isNative, 'platform:', platform);
-
     return fullPath;
   };
 
@@ -47,11 +46,12 @@ export default function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
         onClick={onClose}
       />
 
-      {/* Modal */}
-      <div className="fixed inset-4 md:inset-10 z-[101] bg-gradient-to-b from-purple-900 via-indigo-900 to-purple-900 rounded-2xl shadow-2xl overflow-hidden border-2 border-purple-500/30">
+      {/* Modal - Style nuit étoilée */}
+      <div className="fixed inset-4 md:inset-10 z-[101] bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-2xl overflow-hidden border-2 border-cyan-400/30">
+
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-purple-500/30 bg-purple-900/50">
-          <h2 className="text-yellow-300 font-serif font-bold text-xl">
+        <div className="flex items-center justify-between p-4 border-b border-cyan-400/20 bg-slate-900/80 backdrop-blur-sm">
+          <h2 className="text-amber-300 font-serif font-bold text-xl drop-shadow-[0_2px_8px_rgba(251,191,36,0.4)]">
             {type === 'legal' ? (
               language === 'fr' ? 'Mentions Légales' : 'Legal Notice'
             ) : (
@@ -60,10 +60,10 @@ export default function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-purple-700/50 transition-colors"
+            className="p-2 rounded-lg bg-slate-800/60 hover:bg-slate-700/70 transition-colors border border-cyan-400/30"
             aria-label="Fermer"
           >
-            <svg className="w-6 h-6 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-cyan-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>

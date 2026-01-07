@@ -1,55 +1,25 @@
-/**
- * 🔧 Configuration TarotMystik
- * ✅ Version 100% locale, sans backend/API
- */
+import { Capacitor } from '@capacitor/core';
 
-// ❌ Plus besoin d'API backend
-// L'app fonctionne 100% en local avec :
-// - RevenueCat pour les paiements Google Play
-// - localStorage pour la persistance des données
+const isNative = Capacitor.isNativePlatform();
+const isProd = import.meta.env.PROD;
+
+// ========================================
+// CONFIGURATION TAROTMYSTIK
+// ========================================
+
+// 🔧 Pour développement mobile : remplacez par votre IP locale
+// Trouvez votre IP avec : ipconfig (Windows) ou ifconfig (Mac/Linux)
+const DEV_LOCAL_IP = 'http://192.168.1.100:5000'; // ⚠️ À MODIFIER
 
 export const config = {
-  // App Info
-  appName: 'TarotMystik',
-  appVersion: '1.0.0',
+  // API locale (optionnelle, pour futures fonctionnalités)
+  apiBaseUrl: isNative
+    ? DEV_LOCAL_IP // Mobile → Serveur local
+    : isProd
+      ? window.location.origin // Web prod
+      : `${window.location.origin}`, // Dev web
+};
 
-  // ❌ Plus d'API backend
-  // apiBaseUrl: '' - SUPPRIMÉ
-
-  // RevenueCat
-  revenueCat: {
-    android: {
-      apiKey: 'goog_FysChuiotCqiQGrxnPIxWGJtyKH',
-      entitlementId: 'premium'
-    },
-    // iOS à ajouter plus tard si besoin
-    ios: {
-      apiKey: '', // À compléter plus tard
-      entitlementId: 'premium'
-    }
-  },
-
-  // Stockage local
-  storage: {
-    prefix: 'tarotmystik_',
-    keys: {
-      premium: 'premium',
-      userEmail: 'user_email',
-      settings: 'settings',
-      language: 'language'
-    }
-  },
-
-  // Langues supportées
-  supportedLanguages: ['fr', 'en'] as const,
-  defaultLanguage: 'fr' as const,
-
-  // Contact
-  contact: {
-    email: 'tarotmystik@gmail.com',
-    supportUrl: 'mailto:tarotmystik@gmail.com'
-  }
-} as const;
-
-export type AppConfig = typeof config;
-export type SupportedLanguage = typeof config.supportedLanguages[number];
+console.log('✅ Configuration TarotMystik chargée');
+console.log(`📱 Platform: ${isNative ? 'Mobile' : 'Web'}`);
+console.log(`🔧 API Base URL: ${config.apiBaseUrl}`);

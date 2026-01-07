@@ -20,6 +20,8 @@ interface CardGameProps {
   onCardsSelected: (selectedCardIndices: number[]) => void;
   onSaveReading?: (reading: any) => Promise<void>;
   onBack: () => void;
+  shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>;
+  onReadingComplete?: (oracleType: string) => void;
 }
 
 export default function CardGame({ 
@@ -28,13 +30,16 @@ export default function CardGame({
   oracleType, 
   onCardsSelected, 
   onSaveReading,
-  onBack 
+  onBack,
+  shouldShowAdBeforeReading,
+  onReadingComplete
 }: CardGameProps) {
   const [randomCards, setRandomCards] = useState<number[]>([]);
   const [flippedCards, setFlippedCards] = useState<boolean[]>([]);
   const [selectedCardsIndices, setSelectedCardsIndices] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [revealedCard, setRevealedCard] = useState<{ card: any; index: number; originalName: string } | null>(null);
+  const [adShownForSession, setAdShownForSession] = useState(false);
   const { t, language } = useLanguage();
 
   const playFlip = useSound('Flip-card.wav');
@@ -74,6 +79,14 @@ export default function CardGame({
   useEffect(() => {
     const generateCards = async () => {
       setIsLoading(true);
+
+      // 📊 Vérifier et afficher la pub AVANT le tirage (seulement une fois par session)
+      if (!adShownForSession && shouldShowAdBeforeReading) {
+        console.log('🎯 [CARD_GAME] Vérification pub avant génération des cartes...');
+        await shouldShowAdBeforeReading(oracleType);
+        setAdShownForSession(true);
+      }
+
       try {
         const selectedCards = selectRandomCardsWithoutRepeat(
           oracle.cards.length,
@@ -94,7 +107,7 @@ export default function CardGame({
       }
     };
     generateCards();
-  }, [oracle.cards.length, displayCards, oracleType]);
+  }, [oracle.cards.length, displayCards, oracleType, shouldShowAdBeforeReading, adShownForSession]);
 
   const handleCardClick = (cardIndex: number) => {
     if (flippedCards[cardIndex]) return;
@@ -155,6 +168,12 @@ export default function CardGame({
         } catch (error) {
           console.error('❌ Erreur sauvegarde:', error);
         }
+      }
+
+      // 📊 Notifier le parent qu'un tirage est terminé
+      if (onReadingComplete) {
+        console.log(`✅ [CARD_GAME] Tirage ${oracleType} terminé, incrémentation compteur`);
+        onReadingComplete(oracleType);
       }
 
       saveTirageToHistory(oracleType, selectedCards);
@@ -249,7 +268,6 @@ export default function CardGame({
                 const energyLabel = getEnergyLabel(cardIndex);
 
                 return (
-                  // ✅ MODIFICATION : gap-4 au lieu de gap-3 pour plus d'espace
                   <div key={`${oracleType}-${cardIndex}-${actualIndex}`} className="flex flex-col items-center gap-4">
                     <div className="text-center">
                       <p className="text-[#c9a87f] text-xs sm:text-sm font-light drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
@@ -305,7 +323,7 @@ export default function CardGame({
       {revealedCard && (
         <CardRevealModal
           card={revealedCard.card}
-          oracleType={oracleType}  // ← CORRECTION ICI
+          oracleType={oracleType}
           onClose={handleCloseModal}
           cardNumber={selectedCardsIndices.length}
           totalCards={maxSelection}

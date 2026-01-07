@@ -16,14 +16,18 @@ interface LoveCalculatorPageProps {
   user: UserSession;
   onBack: () => void;
   onSaveReading?: (reading: any) => Promise<void>;
+  onReadingComplete?: (oracleType: string) => void;
   isPremium?: boolean;
+  shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>; // ✅ AJOUTÉ
 }
 
-export default function LoveCalculatorPage({ 
+export function LoveCalculatorPage({ 
   user, 
   onBack, 
   onSaveReading,
-  isPremium = false 
+  onReadingComplete,
+  isPremium = false,
+  shouldShowAdBeforeReading // ✅ AJOUTÉ
 }: LoveCalculatorPageProps) {
   const { t } = useLanguage();
 
@@ -34,8 +38,6 @@ export default function LoveCalculatorPage({
   const [displayPercentage, setDisplayPercentage] = useState(0);
   const [result, setResult] = useState<any>(null);
   const [showDetails, setShowDetails] = useState(false);
-
-  // États pour stocker les messages et conseils sélectionnés
   const [selectedMessage, setSelectedMessage] = useState('');
   const [selectedAdvice, setSelectedAdvice] = useState('');
 
@@ -45,16 +47,19 @@ export default function LoveCalculatorPage({
       return;
     }
 
+    // 📊 Vérifier et afficher la pub AVANT le calcul
+    if (shouldShowAdBeforeReading) {
+      await shouldShowAdBeforeReading('loveCalculator');
+    }
+
     setCurrentPhase('calculating');
     setDisplayPercentage(0);
     setShowDetails(false);
 
     setTimeout(() => {
-      // 🎲 Calcul avec variation quotidienne
       const lovePercent = calculateLovePercentage(name1, name2);
       const loveResult = getLoveResult(lovePercent);
 
-      // Sélectionner un message et un conseil aléatoires (qui changent aussi chaque jour)
       const messageKey = getRandomMessage(loveResult);
       const adviceKey = getRandomAdvice(loveResult);
 
@@ -93,7 +98,7 @@ export default function LoveCalculatorPage({
 
           requestAnimationFrame(animate);
 
-          // Sauvegarder avec le message sélectionné
+          // Sauvegarder
           if (onSaveReading) {
             onSaveReading({
               type: 'loveCalculator',
@@ -101,6 +106,11 @@ export default function LoveCalculatorPage({
               date: new Date(),
               answer: `${lovePercent}% - ${t(loveResult.titleKey)}\n\n${t(messageKey)}`
             });
+          }
+
+          // 📊 Notifier le parent qu'un calcul est terminé
+          if (onReadingComplete) {
+            onReadingComplete('loveCalculator');
           }
         }, 50);
       }, 50);
@@ -500,3 +510,4 @@ export default function LoveCalculatorPage({
     </div>
   );
 }
+export default LoveCalculatorPage;

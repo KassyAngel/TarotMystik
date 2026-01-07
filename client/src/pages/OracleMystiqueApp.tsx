@@ -39,14 +39,20 @@ interface OracleMystiqueAppProps {
   onSaveReading?: (reading: any) => Promise<void>;
   onStepChange?: ((step: AppStep) => void) | ((step: AppStep) => Promise<void>);
   shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>;
+  onReadingComplete?: (oracleType: string) => void;
   isPremium?: boolean;
+  wheelCounter?: number;
+  onWheelComplete?: () => void;
 }
 
 export default function OracleMystiqueApp({ 
   onSaveReading, 
   onStepChange,
   shouldShowAdBeforeReading,
-  isPremium = false
+  onReadingComplete,
+  isPremium = false,
+  wheelCounter = 0,
+  onWheelComplete
 }: OracleMystiqueAppProps) {
   const [currentStep, setCurrentStep] = useState<AppStep>('landing');
   const { user, setUser, clearUser } = useUser();
@@ -56,6 +62,29 @@ export default function OracleMystiqueApp({
 
   const [selectedLunarPhase, setSelectedLunarPhase] = useState<string>('');
   const [selectedLunarCard, setSelectedLunarCard] = useState<OracleCard | null>(null);
+
+  const pagesWithOwnBackground = ['landing', 'name', 'date', 'gender'];
+  const shouldShowStarsBackground = !pagesWithOwnBackground.includes(currentStep);
+
+  // 🛡️ Wrappers de sécurité pour garantir que les fonctions ne sont jamais undefined
+  const safeShowAdBeforeReading = async (oracleType: string): Promise<boolean> => {
+    if (shouldShowAdBeforeReading) {
+      return await shouldShowAdBeforeReading(oracleType);
+    }
+    return false;
+  };
+
+  const safeOnReadingComplete = (oracleType: string): void => {
+    if (onReadingComplete) {
+      onReadingComplete(oracleType);
+    }
+  };
+
+  const safeOnWheelComplete = (): void => {
+    if (onWheelComplete) {
+      onWheelComplete();
+    }
+  };
 
   useEffect(() => {
     if (onStepChange) {
@@ -94,12 +123,6 @@ export default function OracleMystiqueApp({
   const handleOracleSelect = async (oracleType: string) => {
     console.log(`🎯 Oracle sélectionné: "${oracleType}"`);
 
-    const typesWithInterstitialAd = ['loveOracle', 'lunar', 'runes', 'pendulum'];
-
-    if (typesWithInterstitialAd.includes(oracleType) && shouldShowAdBeforeReading) {
-      await shouldShowAdBeforeReading(oracleType);
-    }
-
     setSelectedOracle(oracleType as OracleType);
 
     if (oracleType === 'pendulum') setCurrentStep('pendulum');
@@ -110,8 +133,16 @@ export default function OracleMystiqueApp({
     else setCurrentStep('game');
   };
 
-  const handleLunarPhaseSelect = (phase: string) => {
+  // ✅ CORRECTION : Appeler la pub AVANT de passer à lunarGame
+  const handleLunarPhaseSelect = async (phase: string) => {
+    console.log(`🌙 [LUNAR] Phase sélectionnée: ${phase}`);
     setSelectedLunarPhase(phase);
+
+    // ✅ Vérifier et afficher la pub MAINTENANT (avant la navigation)
+    console.log('🎯 [LUNAR] Vérification pub AVANT navigation vers lunarGame');
+    await safeShowAdBeforeReading('lunar');
+    console.log('✅ [LUNAR] Vérification pub terminée, navigation vers lunarGame');
+
     setCurrentStep('lunarGame');
   };
 
@@ -165,7 +196,7 @@ export default function OracleMystiqueApp({
 
   return (
     <div className="min-h-screen flex flex-col">
-      <StarsBackground />
+      {shouldShowStarsBackground && <StarsBackground />}
 
       <main className="flex-grow flex flex-col justify-center items-center max-w-6xl mx-auto p-5">
         {currentStep === 'responsiveTest' && <ResponsiveTest />}
@@ -204,6 +235,8 @@ export default function OracleMystiqueApp({
             onCardSelected={handleLunarCardSelect}
             onBack={handleBackToLunarPhase}
             onSaveReading={onSaveReading}
+            onReadingComplete={safeOnReadingComplete}
+            shouldShowAdBeforeReading={safeShowAdBeforeReading}
           />
         )}
 
@@ -237,6 +270,8 @@ export default function OracleMystiqueApp({
                 onCardsSelected={handleCardsSelected}
                 onSaveReading={onSaveReading}
                 onBack={handleBackToModeSelection}
+                shouldShowAdBeforeReading={safeShowAdBeforeReading}
+                onReadingComplete={safeOnReadingComplete}
               />
             ) : (
               <CrossSpreadGame
@@ -246,6 +281,8 @@ export default function OracleMystiqueApp({
                 onCardsSelected={handleCardsSelected}
                 onSaveReading={onSaveReading}
                 onBack={handleBackToModeSelection}
+                shouldShowAdBeforeReading={safeShowAdBeforeReading}
+                onReadingComplete={safeOnReadingComplete}
               />
             )}
           </>
@@ -273,6 +310,9 @@ export default function OracleMystiqueApp({
                 selectedCards={selectedCardIndices.map(index => oracle.cards[index])}
                 onHome={handleBackToOracle}
                 onBackToMode={handleBackToModeSelection}
+                onSaveReading={onSaveReading}
+                shouldShowAdBeforeReading={safeShowAdBeforeReading}
+                onReadingComplete={safeOnReadingComplete}
               />
             ) : (
               <InterpretationPage
@@ -286,6 +326,8 @@ export default function OracleMystiqueApp({
                 onBackToMode={handleBackToModeSelection}
                 onPendulum={handleGoToPendulum}
                 onSaveReading={onSaveReading}
+                shouldShowAdBeforeReading={safeShowAdBeforeReading}
+                onReadingComplete={safeOnReadingComplete}
               />
             )}
           </>
@@ -296,6 +338,8 @@ export default function OracleMystiqueApp({
             user={user}
             onBack={handleBackToOracle}
             onSaveReading={onSaveReading}
+            shouldShowAdBeforeReading={safeShowAdBeforeReading}
+            onReadingComplete={safeOnReadingComplete}
           />
         )}
 
@@ -304,6 +348,9 @@ export default function OracleMystiqueApp({
             user={user}
             onBack={handleBackToOracle}
             isPremium={isPremium}
+            onReadingComplete={safeOnReadingComplete}
+            wheelCounter={wheelCounter}
+            onWheelComplete={safeOnWheelComplete}
           />
         )}
 
@@ -313,6 +360,8 @@ export default function OracleMystiqueApp({
             onBack={handleBackToOracle}
             onSaveReading={onSaveReading}
             isPremium={isPremium}
+            shouldShowAdBeforeReading={safeShowAdBeforeReading}
+            onReadingComplete={safeOnReadingComplete}
           />
         )}
       </main>

@@ -5,7 +5,6 @@ import {
   BannerAdPosition, 
   RewardAdOptions,
   AdMobRewardItem,
-  AdMobError
 } from '@capacitor-community/admob';
 import { Capacitor } from '@capacitor/core';
 
@@ -19,43 +18,43 @@ console.log('🔍 Détection plateforme AdMob:', {
   isNative,
   platform,
   mode: IS_PRODUCTION ? '🚀 PRODUCTION' : '🧪 TEST',
-  userAgent: navigator.userAgent,
-  isAndroid: platform === 'android',
-  isIOS: platform === 'ios',
-  capacitorAvailable: typeof Capacitor !== 'undefined',
-  windowLocation: window.location.href
 });
 
-// 📱 IDs AdMob
+// 📱 IDs AdMob - TarotMystik
 const BANNER_AD_ID = isNative 
   ? (IS_PRODUCTION 
-      ? 'ca-app-pub-5733508257471048/2428210645'
-      : 'ca-app-pub-3940256099942544/6300978111')
+      ? 'ca-app-pub-5733508257471048/9858415317' // ✅ Bannière TarotMystik
+      : 'ca-app-pub-3940256099942544/6300978111') // Test
   : '';
 
 const INTERSTITIAL_AD_ID = isNative
   ? (IS_PRODUCTION 
-      ? 'ca-app-pub-5733508257471048/5422426681'
-      : 'ca-app-pub-3940256099942544/1033173712')
+      ? 'ca-app-pub-5733508257471048/3903381053' // ✅ Interstitiel TarotMystik
+      : 'ca-app-pub-3940256099942544/1033173712') // Test
   : '';
 
 const REWARDED_AD_ID = isNative
   ? (IS_PRODUCTION
-      ? 'ca-app-pub-5733508257471048/7281390536'
-      : 'ca-app-pub-3940256099942544/5224354917')
+      ? 'ca-app-pub-5733508257471048/7285041100' // ✅ Récompensée TarotMystik
+      : 'ca-app-pub-3940256099942544/5224354917') // Test
   : '';
 
-// ⛔️ FIX : on stocke manuellement les listeners
+console.log('📱 IDs AdMob TarotMystik:', {
+  banner: BANNER_AD_ID,
+  interstitial: INTERSTITIAL_AD_ID,
+  rewarded: REWARDED_AD_ID,
+  mode: IS_PRODUCTION ? 'PRODUCTION' : 'TEST'
+});
+
+// ⛔️ Gestion des listeners
 let _allListeners: { remove: () => void }[] = [];
 
-// ⛔️ FIX helper pour enregistrer proprement un listener
 function _addListener(event: string, callback: any) {
   const listener = (AdMob.addListener as any)(event, callback);
   _allListeners.push(listener);
   return listener;
 }
 
-// ⛔️ FIX remplacement de removeAllListeners()
 function _removeAllListenersSafe() {
   _allListeners.forEach(l => {
     try { l.remove(); } catch {}
@@ -68,16 +67,119 @@ let isInterstitialReady = false;
 let isInterstitialLoading = false;
 let isInterstitialShowing = false;
 
+// 🔐 Variables pour le consentement RGPD
+let consentStatus: 'unknown' | 'required' | 'not_required' | 'obtained' = 'unknown';
+let isConsentFormShowing = false;
+
+// 🔐 NOUVELLE FONCTION : Vérifier et demander le consentement RGPD
+export async function requestConsent(): Promise<boolean> {
+  if (!isNative) {
+    console.log('📱 Pas sur mobile natif, consentement ignoré');
+    return true;
+  }
+
+  try {
+    console.log('🔐 [CONSENTEMENT RGPD] Vérification du statut...');
+
+    // Étape 1 : Vérifier si le consentement est requis
+    const consentInfo = await AdMob.requestConsentInfo();
+
+    console.log('📊 [CONSENTEMENT] Statut:', consentInfo);
+
+    // Vérifier le statut du consentement
+    if (consentInfo.status === 'OBTAINED') {
+      console.log('✅ [CONSENTEMENT] Déjà obtenu');
+      consentStatus = 'obtained';
+      return true;
+    }
+
+    if (consentInfo.status === 'NOT_REQUIRED') {
+      console.log('✅ [CONSENTEMENT] Non requis (hors UE/EEE)');
+      consentStatus = 'not_required';
+      return true;
+    }
+
+    // Le consentement est requis et non obtenu
+    console.log('⚠️ [CONSENTEMENT] Requis - Affichage du formulaire');
+    consentStatus = 'required';
+
+    // Étape 2 : Afficher le formulaire de consentement
+    if (!isConsentFormShowing) {
+      isConsentFormShowing = true;
+
+      try {
+        const result = await AdMob.showConsentForm();
+        console.log('✅ [CONSENTEMENT] Formulaire fermé:', result);
+
+        // Vérifier à nouveau le statut après le formulaire
+        const updatedInfo = await AdMob.requestConsentInfo();
+
+        if (updatedInfo.status === 'OBTAINED') {
+          console.log('✅ [CONSENTEMENT] Obtenu après formulaire');
+          consentStatus = 'obtained';
+          isConsentFormShowing = false;
+          return true;
+        } else {
+          console.log('⚠️ [CONSENTEMENT] Refusé ou incomplet');
+          consentStatus = 'required';
+          isConsentFormShowing = false;
+          return false;
+        }
+      } catch (error) {
+        console.error('❌ [CONSENTEMENT] Erreur affichage formulaire:', error);
+        isConsentFormShowing = false;
+        return false;
+      }
+    }
+
+    return false;
+
+  } catch (error) {
+    console.error('❌ [CONSENTEMENT] Erreur:', error);
+    // En cas d'erreur, on continue (mieux vaut afficher des pubs que crasher)
+    return true;
+  }
+}
+
+// 🔐 FONCTION : Réinitialiser le consentement (pour tests ou changement d'avis)
+export async function resetConsent(): Promise<void> {
+  if (!isNative) return;
+
+  try {
+    console.log('🔄 [CONSENTEMENT] Réinitialisation...');
+    await AdMob.resetConsentInfo();
+    consentStatus = 'unknown';
+    console.log('✅ [CONSENTEMENT] Réinitialisé');
+  } catch (error) {
+    console.error('❌ [CONSENTEMENT] Erreur réinitialisation:', error);
+  }
+}
+
+// 🔐 FONCTION : Obtenir le statut actuel du consentement
+export function getConsentStatus(): string {
+  return consentStatus;
+}
+
+// 🎯 FONCTION MODIFIÉE : Initialiser AdMob avec gestion du consentement
 export async function initialize() {
-  console.log(`📱 Initialisation AdMob - Mode: ${IS_PRODUCTION ? 'PRODUCTION' : 'TEST'}`);
-  console.log(`📱 Platform: ${platform}, isNative: ${isNative}`);
+  console.log(`📱 Initialisation AdMob TarotMystik - Mode: ${IS_PRODUCTION ? 'PRODUCTION' : 'TEST'}`);
 
   if (!isNative) {
-    console.log('📱 AdMob ignoré (pas sur mobile natif) - Vous êtes sur:', platform);
+    console.log('📱 AdMob ignoré (pas sur mobile natif)');
     return;
   }
 
   try {
+    // ✅ ÉTAPE 1 : Demander le consentement AVANT d'initialiser AdMob
+    console.log('🔐 [INIT] Étape 1/2 : Demande de consentement...');
+    const consentGranted = await requestConsent();
+
+    if (!consentGranted && consentStatus === 'required') {
+      console.warn('⚠️ [INIT] Consentement non obtenu - AdMob initialisé mais pubs limitées');
+    }
+
+    // ✅ ÉTAPE 2 : Initialiser AdMob
+    console.log('🔐 [INIT] Étape 2/2 : Initialisation AdMob...');
     await AdMob.initialize({
       testingDevices: IS_PRODUCTION ? [] : ['1763659614607'],
       initializeForTesting: !IS_PRODUCTION,
@@ -105,7 +207,6 @@ export async function initialize() {
       console.log('✅ Pub interstitielle fermée par l\'utilisateur');
       isInterstitialReady = false;
       isInterstitialShowing = false;
-      // 🔄 Recharger une nouvelle pub pour la prochaine fois
       setTimeout(() => preloadInterstitial(), 1000);
     });
 
@@ -115,17 +216,17 @@ export async function initialize() {
       isInterstitialShowing = false;
     });
 
-    console.log(`✅ AdMob initialisé en mode ${IS_PRODUCTION ? 'PRODUCTION' : 'TEST'}`);
+    console.log(`✅ AdMob TarotMystik initialisé en mode ${IS_PRODUCTION ? 'PRODUCTION' : 'TEST'}`);
+    console.log(`🔐 Statut consentement: ${consentStatus}`);
   } catch (error) {
     console.error('❌ Erreur init AdMob:', error);
   }
 }
 
-// 🎯 NOUVELLE FONCTION : Pré-charger la pub sans l'afficher
+// 🎯 Pré-charger la pub sans l'afficher
 export async function preloadInterstitial() {
   if (!isNative) return;
 
-  // Éviter de charger plusieurs fois
   if (isInterstitialReady || isInterstitialLoading) {
     console.log('⏭️ Pub déjà prête ou en chargement, skip');
     return;
@@ -146,7 +247,7 @@ export async function preloadInterstitial() {
   }
 }
 
-// 🎯 FONCTION AMÉLIORÉE : Affiche instantanément si prête, sinon attend
+// 🎯 Affiche instantanément si prête, sinon attend
 export async function showInterstitialAd(context: string = 'unknown'): Promise<boolean> {
   if (!isNative) {
     console.log('📱 Pas de pub (web) - Context:', context);
@@ -161,7 +262,6 @@ export async function showInterstitialAd(context: string = 'unknown'): Promise<b
   try {
     console.log(`📺 [PUB INTERSTITIEL] Context: ${context}`);
 
-    // ✅ Si la pub est prête, l'afficher IMMÉDIATEMENT
     if (isInterstitialReady) {
       console.log('⚡ Pub prête ! Affichage instantané...');
       await AdMob.showInterstitial();
@@ -169,7 +269,6 @@ export async function showInterstitialAd(context: string = 'unknown'): Promise<b
       return true;
     }
 
-    // ⏳ Sinon, charger puis afficher (avec timeout)
     console.log('⏳ Pub pas prête, chargement...');
 
     if (!isInterstitialLoading) {
@@ -178,7 +277,6 @@ export async function showInterstitialAd(context: string = 'unknown'): Promise<b
       });
     }
 
-    // Attendre max 5 secondes que la pub soit prête
     const maxWait = 5000;
     const startTime = Date.now();
 
@@ -214,7 +312,7 @@ export async function showBanner() {
     };
 
     await AdMob.showBanner(options);
-    console.log('✅ Bannière affichée');
+    console.log('✅ Bannière TarotMystik affichée');
   } catch (error) {
     console.error('❌ Erreur bannière:', error);
   }
@@ -242,7 +340,7 @@ export async function removeBanner() {
   }
 }
 
-// 🎁 PUB RÉCOMPENSÉE - VERSION PRODUCTION ULTRA-ROBUSTE
+// 🎁 PUB RÉCOMPENSÉE - VERSION ULTRA-ROBUSTE
 let rewardedAdCounter = 0;
 let currentRewardedAdPromise: Promise<boolean> | null = null;
 

@@ -23,6 +23,8 @@ interface InterpretationPageProps {
   onBackToMode: () => void;
   onPendulum?: () => void;
   onSaveReading?: (reading: any) => Promise<void>;
+  shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>; // ✅ AJOUTÉ
+  onReadingComplete?: (oracleType: string) => void; // ✅ AJOUTÉ
 }
 
 export default function InterpretationPage({
@@ -35,7 +37,9 @@ export default function InterpretationPage({
   onHome,
   onBackToMode,
   onSaveReading,
-  onPendulum
+  onPendulum,
+  shouldShowAdBeforeReading, // ✅ AJOUTÉ
+  onReadingComplete // ✅ AJOUTÉ
 }: InterpretationPageProps) {
   const { t } = useLanguage();
 

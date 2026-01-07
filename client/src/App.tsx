@@ -1,6 +1,4 @@
-// client/src/App.tsx - VERSION SANS API
 import { useState, useEffect } from "react";
-import GrimoireModal from './pages/GrimoireModal';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentCancelPage from './pages/PaymentCancelPage';
 import PremiumModal from './components/PremiumModal';
@@ -17,30 +15,34 @@ import OracleMystiqueApp from "@/pages/OracleMystiqueApp";
 import NotFound from "@/pages/not-found";
 import { initialize as initializeAdMob, showBanner, hideBanner, showInterstitialAd, preloadInterstitial } from './admobService';
 import { initializeRevenueCat } from './services/revenueCatService';
-import { getDeviceId } from '@/lib/deviceId';
-
-export interface Reading {
-  id: string;
-  type: 'loveOracle' | 'oracle' | 'pendulum' | 'angels' | 'runes' | 'wheel' | 'loveCalculator';
-  oracleTitle?: string;
-  date: Date;
-  cards?: string[];
-  question?: string;
-  answer?: string;
-  notes: string;
-  isFavorite: boolean;
-}
 
 type AppStep =
   | 'landing' | 'name' | 'date' | 'gender'
   | 'oracle' | 'game' | 'revelation' | 'interpretation'
   | 'pendulum' | 'wheel' | 'loveCalculator';  
 
-function Router({ onSaveReading, onStepChange, shouldShowAdBeforeReading, isPremium }: {
-  onSaveReading: (reading: any) => Promise<void>;
+interface OracleCounters {
+  lunar: number;
+  pendulum: number;
+  loveCalculator: number;
+  cardDrawing: number;
+  wheel: number;
+}
+
+function Router({ 
+  onStepChange, 
+  shouldShowAdBeforeReading, 
+  onReadingComplete,
+  isPremium,
+  wheelCounter,
+  onWheelComplete
+}: {
   onStepChange: (step: AppStep) => void;
   shouldShowAdBeforeReading: (oracleType: string) => Promise<boolean>;
+  onReadingComplete: (oracleType: string) => void;
   isPremium: boolean;
+  wheelCounter: number;
+  onWheelComplete: () => void;
 }) {
   return (
     <Switch>
@@ -48,10 +50,12 @@ function Router({ onSaveReading, onStepChange, shouldShowAdBeforeReading, isPrem
       <Route path="/cancel" component={PaymentCancelPage} />
       <Route path="/">
         <OracleMystiqueApp
-          onSaveReading={onSaveReading}
           onStepChange={onStepChange as any}
           shouldShowAdBeforeReading={shouldShowAdBeforeReading}
+          onReadingComplete={onReadingComplete}
           isPremium={isPremium}
+          wheelCounter={wheelCounter}
+          onWheelComplete={onWheelComplete}
         />
       </Route>
       <Route component={NotFound} />
@@ -59,66 +63,27 @@ function Router({ onSaveReading, onStepChange, shouldShowAdBeforeReading, isPrem
   );
 }
 
-// ✅ Stockage local pour les lectures
-const STORAGE_KEY = 'tarotmystik_readings';
-
-function loadReadingsFromStorage(): Reading[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return [];
-
-    const parsed = JSON.parse(stored);
-    return parsed.map((r: any) => ({
-      ...r,
-      date: new Date(r.date)
-    }));
-  } catch (error) {
-    console.error('❌ Erreur chargement lectures:', error);
-    return [];
-  }
-}
-
-function saveReadingsToStorage(readings: Reading[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(readings));
-    console.log('✅ Lectures sauvegardées:', readings.length);
-  } catch (error) {
-    console.error('❌ Erreur sauvegarde lectures:', error);
-  }
-}
-
 function App() {
-  const [isPremium] = useState(false); // TODO: Intégrer RevenueCat pour vérifier le statut
-  const [readings, setReadings] = useState<Reading[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isGrimoireOpen, setIsGrimoireOpen] = useState(false);
+  const [isPremium] = useState(false);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState<AppStep>('landing');
   const [showNotificationModal, setShowNotificationModal] = useState(false);
-  const [readingCount, setReadingCount] = useState(0);
   const [bannerShown, setBannerShown] = useState(false);
-  const [deviceId, setDeviceId] = useState<string>('');
 
-  // ✅ Initialiser Device ID
-  useEffect(() => {
-    const initDeviceId = async () => {
-      const id = await getDeviceId();
-      setDeviceId(id);
-      console.log('🔑 Device ID initialisé:', id);
-    };
-    initDeviceId();
-  }, []);
+  const [oracleCounters, setOracleCounters] = useState<OracleCounters>({
+    lunar: 0,
+    pendulum: 0,
+    loveCalculator: 0,
+    cardDrawing: 0,
+    wheel: 0
+  });
 
-  // ✅ Initialiser services (AdMob + RevenueCat)
   useEffect(() => {
     const initServices = async () => {
       try {
         await initializeAdMob();
         await initializeRevenueCat();
         console.log('✅ Services AdMob + RevenueCat initialisés');
-
-        // TODO: Vérifier le statut Premium via RevenueCat
-        // setIsPremium(await checkPremiumStatus());
       } catch (error) {
         console.error('❌ Erreur initialisation services:', error);
       }
@@ -126,7 +91,7 @@ function App() {
     initServices();
   }, []);
 
-  // ✅ Gérer l'affichage de la bannière
+  // ✅ GESTION BANNIÈRE : Permanente à partir de la page Oracle (sauf Premium)
   useEffect(() => {
     if (isPremium) {
       console.log('👑 Premium actif : bannière cachée');
@@ -137,21 +102,32 @@ function App() {
       return;
     }
 
-    if (currentStep === 'oracle' && !bannerShown) {
-      console.log('🎯 Page Oracle atteinte → Affichage de la bannière');
+    // Pages où la bannière NE doit PAS s'afficher (onboarding uniquement)
+    const noBannerPages = ['landing', 'name', 'date', 'gender'];
+    const shouldShowBanner = !noBannerPages.includes(currentStep);
+
+    // Afficher la bannière sur toutes les pages après l'onboarding
+    if (shouldShowBanner && !bannerShown) {
+      console.log(`🎯 Page "${currentStep}" atteinte → Affichage de la bannière permanente`);
       const timer = setTimeout(() => {
         showBanner();
         setBannerShown(true);
-        console.log('📺 Bannière affichée (utilisateur gratuit)');
+        console.log('📺 Bannière affichée en permanence (utilisateur gratuit)');
       }, 500);
 
       return () => clearTimeout(timer);
+    }
+
+    // Cacher la bannière uniquement si on retourne sur les pages d'onboarding
+    if (!shouldShowBanner && bannerShown) {
+      console.log('👋 Retour à l\'onboarding → Masquer la bannière');
+      hideBanner();
+      setBannerShown(false);
     }
   }, [currentStep, isPremium, bannerShown]);
 
   const showTopBar = !['landing', 'name', 'date', 'gender'].includes(currentStep);
 
-  // ✅ Vérifier permissions notifications
   useEffect(() => {
     const checkNotificationPermission = () => {
       const permission = localStorage.getItem('notificationPermission');
@@ -162,69 +138,68 @@ function App() {
     checkNotificationPermission();
   }, [currentStep]);
 
-  // ✅ Charger les lectures depuis le localStorage
-  useEffect(() => {
-    if (!deviceId) return;
-
-    console.log('📖 Chargement lectures depuis localStorage...');
-    const stored = loadReadingsFromStorage();
-    setReadings(stored);
-    setIsLoading(false);
-    console.log('✅ Lectures chargées:', stored.length);
-  }, [deviceId]);
-
-  // ✅ Sauvegarder une note
-  const handleSaveNote = async (readingId: string, note: string) => {
-    setReadings(prev => {
-      const updated = prev.map(r => 
-        r.id === readingId ? { ...r, notes: note } : r
-      );
-      saveReadingsToStorage(updated);
-      return updated;
-    });
-    console.log('✅ Note sauvegardée pour:', readingId);
-  };
-
-  // ✅ Toggle favori
-  const handleToggleFavorite = async (readingId: string) => {
-    setReadings(prev => {
-      const updated = prev.map(r =>
-        r.id === readingId ? { ...r, isFavorite: !r.isFavorite } : r
-      );
-      saveReadingsToStorage(updated);
-      return updated;
-    });
-    console.log('✅ Favori togglé pour:', readingId);
-  };
-
-  // ✅ Vider le grimoire
-  const clearAllReadings = async () => {
-    console.log('🗑️ Suppression de tous les tirages du Grimoire...');
-    setReadings([]);
-    localStorage.removeItem(STORAGE_KEY);
-    console.log('🔥 Grimoire vidé !');
-  };
-
-  // ✅ Vérifier si on doit afficher une pub
+  /**
+   * 🎯 Vérifie si on doit afficher une pub AVANT le tirage
+   * ✅ FIX : On vérifie le PROCHAIN compteur (nextCount) au lieu du current
+   */
   const shouldShowAdBeforeReading = async (oracleType: string): Promise<boolean> => {
-    console.log(`🎯 [PUB CHECK] Oracle sélectionné: "${oracleType}"`);
-
     if (isPremium) {
-      console.log('👑 Premium actif : pas de pub');
+      console.log('👑 Utilisateur Premium - Pas de pub');
       return false;
     }
 
-    if (oracleType === 'wheel') {  
-      console.log(`⏭️ "${oracleType}" exclu : pas de pub interstitielle`);
+    console.log(`🎯 [PUB CHECK] Oracle: "${oracleType}" | Compteurs actuels:`, oracleCounters);
+
+    // La roue est un cas spécial (pub récompensée au 1er tirage, gérée dans WheelPage)
+    if (oracleType === 'wheel') {
+      console.log(`⏭️ "wheel" : pub récompensée gérée dans WheelPage`);
       return false;
     }
 
-    const nextCount = readingCount + 1;
-    const shouldShow = nextCount % 3 === 0;
+    let counterKey: keyof OracleCounters;
+    let shouldShowPub = false;
 
-    console.log(`📊 Compteur: ${readingCount} → ${nextCount} | Pub: ${shouldShow ? 'OUI ✅' : 'NON ❌'}`);
+    // ✅ FIX : On calcule le PROCHAIN compteur pour savoir si on doit afficher la pub MAINTENANT
+    const currentCount = oracleCounters[oracleType === 'loveOracle' || oracleType === 'threeCards' || oracleType === 'crossSpread' ? 'cardDrawing' : oracleType as keyof OracleCounters];
+    const nextCount = currentCount + 1; // Le compteur qui sera après ce tirage
 
-    if (shouldShow) {
+    switch (oracleType) {
+      case 'lunar':
+        counterKey = 'lunar';
+        // Pub au 2ème tirage (nextCount=2), puis tous les 3 (nextCount=5, 8, 11...)
+        shouldShowPub = nextCount === 2 || (nextCount > 2 && (nextCount - 2) % 3 === 0);
+        console.log(`📊 LUNAR: current=${currentCount}, next=${nextCount} | Pub: ${shouldShowPub ? 'OUI ✅' : 'NON ❌'}`);
+        break;
+
+      case 'pendulum':
+        counterKey = 'pendulum';
+        // Pub au 2ème tirage (nextCount=2), puis tous les 3 (nextCount=5, 8, 11...)
+        shouldShowPub = nextCount === 2 || (nextCount > 2 && (nextCount - 2) % 3 === 0);
+        console.log(`📊 PENDULUM: current=${currentCount}, next=${nextCount} | Pub: ${shouldShowPub ? 'OUI ✅' : 'NON ❌'}`);
+        break;
+
+      case 'loveCalculator':
+        counterKey = 'loveCalculator';
+        // Pub tous les 2 tirages (nextCount=2, 4, 6, 8...)
+        shouldShowPub = nextCount % 2 === 0;
+        console.log(`📊 LOVE_CALCULATOR: current=${currentCount}, next=${nextCount} | Pub: ${shouldShowPub ? 'OUI ✅' : 'NON ❌'}`);
+        break;
+
+      case 'loveOracle':
+      case 'threeCards':
+      case 'crossSpread':
+        counterKey = 'cardDrawing';
+        // Pub au 2ème tirage (nextCount=2), puis tous les 3 (nextCount=5, 8, 11...)
+        shouldShowPub = nextCount === 2 || (nextCount > 2 && (nextCount - 2) % 3 === 0);
+        console.log(`📊 CARD_DRAWING (${oracleType}): current=${currentCount}, next=${nextCount} | Pub: ${shouldShowPub ? 'OUI ✅' : 'NON ❌'}`);
+        break;
+
+      default:
+        console.log(`⚠️ Oracle "${oracleType}" non reconnu, pas de pub`);
+        return false;
+    }
+
+    if (shouldShowPub) {
       console.log('🎬 Affichage pub interstitielle AVANT le tirage');
       try {
         await showInterstitialAd(`before_${oracleType}`);
@@ -234,57 +209,81 @@ function App() {
       }
     }
 
-    if ((nextCount + 1) % 3 === 0) {
-      console.log(`🔄 Pré-chargement pub pour le tirage #${nextCount + 1}`);
+    // Pré-charger la prochaine pub
+    const followingCount = nextCount + 1;
+    let shouldPreloadNext = false;
+
+    switch (counterKey) {
+      case 'lunar':
+      case 'pendulum':
+      case 'cardDrawing':
+        shouldPreloadNext = followingCount === 2 || (followingCount > 2 && (followingCount - 2) % 3 === 0);
+        break;
+      case 'loveCalculator':
+        shouldPreloadNext = followingCount % 2 === 0;
+        break;
+    }
+
+    if (shouldPreloadNext) {
+      console.log(`🔄 Pré-chargement pub pour le prochain tirage (count=${followingCount})`);
       setTimeout(() => preloadInterstitial(), 1000);
     }
 
-    return shouldShow;
+    return shouldShowPub;
   };
 
-  // ✅ Ajouter une lecture
-  const addReading = async (reading: Omit<Reading, 'id' | 'notes' | 'isFavorite'>) => {
-    const typesExcludedFromGrimoire = ['pendulum', 'mysteryDice', 'wheel'];
-    const shouldSaveInGrimoire = !typesExcludedFromGrimoire.includes(reading.type);
+  /**
+   * 📈 Incrémenter le compteur APRÈS un tirage
+   */
+  const handleReadingComplete = (oracleType: string) => {
+    console.log(`📈 [COMPTEUR] Tirage complété: ${oracleType}`);
 
-    const typesCountedForAds = ['loveOracle', 'lunar', 'runes', 'pendulum'];
-    const shouldIncrementCounter = typesCountedForAds.includes(reading.type);
+    setOracleCounters(prev => {
+      const newCounters = { ...prev };
 
-    console.log(`📤 Nouveau tirage: "${reading.type}" | Grimoire: ${shouldSaveInGrimoire} | Compteur: ${shouldIncrementCounter}`);
+      switch (oracleType) {
+        case 'lunar':
+          newCounters.lunar += 1;
+          console.log(`✅ LUNAR: ${prev.lunar} → ${newCounters.lunar}`);
+          break;
 
-    if (shouldSaveInGrimoire) {
-      const newReading: Reading = {
-        ...reading,
-        id: `reading_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
-        notes: '',
-        isFavorite: false
-      };
+        case 'pendulum':
+          newCounters.pendulum += 1;
+          console.log(`✅ PENDULUM: ${prev.pendulum} → ${newCounters.pendulum}`);
+          break;
 
-      setReadings(prev => {
-        const updated = [newReading, ...prev];
-        saveReadingsToStorage(updated);
-        return updated;
-      });
+        case 'loveCalculator':
+          newCounters.loveCalculator += 1;
+          console.log(`✅ LOVE_CALCULATOR: ${prev.loveCalculator} → ${newCounters.loveCalculator}`);
+          break;
 
-      console.log('✅ Tirage enregistré dans le Grimoire:', newReading.id);
-    }
+        case 'loveOracle':
+        case 'threeCards':
+        case 'crossSpread':
+          newCounters.cardDrawing += 1;
+          console.log(`✅ CARD_DRAWING (${oracleType}): ${prev.cardDrawing} → ${newCounters.cardDrawing}`);
+          break;
 
-    if (shouldIncrementCounter) {
-      setReadingCount(prev => {
-        const newCount = prev + 1;
-        console.log(`📊 ✅ Compteur mis à jour: ${prev} → ${newCount}`);
-        return newCount;
-      });
-    }
+        case 'wheel':
+          newCounters.wheel += 1;
+          console.log(`✅ WHEEL: ${prev.wheel} → ${newCounters.wheel}`);
+          break;
+
+        default:
+          console.log(`⚠️ Type "${oracleType}" non comptabilisé`);
+      }
+
+      return newCounters;
+    });
   };
 
-  if (isLoading) {
-    return (
-      <div className="w-screen h-screen flex items-center justify-center bg-gray-900">
-        <div className="text-purple-400 text-xl">Chargement...</div>
-      </div>
-    );
-  }
+  /**
+   * 🎡 Callback pour la roue
+   */
+  const handleWheelComplete = () => {
+    console.log(`🎡 [WHEEL] Tirage terminé`);
+    handleReadingComplete('wheel');
+  };
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -292,22 +291,41 @@ function App() {
         <UserProvider>
           <TooltipProvider>
             <div className="dark relative w-screen h-screen overflow-hidden">
+              {/* ✅ CSS pour éviter que la bannière cache les boutons */}
               {!isPremium && bannerShown && (
                 <style>{`
+                  /* ✅ Espace réservé pour la bannière AdMob (60px) + marge de sécurité (50px) */
                   .main-content {
                     padding-bottom: 110px !important;
                   }
+
+                  /* ✅ Classe pour les éléments qui doivent rester visibles */
+                  .pb-safe {
+                    padding-bottom: 110px !important;
+                  }
+
+                  /* ✅ Responsive desktop */
                   @media (min-width: 640px) {
-                    .main-content {
+                    .main-content, .pb-safe {
                       padding-bottom: 120px !important;
                     }
+                  }
+
+                  /* ⚠️ CRITIQUE : Empêcher l'overlap des boutons avec la bannière */
+                  button, a, input, textarea {
+                    position: relative;
+                    z-index: 10;
+                  }
+
+                  /* ⚠️ Bannière au-dessus du fond mais sous les overlays */
+                  #admob-banner {
+                    z-index: 5 !important;
                   }
                 `}</style>
               )}
 
               {showTopBar && (
                 <TopBar
-                  onOpenGrimoire={() => setIsGrimoireOpen(true)}
                   onOpenPremium={() => setIsPremiumModalOpen(true)}
                   isPremium={isPremium}
                 />
@@ -319,36 +337,26 @@ function App() {
                 />
               )}
 
-              {isGrimoireOpen && (
-                <GrimoireModal
-                  isPremium={isPremium}
-                  readings={readings}
-                  onSaveNote={handleSaveNote}
-                  onToggleFavorite={handleToggleFavorite}
-                  onClose={() => setIsGrimoireOpen(false)}
-                  onClearAll={clearAllReadings}
-                />
-              )}
-
               {isPremiumModalOpen && (
                 <PremiumModal
                   isOpen={isPremiumModalOpen}
                   onClose={() => setIsPremiumModalOpen(false)}
                   onPurchase={() => {
                     setIsPremiumModalOpen(false);
-                    window.location.reload();
                   }}
                 />
               )}
 
               <Toaster />
 
-              <div className="w-full h-full overflow-y-auto">
+              <div className={`w-full h-full overflow-y-auto ${!isPremium && bannerShown ? 'main-content' : ''}`}>
                 <Router
-                  onSaveReading={addReading}
                   onStepChange={setCurrentStep}
                   shouldShowAdBeforeReading={shouldShowAdBeforeReading}
+                  onReadingComplete={handleReadingComplete}
                   isPremium={isPremium}
+                  wheelCounter={oracleCounters.wheel}
+                  onWheelComplete={handleWheelComplete}
                 />
               </div>
             </div>

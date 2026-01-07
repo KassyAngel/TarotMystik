@@ -7,7 +7,7 @@ import RestorePremiumModal from './RestorePremiumModal';
 interface MenuDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onOpenGrimoire: () => void;
+  // ❌ SUPPRIMÉ : onOpenGrimoire: () => void;
   onOpenPremium: () => void;
   isPremium: boolean;
 }
@@ -20,7 +20,7 @@ const languages: { code: Language; name: string; flag: string }[] = [
   { code: 'it', name: 'Italiano', flag: '🇮🇹' }
 ];
 
-export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPremium, isPremium }: MenuDrawerProps) {
+export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }: MenuDrawerProps) {
   const { t, language, setLanguage } = useLanguage();
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [legalModal, setLegalModal] = useState<'legal' | 'privacy' | null>(null);
@@ -44,7 +44,6 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
     }
   }, [isOpen, onClose, legalModal, isRestoreModalOpen]);
 
-  // 🔧 Nettoyer les modales quand le drawer se ferme
   useEffect(() => {
     if (!isOpen) {
       setLegalModal(null);
@@ -58,49 +57,31 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
 
   return (
     <>
-      {/* Overlay */}
       <div 
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 animate-fade-in"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 animate-fade-in"
         onClick={onClose}
       />
 
-      {/* Drawer */}
-      <div className="fixed left-0 top-0 bottom-0 w-80 bg-gradient-to-b from-purple-900 via-indigo-900 to-purple-900 shadow-2xl z-50 transform transition-transform duration-300 animate-slide-in-left overflow-y-auto">
+      <div className="fixed left-0 top-0 bottom-0 w-80 bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900 shadow-2xl z-50 transform transition-transform duration-300 animate-slide-in-left overflow-y-auto border-r border-cyan-400/20">
 
-        {/* Header */}
-        <div className="p-6 border-b border-purple-500/30">
+        <div className="p-6 border-b border-cyan-400/20">
           <div className="flex items-center justify-between">
-            <h2 className="text-yellow-300 font-serif font-bold text-2xl">Menu</h2>
+            <h2 className="text-amber-300 font-serif font-bold text-2xl drop-shadow-[0_2px_8px_rgba(251,191,36,0.4)]">Menu</h2>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-purple-700/50 transition-colors"
+              className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/60 transition-colors border border-cyan-400/20"
               aria-label={t('common.close')}
             >
-              <svg className="w-6 h-6 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-cyan-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
         </div>
 
-        {/* Menu items */}
         <nav className="p-4 space-y-2">
 
-          {/* Grimoire */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onOpenGrimoire();
-            }}
-            className="w-full flex items-center gap-4 p-4 rounded-xl bg-purple-800/30 hover:bg-purple-700/50 transition-all group"
-          >
-            <div className="text-3xl group-hover:scale-110 transition-transform">📕</div>
-            <div className="flex-1 text-left">
-              <div className="text-purple-100 font-semibold">{t('grimoire.title')}</div>
-              <div className="text-purple-300 text-xs">{t('grimoire.subtitle')}</div>
-            </div>
-          </button>
+          {/* ❌ SUPPRIMÉ : Bouton Grimoire */}
 
           {/* Premium */}
           <button
@@ -110,7 +91,7 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
               e.stopPropagation();
               onOpenPremium();
             }}
-            className="w-full flex items-center gap-4 p-4 rounded-xl bg-purple-800/30 hover:bg-purple-700/50 transition-all group relative overflow-hidden"
+            className="w-full flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-amber-900/40 to-yellow-900/40 hover:from-amber-800/50 hover:to-yellow-800/50 transition-all group relative overflow-hidden border border-amber-400/30 hover:border-amber-300/50"
           >
             {isPremium && (
               <div className="absolute top-1 right-1 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -119,12 +100,11 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
             )}
             <div className="text-3xl group-hover:scale-110 transition-transform">⭐</div>
             <div className="flex-1 text-left">
-              <div className="text-yellow-300 font-semibold">{t('premium.title')}</div>
-              <div className="text-purple-300 text-xs">{t('premium.subtitle')}</div>
+              <div className="text-amber-200 font-semibold">{t('premium.title')}</div>
+              <div className="text-amber-300/70 text-xs">{t('premium.subtitle')}</div>
             </div>
           </button>
 
-          {/* 🆕 Restaurer mon abonnement (visible seulement si non-Premium) */}
           {!isPremium && (
             <button
               type="button"
@@ -133,14 +113,14 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
                 e.stopPropagation();
                 setIsRestoreModalOpen(true);
               }}
-              className="w-full flex items-center gap-4 p-4 rounded-xl bg-indigo-800/30 hover:bg-indigo-700/50 transition-all group border border-indigo-500/30"
+              className="w-full flex items-center gap-4 p-4 rounded-xl bg-blue-900/30 hover:bg-blue-800/40 transition-all group border border-blue-400/30 hover:border-blue-300/50"
             >
               <div className="text-3xl group-hover:scale-110 transition-transform">🔄</div>
               <div className="flex-1 text-left">
-                <div className="text-indigo-200 font-semibold">
+                <div className="text-blue-200 font-semibold">
                   {t('premium.restore.title') || 'Restaurer mon abonnement'}
                 </div>
-                <div className="text-indigo-300 text-xs">
+                <div className="text-blue-300/70 text-xs">
                   {t('premium.restore.subtitle') || 'Déjà Premium ? Récupérez votre accès'}
                 </div>
               </div>
@@ -148,21 +128,21 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
           )}
 
           {/* Langue */}
-          <div className="pt-4 border-t border-purple-500/30">
+          <div className="pt-4 border-t border-cyan-400/20">
             <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 setIsLanguageOpen(!isLanguageOpen);
               }}
-              className="w-full flex items-center gap-4 p-4 rounded-xl bg-purple-800/30 hover:bg-purple-700/50 transition-all group"
+              className="w-full flex items-center gap-4 p-4 rounded-xl bg-slate-800/40 hover:bg-slate-700/50 transition-all group border border-cyan-400/20 hover:border-cyan-300/40"
             >
-              <Globe className="w-6 h-6 text-purple-200 group-hover:scale-110 transition-transform" />
+              <Globe className="w-6 h-6 text-cyan-200 group-hover:scale-110 transition-transform" />
               <div className="flex-1 text-left">
-                <div className="text-purple-100 font-semibold flex items-center gap-2">
+                <div className="text-cyan-100 font-semibold flex items-center gap-2">
                   {currentLanguage?.flag} {currentLanguage?.name}
                 </div>
-                <div className="text-purple-300 text-xs">
+                <div className="text-slate-300 text-xs">
                   {language === 'fr' && 'Changer la langue'}
                   {language === 'en' && 'Change language'}
                   {language === 'es' && 'Cambiar idioma'}
@@ -171,9 +151,9 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
                 </div>
               </div>
               {isLanguageOpen ? (
-                <ChevronUp className="w-5 h-5 text-purple-300" />
+                <ChevronUp className="w-5 h-5 text-cyan-300" />
               ) : (
-                <ChevronDown className="w-5 h-5 text-purple-300" />
+                <ChevronDown className="w-5 h-5 text-cyan-300" />
               )}
             </button>
 
@@ -191,14 +171,14 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
                     }}
                     className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
                       language === lang.code
-                        ? 'bg-purple-700/50 text-yellow-300'
-                        : 'hover:bg-purple-700/30 text-purple-200'
+                        ? 'bg-cyan-900/50 text-amber-300 border border-cyan-400/30'
+                        : 'hover:bg-slate-800/40 text-cyan-200 border border-transparent'
                     }`}
                   >
                     <span className="text-xl">{lang.flag}</span>
                     <span className="text-sm font-medium">{lang.name}</span>
                     {language === lang.code && (
-                      <span className="ml-auto text-yellow-300">✓</span>
+                      <span className="ml-auto text-amber-300">✓</span>
                     )}
                   </button>
                 ))}
@@ -207,10 +187,10 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
           </div>
 
           {/* Pages légales */}
-          <div className="pt-4 border-t border-purple-500/30 space-y-1">
+          <div className="pt-4 border-t border-cyan-400/20 space-y-1">
             <button
               onClick={() => setLegalModal('legal')}
-              className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-purple-700/30 transition-colors text-purple-200 text-sm"
+              className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-slate-800/40 transition-colors text-slate-300 text-sm border border-transparent hover:border-cyan-400/20"
             >
               <span>📜</span>
               <span>{t('legal.mentions')}</span>
@@ -218,7 +198,7 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
 
             <button
               onClick={() => setLegalModal('privacy')}
-              className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-purple-700/30 transition-colors text-purple-200 text-sm"
+              className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-slate-800/40 transition-colors text-slate-300 text-sm border border-transparent hover:border-cyan-400/20"
             >
               <span>🔒</span>
               <span>{t('legal.privacy')}</span>
@@ -226,29 +206,26 @@ export default function MenuDrawer({ isOpen, onClose, onOpenGrimoire, onOpenPrem
           </div>
         </nav>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-purple-500/30 mt-4">
-          <p className="text-purple-300 text-xs text-center">
+        <div className="p-4 border-t border-cyan-400/20 mt-4">
+          <p className="text-slate-400 text-xs text-center">
             TarotMystik v1.0
           </p>
         </div>
       </div>
 
-      {/* Modal légal */}
       <LegalModal 
         isOpen={legalModal !== null}
         onClose={() => setLegalModal(null)}
         type={legalModal || 'legal'}
       />
 
-      {/* 🆕 Modal Restauration Premium */}
       <RestorePremiumModal
         isOpen={isRestoreModalOpen}
         onClose={() => setIsRestoreModalOpen(false)}
         onRestoreSuccess={() => {
           setIsRestoreModalOpen(false);
-          onClose(); // Fermer le menu
-          window.location.reload(); // Recharger pour mettre à jour le statut
+          onClose();
+          window.location.reload();
         }}
       />
     </>

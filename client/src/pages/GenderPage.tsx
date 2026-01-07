@@ -29,13 +29,29 @@ export default function GenderPage({ onNext, onBack }: GenderPageProps) {
 
   return (
     <>
-      <div className="intro-page active flex flex-col min-h-screen text-center px-6 relative overflow-hidden bg-gradient-to-b from-[#0e0020] via-[#1b0338] to-[#0a0017] text-white pt-16 sm:pt-20">
+      <div className="intro-page active flex flex-col min-h-screen text-center px-6 relative overflow-hidden text-white pt-16 sm:pt-20">
 
-        {/* Effet d'étoiles */}
-        <div className="absolute inset-0 bg-[url('/stars-bg.svg')] bg-cover opacity-20 pointer-events-none"></div>
+        {/* Fond dégradé unifié bleu nuit */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a1929] via-[#1e3a5f] to-[#0f2744] -z-10"></div>
 
-        {/* Halo central */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[450px] h-[450px] rounded-full bg-gradient-to-br from-amber-400/10 via-purple-500/10 to-transparent blur-3xl"></div>
+        {/* Étoiles scintillantes */}
+        <div className="absolute inset-0 -z-10">
+          {[...Array(50)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-1 h-1 bg-cyan-300 rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 3}s`,
+                animationDuration: `${2 + Math.random() * 3}s`
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Halo central cyan */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[450px] h-[450px] rounded-full bg-gradient-to-br from-cyan-400/15 via-blue-500/15 to-transparent blur-3xl -z-10"></div>
 
         {/* Barre de progression */}
         <div className="mb-4">
@@ -45,80 +61,90 @@ export default function GenderPage({ onNext, onBack }: GenderPageProps) {
         {/* Contenu principal */}
         <div className="flex-1 flex flex-col justify-center z-10 max-w-md mx-auto w-full space-y-5 sm:space-y-6 py-4">
 
-          {/* Symbole mystique ✦ */}
+          {/* Symbole mystique 3D avec anneaux */}
           <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center mx-auto">
-            <div className="absolute inset-0 border-2 border-amber-400/20 rounded-full" style={{ animation: 'spin-slow 30s linear infinite' }}></div>
-            <div className="absolute inset-2 border border-purple-400/30 rounded-full" style={{ animation: 'spin-reverse 20s linear infinite' }}></div>
-            <div className="absolute inset-4 border border-blue-400/20 rounded-full" style={{ animation: 'spin-slow 30s linear infinite' }}></div>
+            <div className="absolute inset-0 border-2 border-cyan-400/30 rounded-full shadow-[0_0_20px_rgba(34,211,238,0.2)]" style={{ animation: 'spin-slow 30s linear infinite' }}></div>
+            <div className="absolute inset-2 border border-blue-400/40 rounded-full shadow-[inset_0_0_15px_rgba(59,130,246,0.2)]" style={{ animation: 'spin-reverse 20s linear infinite' }}></div>
+            <div className="absolute inset-4 border border-indigo-400/30 rounded-full" style={{ animation: 'spin-slow 30s linear infinite' }}></div>
 
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-4xl sm:text-5xl text-amber-300/90 font-serif" style={{ animation: 'pulse-slow 3s ease-in-out infinite' }}>✦</div>
+              <div className="relative text-4xl sm:text-5xl text-cyan-300/90 font-serif drop-shadow-[0_4px_15px_rgba(34,211,238,0.6)]" style={{ animation: 'pulse-slow 3s ease-in-out infinite' }}>
+                ✦
+                {/* Reflet 3D */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent"></div>
+              </div>
             </div>
 
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-400/10 via-purple-400/10 to-blue-400/10 rounded-full blur-2xl" style={{ animation: 'pulse-slow 3s ease-in-out infinite' }}></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 via-blue-400/10 to-indigo-400/10 rounded-full blur-2xl" style={{ animation: 'pulse-slow 3s ease-in-out infinite' }}></div>
           </div>
 
-          {/* Titre */}
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-200 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(251,191,36,0.3)]">
+          {/* Titre cyan/bleu avec effet 3D */}
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent drop-shadow-[0_4px_20px_rgba(34,211,238,0.4)]"
+              style={{ textShadow: '0 2px 40px rgba(34,211,238,0.3)' }}>
             {t('gender.title') || 'Genre'}
           </h1>
 
           {/* Sous-titre */}
-          <p className="text-purple-100 text-sm sm:text-base font-light leading-relaxed max-w-sm mx-auto px-4">
+          <p className="text-slate-300 text-sm sm:text-base font-light leading-relaxed max-w-sm mx-auto px-4">
             {t('gender.subtitle') || 'Indiquez votre genre afin de personnaliser votre expérience'}
           </p>
 
-          {/* Ligne décorative */}
+          {/* Ligne décorative cyan */}
           <div className="flex items-center justify-center gap-2">
-            <div className="w-8 h-px bg-gradient-to-r from-transparent to-amber-400/40"></div>
-            <span className="text-amber-400/70 text-lg">✦</span>
-            <div className="w-8 h-px bg-gradient-to-l from-transparent to-amber-400/40"></div>
+            <div className="w-8 h-px bg-gradient-to-r from-transparent to-cyan-400/50"></div>
+            <span className="text-cyan-400/70 text-lg">✦</span>
+            <div className="w-8 h-px bg-gradient-to-l from-transparent to-cyan-400/50"></div>
           </div>
 
-          {/* Sélecteur de genre */}
+          {/* Sélecteur de genre avec effet 3D glassmorphism */}
           <div className="w-full max-w-sm mx-auto space-y-2.5 sm:space-y-3">
             {genderOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"
                 onClick={() => setSelectedGender(option.value)}
-                className={`w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-3.5 rounded-xl border-2 transition-all duration-300 group
+                className={`relative w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-3.5 rounded-xl border-2 transition-all duration-300 group backdrop-blur-sm overflow-hidden
                   ${selectedGender === option.value
-                    ? 'border-amber-400 bg-amber-400/20 scale-[1.02] shadow-lg shadow-amber-400/20'
-                    : 'border-purple-500/30 bg-purple-800/20 hover:border-amber-400/50 hover:bg-purple-700/30 hover:scale-[1.01] hover:shadow-md hover:shadow-purple-400/10'
+                    ? 'border-cyan-400 bg-cyan-400/20 scale-[1.02] shadow-[0_8px_30px_rgba(34,211,238,0.4),inset_0_2px_10px_rgba(255,255,255,0.1)]'
+                    : 'border-slate-600/50 bg-slate-800/30 hover:border-cyan-400/60 hover:bg-slate-700/40 hover:scale-[1.01] hover:shadow-[0_4px_20px_rgba(34,211,238,0.2)]'
                   }`}
               >
-                <span className={`text-2xl sm:text-3xl transition-transform duration-300 group-hover:scale-110 ${
+                {/* Reflet supérieur 3D */}
+                <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
+
+                <span className={`text-2xl sm:text-3xl transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_2px_10px_rgba(34,211,238,0.3)] ${
                   selectedGender === option.value ? 'animate-bounce-once' : ''
                 }`}>
                   {option.icon}
                 </span>
                 <span className={`flex-1 text-left text-base sm:text-lg font-medium transition-colors ${
-                  selectedGender === option.value ? 'text-amber-200' : 'text-purple-200 group-hover:text-amber-200'
+                  selectedGender === option.value ? 'text-cyan-200' : 'text-slate-300 group-hover:text-cyan-200'
                 }`}>
                   {option.label}
                 </span>
                 {selectedGender === option.value && (
-                  <span className="text-amber-400 text-xl animate-fade-in">✓</span>
+                  <span className="text-cyan-400 text-xl animate-fade-in drop-shadow-[0_0_10px_rgba(34,211,238,0.6)]">✓</span>
                 )}
               </button>
             ))}
           </div>
 
-          {/* Bouton retour */}
+          {/* Bouton retour harmonisé avec les autres pages */}
           <div className="flex justify-center pt-2">
-            <MysticalButton
-              variant="secondary"
-              onClick={onBack}
-              data-testid="button-back"
-              className="px-6 py-2 text-sm sm:text-base rounded-full font-medium tracking-wide 
-                         shadow-md hover:shadow-lg hover:shadow-amber-400/20 transition-all duration-300"
-            >
-              <span className="flex items-center justify-center gap-2">
-                <span className="text-amber-300">←</span>
-                <span>{t('gender.back') || 'Retour'}</span>
-              </span>
-            </MysticalButton>
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-slate-600/20 to-slate-700/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <MysticalButton
+                variant="secondary"
+                onClick={onBack}
+                data-testid="button-back"
+                className="relative px-6 py-2 text-sm sm:text-base rounded-full font-medium tracking-wide bg-slate-800/60 hover:bg-slate-700/60 text-cyan-300 border-2 border-slate-600/50 hover:border-cyan-500/50 backdrop-blur-sm shadow-[0_4px_15px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_20px_rgba(34,211,238,0.2)] transition-all duration-300"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <span className="text-cyan-300">←</span>
+                  <span>{t('gender.back') || 'Retour'}</span>
+                </span>
+              </MysticalButton>
+            </div>
           </div>
         </div>
 

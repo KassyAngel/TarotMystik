@@ -1,4 +1,3 @@
-// client/src/pages/OracleSelection.tsx
 import OracleCard from '@/components/OracleCard';
 import MysticalButton from '@/components/MysticalButton';
 import { UserSession } from '@shared/schema';
@@ -14,7 +13,6 @@ interface OracleSelectionProps {
 }
 
 export default function OracleSelection({
-  user,
   onOracleSelect,
   onBack,
   onHome
@@ -28,19 +26,71 @@ export default function OracleSelection({
       id: 'loveOracle',
       title: t('oracle.loveOracle.title'),
       description: t('oracle.loveOracle.description'),
-      icon: '💘'
+      icon: '💘',
+      // Violet romantique doux
+      gradient: 'from-purple-900/30 via-violet-800/25 to-purple-900/30',
+      border: 'border-purple-400/70',
+      hoverBorder: 'hover:border-purple-300',
+      shadow: 'shadow-[0_8px_32px_rgba(167,139,250,0.3)]',
+      hoverShadow: 'hover:shadow-[0_12px_48px_rgba(167,139,250,0.5)]',
+      iconGlow: 'bg-purple-400/40',
+      iconBg: 'bg-gradient-to-br from-purple-900/70 to-violet-900/70',
+      iconBorder: 'border-purple-400/50',
+      titleColor: 'text-purple-100',
+      descColor: 'text-purple-200/90'
     },
     {
       id: 'lunar',
       title: t('oracle.lunar.title') || 'Oracle Lunaire',
       description: t('oracle.lunar.description') || 'Les phases de la Lune révèlent votre chemin',
-      icon: '🌙'
+      icon: '🌙',
+      // Bleu lunaire profond
+      gradient: 'from-blue-900/30 via-indigo-800/25 to-blue-900/30',
+      border: 'border-blue-400/70',
+      hoverBorder: 'hover:border-blue-300',
+      shadow: 'shadow-[0_8px_32px_rgba(96,165,250,0.3)]',
+      hoverShadow: 'hover:shadow-[0_12px_48px_rgba(96,165,250,0.5)]',
+      iconGlow: 'bg-blue-400/40',
+      iconBg: 'bg-gradient-to-br from-blue-900/70 to-indigo-900/70',
+      iconBorder: 'border-blue-400/50',
+      titleColor: 'text-blue-100',
+      descColor: 'text-blue-200/90'
     },
     {
       id: 'pendulum',
       title: t('oracle.pendulum.title'),
       description: t('oracle.pendulum.description'),
-      icon: '💫'
+      icon: '💫',
+      // Cyan mystique
+      gradient: 'from-cyan-900/30 via-sky-800/25 to-cyan-900/30',
+      border: 'border-cyan-400/70',
+      hoverBorder: 'hover:border-cyan-300',
+      shadow: 'shadow-[0_8px_32px_rgba(34,211,238,0.3)]',
+      hoverShadow: 'hover:shadow-[0_12px_48px_rgba(34,211,238,0.5)]',
+      iconGlow: 'bg-cyan-400/40',
+      iconBg: 'bg-gradient-to-br from-cyan-900/70 to-sky-900/70',
+      iconBorder: 'border-cyan-400/50',
+      titleColor: 'text-cyan-100',
+      descColor: 'text-cyan-200/90'
+    },
+    {
+      id: 'loveCalculator',
+      title: t('oracle.loveCalculator.title') || 'Calculatrice Amoureuse',
+      description: t('oracle.loveCalculator.description') || 'Compatibilité entre deux prénoms',
+      icon: '💖',
+      badge: t('oracle.loveCalculator.badge') || 'NOUVEAU',
+      // Rose-violet doux au lieu du rose vif
+      badgeColor: 'from-fuchsia-500 via-purple-400 to-fuchsia-500',
+      gradient: 'from-fuchsia-900/30 via-purple-800/25 to-fuchsia-900/30',
+      border: 'border-fuchsia-400/70',
+      hoverBorder: 'hover:border-fuchsia-300',
+      shadow: 'shadow-[0_8px_32px_rgba(192,132,252,0.3)]',
+      hoverShadow: 'hover:shadow-[0_12px_48px_rgba(192,132,252,0.5)]',
+      iconGlow: 'bg-fuchsia-400/40',
+      iconBg: 'bg-gradient-to-br from-fuchsia-900/70 to-purple-900/70',
+      iconBorder: 'border-fuchsia-400/50',
+      titleColor: 'text-fuchsia-100',
+      descColor: 'text-fuchsia-200/90'
     }
   ];
 
@@ -53,173 +103,167 @@ export default function OracleSelection({
   };
 
   return (
-    <div className="main-content w-full min-h-screen flex flex-col p-2 sm:p-3 pt-14 sm:pt-16 pb-3">
-      {/* Header */}
-      <div className="text-center mb-3 sm:mb-4">
-        <div className="flex justify-center mb-1.5 sm:mb-2">
-          <div className="relative w-10 h-10 sm:w-12 sm:h-12">
-            <div className="absolute inset-0 bg-amber-400/10 rounded-full blur-lg animate-pulse"></div>
+    <div className="main-content w-full min-h-screen flex flex-col p-3 sm:p-4 pt-14 sm:pt-16 pb-4">
+      {/* Header mystique compact */}
+      <div className="text-center mb-4 sm:mb-6">
+        <div className="flex justify-center mb-3">
+          <div className="relative w-12 h-12 sm:w-16 sm:h-16">
+            {/* Triple glow effect harmonieux */}
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-400/30 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute inset-2 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl sm:text-3xl text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)]">
+              <span className="text-3xl sm:text-4xl text-cyan-100 drop-shadow-[0_0_24px_rgba(103,232,249,0.9)] filter brightness-110">
                 ✦
               </span>
             </div>
           </div>
         </div>
 
-        <p className="text-purple-200 text-xs sm:text-sm md:text-base max-w-lg mx-auto font-light leading-tight px-2">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-100 via-blue-100 to-purple-100 bg-clip-text text-transparent mb-2 tracking-wide drop-shadow-[0_0_30px_rgba(147,197,253,0.3)]">
+          Choisissez Votre Oracle
+        </h1>
+
+        <p className="text-slate-200/90 text-xs sm:text-sm max-w-lg mx-auto font-light leading-relaxed px-3">
           {t('oracle.subtitle')}
         </p>
 
-        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-2 sm:mt-3">
-          <div className="h-px w-6 sm:w-10 bg-gradient-to-r from-transparent to-amber-400/50"></div>
-          <span className="text-amber-300/60 text-sm">✦</span>
-          <div className="h-px w-6 sm:w-10 bg-gradient-to-l from-transparent to-amber-400/50"></div>
+        {/* Séparateur élégant */}
+        <div className="flex items-center justify-center gap-3 mt-3">
+          <div className="h-[1px] w-16 bg-gradient-to-r from-transparent via-cyan-300/60 to-blue-400/40"></div>
+          <div className="relative">
+            <div className="absolute inset-0 bg-cyan-400/20 blur-md rounded-full"></div>
+            <span className="relative text-cyan-200/90 text-base">✦</span>
+          </div>
+          <div className="h-[1px] w-16 bg-gradient-to-l from-transparent via-cyan-300/60 to-blue-400/40"></div>
         </div>
       </div>
 
-      {/* Grille des cartes */}
-      <div className="flex-1 flex items-center justify-center py-1 sm:py-2">
-        <div className="w-full max-w-4xl px-1 sm:px-2">
-          {/* Grille principale - 3 oracles */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5 mb-4">
+      {/* Conteneur des oracles */}
+      <div className="flex-1 flex items-center justify-center px-2">
+        <div className="w-full max-w-5xl space-y-3 sm:space-y-4">
+
+          {/* Grid 2x2 pour les 4 premiers oracles */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             {oracles.map((oracle) => (
-              <OracleCard
+              <div
                 key={oracle.id}
-                title={oracle.title}
-                description={oracle.description}
-                icon={oracle.icon}
-                isSelected={selectedOracle === oracle.id}
                 onClick={() => handleOracleClick(oracle.id)}
-              />
+                className={`relative cursor-pointer group rounded-3xl p-4 sm:p-5 transition-all duration-500
+                  bg-gradient-to-br ${oracle.gradient}
+                  border-2 ${oracle.border} ${oracle.hoverBorder}
+                  ${oracle.shadow} ${oracle.hoverShadow}
+                  ${selectedOracle === oracle.id ? 'scale-[1.03]' : 'hover:scale-[1.03]'}
+                  backdrop-blur-xl overflow-hidden
+                  before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100`}
+              >
+                {/* Badge si présent */}
+                {oracle.badge && (
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10">
+                    <div className={`bg-gradient-to-r ${oracle.badgeColor} text-white px-3 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-widest shadow-lg border border-purple-300/40`}>
+                      <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">💕 {oracle.badge}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Effet de brillance animé */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+
+                {/* Particules flottantes subtiles */}
+                <div className="absolute top-2 right-2 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
+                <div className="absolute bottom-3 left-3 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+
+                {/* Contenu */}
+                <div className="relative flex flex-col items-center text-center">
+                  {/* Icône */}
+                  <div className="relative w-14 h-14 sm:w-16 sm:h-16 mb-3 group-hover:scale-110 transition-transform duration-500">
+                    <div className={`absolute inset-0 ${oracle.iconGlow} rounded-full blur-2xl animate-pulse`}></div>
+                    <div className={`absolute inset-0 ${oracle.iconBg} rounded-full border-2 ${oracle.iconBorder} flex items-center justify-center shadow-inner`}>
+                      <span className="text-3xl sm:text-4xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">{oracle.icon}</span>
+                    </div>
+                  </div>
+
+                  {/* Titre */}
+                  <h3 className={`font-bold text-sm sm:text-base lg:text-lg mb-1.5 tracking-wide ${oracle.titleColor} drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]`}>
+                    {oracle.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className={`${oracle.descColor} text-xs sm:text-sm font-light leading-snug`}>
+                    {oracle.description}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
 
-          {/* 💕 CALCULATRICE AMOUREUSE */}
-          <div className="relative mb-4">
-            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
-              <div className="bg-gradient-to-r from-purple-600 via-indigo-500 to-purple-600 text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-[0_4px_12px_rgba(139,92,246,0.4)]">
-                💕 {t('oracle.loveCalculator.badge') || 'NOUVEAU'}
-              </div>
-            </div>
-
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/15 via-indigo-500/8 to-purple-900/15 rounded-2xl blur-xl"></div>
-
-            <button
-              onClick={() => handleOracleClick('loveCalculator')}
-              className={`relative w-full p-5 sm:p-6 rounded-2xl
-                bg-gradient-to-br from-[#1a1040] via-[#2d1b5f] to-[#1a1040]
-                border-2 border-purple-500/40 hover:border-purple-400/60
-                shadow-[0_8px_24px_rgba(139,92,246,0.2)]
-                hover:shadow-[0_12px_32px_rgba(139,92,246,0.3)] transform hover:scale-[1.01]
-                transition-all duration-300 group overflow-hidden
-                ${selectedOracle === 'loveCalculator' ? 'scale-[1.01] border-purple-400/60' : ''}`}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/3 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-
-              <div className="relative flex items-center justify-between gap-4">
-                <div className="text-left flex-1 min-w-0">
-                  <div className="text-purple-300 font-bold text-xl sm:text-2xl mb-1.5 drop-shadow-[0_2px_4px_rgba(139,92,246,0.3)] tracking-wide">
-                    {t('oracle.loveCalculator.title') || '💕 Calculatrice Amoureuse'}
-                  </div>
-                  <div className="text-indigo-200/80 text-sm sm:text-base font-light leading-snug">
-                    {t('oracle.loveCalculator.description') || 'Calcule la compatibilité entre deux prénoms'}
-                  </div>
-                </div>
-
-                <div className="relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 to-indigo-900/30 rounded-full blur-md"></div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#2d1b5f] to-[#1a1040] rounded-full border border-purple-500/30 flex items-center justify-center group-hover:border-purple-400/50 transition-colors">
-                    <span className="text-2xl sm:text-3xl text-purple-300 drop-shadow-[0_0_8px_rgba(139,92,246,0.4)] group-hover:scale-110 transition-transform duration-300">
-                      💖
-                    </span>
-                  </div>
-                  <div className="absolute inset-2 border border-purple-500/15 rounded-full animate-spin-slow"></div>
-                </div>
-              </div>
-
-              <div className="absolute top-4 left-4 w-8 h-px bg-gradient-to-r from-purple-500/30 to-transparent"></div>
-              <div className="absolute bottom-4 right-4 w-8 h-px bg-gradient-to-l from-purple-500/30 to-transparent"></div>
-            </button>
-          </div>
-
-          {/* ✦ ROUE DE LA DESTINÉE */}
+          {/* Roue de la Destinée - CARTE HORIZONTALE avec or subtil */}
           <div className="relative">
             <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
-              <div className="bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-600 text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-[0_4px_12px_rgba(217,119,6,0.4)]">
-                ✦ BONUS ✦
+              <div className="bg-gradient-to-r from-amber-400/90 via-yellow-300/90 to-amber-400/90 text-slate-900 px-4 py-1 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest shadow-lg border border-amber-200/40">
+                <span className="drop-shadow-[0_1px_2px_rgba(255,255,255,0.3)]">✦ BONUS ✦</span>
               </div>
             </div>
 
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-amber-500/10 to-blue-900/20 rounded-2xl blur-xl"></div>
-
-            <button
+            <div
               onClick={() => handleOracleClick('wheel')}
-              className={`relative w-full p-5 sm:p-6 rounded-2xl
-                bg-gradient-to-br from-[#0a1628] via-[#1a2847] to-[#0a1628]
-                border-2 border-amber-600/50 hover:border-amber-500
-                shadow-[0_8px_24px_rgba(217,119,6,0.2)]
-                hover:shadow-[0_12px_32px_rgba(217,119,6,0.3)]
-                transform hover:scale-[1.01] transition-all duration-300
-                group overflow-hidden
-                ${selectedOracle === 'wheel' ? 'scale-[1.01] border-amber-500' : ''}`}
+              className={`relative cursor-pointer group rounded-3xl p-5 sm:p-6 
+                bg-gradient-to-br from-slate-900/40 via-blue-900/30 to-slate-900/40
+                border-2 border-amber-400/60 hover:border-amber-300/80
+                shadow-[0_8px_32px_rgba(251,191,36,0.25)] hover:shadow-[0_12px_48px_rgba(251,191,36,0.4)]
+                backdrop-blur-xl overflow-hidden
+                transition-all duration-500
+                ${selectedOracle === 'wheel' ? 'scale-[1.02]' : 'hover:scale-[1.02]'}
+                before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100`}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
 
-              <div className="relative flex items-center justify-between gap-4">
-                <div className="text-left flex-1 min-w-0">
-                  <div className="text-amber-400 font-bold text-xl sm:text-2xl mb-1.5 drop-shadow-[0_2px_4px_rgba(251,191,36,0.3)] tracking-wide">
+              {/* Particules dorées subtiles */}
+              <div className="absolute top-3 right-4 w-1 h-1 bg-amber-300/50 rounded-full animate-pulse"></div>
+              <div className="absolute bottom-4 left-4 w-1 h-1 bg-amber-200/40 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+              <div className="absolute top-1/2 right-8 w-1 h-1 bg-amber-300/45 rounded-full animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+
+              <div className="relative flex items-center gap-4 sm:gap-6">
+                {/* Icône */}
+                <div className="relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 group-hover:scale-110 transition-transform duration-500 group-hover:rotate-180">
+                  <div className="absolute inset-0 bg-amber-400/35 rounded-full blur-2xl animate-pulse"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-800/80 to-blue-900/80 rounded-full border-2 border-amber-400/50 flex items-center justify-center shadow-inner">
+                    <span className="text-4xl sm:text-5xl text-amber-300 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">✦</span>
+                  </div>
+                </div>
+
+                {/* Texte */}
+                <div className="text-left flex-1">
+                  <div className="text-amber-100 font-bold text-lg sm:text-xl lg:text-2xl mb-1.5 tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
                     {t('oracle.wheel.title') || 'Roue de la Destinée'}
                   </div>
-                  <div className="text-blue-200/80 text-sm sm:text-base font-light leading-snug">
+                  <div className="text-slate-300/90 text-sm sm:text-base font-light leading-relaxed">
                     {t('oracle.wheel.shortDescription') || 'Découvrez votre destin mystique'}
                   </div>
                 </div>
 
-                <div className="relative flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 to-amber-900/40 rounded-full blur-md"></div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#1a2847] to-[#0f1420] rounded-full border border-amber-600/40 flex items-center justify-center group-hover:border-amber-500/60 transition-colors">
-                    <span className="text-2xl sm:text-3xl text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)] group-hover:scale-110 transition-transform duration-300">
-                      ✦
-                    </span>
+                {/* Icône décorative droite */}
+                <div className="hidden sm:block relative flex-shrink-0 w-12 h-12">
+                  <div className="absolute inset-0 bg-amber-300/25 rounded-full blur-xl animate-pulse" style={{ animationDelay: '0.7s' }}></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-2xl text-amber-300/70">✦</span>
                   </div>
-                  <div className="absolute inset-2 border border-amber-600/20 rounded-full animate-spin-slow"></div>
                 </div>
               </div>
-
-              <div className="absolute top-4 left-4 w-8 h-px bg-gradient-to-r from-amber-600/40 to-transparent"></div>
-              <div className="absolute bottom-4 right-4 w-8 h-px bg-gradient-to-l from-amber-600/40 to-transparent"></div>
-            </button>
+            </div>
           </div>
 
-          <style>{`
-            @keyframes spin-slow {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-            .animate-spin-slow {
-              animation: spin-slow 20s linear infinite;
-            }
-          `}</style>
         </div>
       </div>
 
-      {/* Boutons navigation */}
-      <div className="text-center pt-2">
-        <div className="flex gap-1.5 sm:gap-2 justify-center max-w-xs sm:max-w-sm mx-auto px-2">
+      {/* Bouton retour uniquement */}
+      <div className="text-center pt-4 mt-3">
+        <div className="flex justify-center max-w-xs mx-auto px-3">
           <MysticalButton
             variant="secondary"
             onClick={onBack}
-            className="flex-1 min-h-[42px] text-xs sm:text-sm px-2 sm:px-3"
+            className="w-full min-h-[48px] text-base"
           >
             ← {t('oracle.back')}
-          </MysticalButton>
-          <MysticalButton
-            onClick={onHome}
-            data-testid="button-home"
-            className="flex-1 min-h-[42px] text-xs sm:text-sm px-2 sm:px-3"
-          >
-            🏠 {t('oracle.home')}
           </MysticalButton>
         </div>
       </div>

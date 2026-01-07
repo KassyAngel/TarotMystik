@@ -67,7 +67,7 @@ export default function FlipCard({
   const getOracleFolderName = (): string => {
     switch(oracleType) {
       case 'lunar':
-        return 'luneOracle'; // ← Nom du dossier physique
+        return 'luneOracle';
       case 'loveOracle':
         return 'loveOracle';
       case 'runes':
@@ -83,12 +83,16 @@ export default function FlipCard({
     return `/Image/${folder}/${normalized}.jpg`;
   };
 
+  // ✅ CORRECTION PRINCIPALE : Chemins mis à jour pour le dos des cartes
   const getBackImagePath = (): string => {
     switch(oracleType) {
       case 'lunar':
         return '/Image/luneOracle/card-verso-luna.jpg';
       case 'loveOracle':
-        return '/Image/loveOracle/card-verso.jpg';
+        // ✅ OPTION 1: Si votre fichier est bien dans /Image/card-back.jpg
+        return '/Image/card-back.jpg';
+        // ✅ OPTION 2: Si vous voulez le mettre dans le dossier loveOracle
+        // return '/Image/loveOracle/card-back.jpg';
       case 'runes':
         return '/Image/runes/card-back.jpg';
       default:
@@ -149,7 +153,12 @@ export default function FlipCard({
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 console.error('❌ Erreur chargement dos de carte:', getBackImagePath());
+                // Fallback avec un dégradé si l'image ne charge pas
                 target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  parent.style.background = 'linear-gradient(135deg, #0a1420 0%, #1a2d45 50%, #0a1420 100%)';
+                }
               }}
             />
             <div className="absolute inset-2 rounded-lg border border-[#c9a87f]/30 pointer-events-none"></div>

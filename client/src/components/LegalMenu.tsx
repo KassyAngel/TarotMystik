@@ -18,11 +18,11 @@ export default function LegalMenu() {
         <button
           onClick={() => setOpen(!open)}
           type="button"
-          className="p-2 rounded-full bg-purple-600/80 hover:bg-purple-700/90 backdrop-blur-sm transition-colors shadow-lg"
+          className="p-2 rounded-full bg-slate-800/70 hover:bg-slate-700/80 backdrop-blur-sm transition-all shadow-lg border border-cyan-400/30 hover:border-cyan-300/50"
           aria-label={t("legal.menu.title")}
         >
           <svg
-            className="w-6 h-6 text-white"
+            className="w-6 h-6 text-cyan-100"
             fill="currentColor"
             viewBox="0 0 24 24"
           >
@@ -38,17 +38,16 @@ export default function LegalMenu() {
               className="fixed inset-0 z-40"
               onClick={() => setOpen(false)}
             />
-
-            <div className="absolute right-0 mt-2 w-64 rounded-lg shadow-xl bg-white/95 backdrop-blur-sm ring-1 ring-black/10 z-50 overflow-hidden">
+            <div className="absolute right-0 mt-2 w-64 rounded-lg shadow-xl bg-slate-900/95 backdrop-blur-md ring-1 ring-cyan-400/20 z-50 overflow-hidden border border-cyan-400/30">
               <button
                 onClick={() => openModal('legal')}
-                className="w-full text-left block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 transition-colors border-b border-gray-100"
+                className="w-full text-left block px-4 py-3 text-sm text-cyan-100 hover:bg-slate-800/70 transition-colors border-b border-cyan-400/20"
               >
                 📜 {t("legal.mentions")}
               </button>
               <button
                 onClick={() => openModal('privacy')}
-                className="w-full text-left block px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 transition-colors"
+                className="w-full text-left block px-4 py-3 text-sm text-cyan-100 hover:bg-slate-800/70 transition-colors"
               >
                 🔒 {t("legal.privacy")}
               </button>

@@ -178,25 +178,37 @@ export const oracleData: Record<string, OracleData> = {
     title: 'Oracle Lunaire',
     description: 'Les phases de la Lune révèlent votre chemin intérieur',
     cards: [
-      // 🌑 NOUVELLE LUNE
+      // 🌑 NOUVELLE LUNE - Nouveaux départs et intentions (6 cartes)
       { name: 'intention', meaning: 'Nouveaux départs et intentions', phase: 'newMoon' },
       { name: 'intuition', meaning: 'Écoute de ta voix intérieure', phase: 'newMoon' },
       { name: 'renouveau', meaning: 'Page blanche et nouvelles possibilités', phase: 'newMoon' },
+      { name: 'eveil', meaning: 'Conscience naissante et premiers pas', phase: 'newMoon' },
+      { name: 'potentiel', meaning: 'Graines d\'avenir à planter', phase: 'newMoon' },
+      { name: 'silence', meaning: 'L\'espace nécessaire à la création', phase: 'newMoon' },
 
-      // 🌓 PREMIER QUARTIER
+      // 🌓 PREMIER QUARTIER - Action et décisions (6 cartes)
       { name: 'motivation', meaning: 'Élan et énergie pour avancer', phase: 'firstQuarter' },
       { name: 'courage', meaning: 'Force intérieure face aux défis', phase: 'firstQuarter' },
       { name: 'epanouissement', meaning: 'Croissance et réalisation personnelle', phase: 'firstQuarter' },
+      { name: 'determination', meaning: 'Volonté ferme et engagement', phase: 'firstQuarter' },
+      { name: 'initiative', meaning: 'Oser le premier mouvement', phase: 'firstQuarter' },
+      { name: 'strategie', meaning: 'Planifier avec sagesse', phase: 'firstQuarter' },
 
-      // 🌕 PLEINE LUNE
+      // 🌕 PLEINE LUNE - Culmination et révélation (6 cartes)
       { name: 'clarte', meaning: 'Compréhension et vision limpide', phase: 'fullMoon' },
       { name: 'serenite', meaning: 'Paix intérieure et harmonie', phase: 'fullMoon' },
       { name: 'bilan', meaning: 'Aboutissement et prise de conscience', phase: 'fullMoon' },
+      { name: 'accomplissement', meaning: 'Récolte de ce qui a été semé', phase: 'fullMoon' },
+      { name: 'verite', meaning: 'La lumière révèle ce qui était caché', phase: 'fullMoon' },
+      { name: 'gratitude', meaning: 'Célébration et reconnaissance', phase: 'fullMoon' },
 
-      // 🌗 DERNIER QUARTIER
+      // 🌗 DERNIER QUARTIER - Libération et introspection (6 cartes)
       { name: 'detachement', meaning: 'Lâcher prise sur ce qui ne sert plus', phase: 'lastQuarter' },
       { name: 'prisederecul', meaning: 'Introspection et observation', phase: 'lastQuarter' },
-      { name: 'retourasoi', meaning: 'Reconnexion à ton essence', phase: 'lastQuarter' }
+      { name: 'retourasoi', meaning: 'Reconnexion à ton essence', phase: 'lastQuarter' },
+      { name: 'pardon', meaning: 'Libération du poids du passé', phase: 'lastQuarter' },
+      { name: 'sagesse', meaning: 'Leçons intégrées et compréhension profonde', phase: 'lastQuarter' },
+      { name: 'repos', meaning: 'Acceptation du cycle et pause nécessaire', phase: 'lastQuarter' }
     ]
   },
 

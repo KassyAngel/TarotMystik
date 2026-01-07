@@ -20,6 +20,8 @@ interface CrossSpreadGameProps {
   onCardsSelected: (selectedCardIndices: number[]) => void;
   onSaveReading?: (reading: any) => Promise<void>;
   onBack: () => void;
+  shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>;
+  onReadingComplete?: (oracleType: string) => void;
 }
 
 export default function CrossSpreadGame({ 
@@ -28,7 +30,9 @@ export default function CrossSpreadGame({
   oracleType, 
   onCardsSelected, 
   onSaveReading,
-  onBack 
+  onBack,
+  shouldShowAdBeforeReading,
+  onReadingComplete
 }: CrossSpreadGameProps) {
   const [randomCards, setRandomCards] = useState<number[]>([]);
   const [flippedCards, setFlippedCards] = useState<boolean[]>([]);
@@ -36,6 +40,7 @@ export default function CrossSpreadGame({
   const [isComplete, setIsComplete] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [currentRevealedCard, setCurrentRevealedCard] = useState<number | null>(null);
+  const [adShownForSession, setAdShownForSession] = useState(false);
   const { t } = useLanguage();
 
   const playFlip = useSound('Flip-card.wav');
@@ -78,14 +83,25 @@ export default function CrossSpreadGame({
   };
 
   useEffect(() => {
-    const selectedCards = selectRandomCardsWithoutRepeat(
-      oracle.cards.length,
-      totalCards,
-      oracleType
-    );
-    setRandomCards(selectedCards);
-    setFlippedCards(new Array(totalCards).fill(false));
-  }, [oracle.cards.length, oracleType]);
+    const initGame = async () => {
+      // 📊 Vérifier et afficher la pub AVANT le tirage (seulement une fois par session)
+      if (!adShownForSession && shouldShowAdBeforeReading) {
+        console.log('🎯 [CROSS_SPREAD] Vérification pub avant tirage...');
+        await shouldShowAdBeforeReading(oracleType);
+        setAdShownForSession(true);
+      }
+
+      const selectedCards = selectRandomCardsWithoutRepeat(
+        oracle.cards.length,
+        totalCards,
+        oracleType
+      );
+      setRandomCards(selectedCards);
+      setFlippedCards(new Array(totalCards).fill(false));
+    };
+
+    initGame();
+  }, [oracle.cards.length, oracleType, shouldShowAdBeforeReading, adShownForSession]);
 
   const handleCardFlip = (index: number) => {
     if (index !== currentCardIndex || flippedCards[index]) return;
@@ -115,6 +131,23 @@ export default function CrossSpreadGame({
         setTimeout(() => {
           playReveal();
           saveTirageToHistory(oracleType, randomCards);
+
+          // 📊 Sauvegarder le tirage
+          if (onSaveReading) {
+            onSaveReading({
+              type: 'crossSpread',
+              cards: randomCards.map(idx => oracle.cards[idx].name),
+              date: new Date(),
+              answer: 'Tirage en croix'
+            }).catch(error => console.error('❌ Erreur sauvegarde:', error));
+          }
+
+          // 📊 Notifier le parent qu'un tirage est terminé
+          if (onReadingComplete) {
+            console.log(`✅ [CROSS_SPREAD] Tirage ${oracleType} terminé, incrémentation compteur`);
+            onReadingComplete(oracleType);
+          }
+
           onCardsSelected(randomCards);
         }, 1500);
       }, 300);
@@ -126,9 +159,30 @@ export default function CrossSpreadGame({
     }
   };
 
-  const handleRevealInterpretation = () => {
+  const handleRevealInterpretation = async () => {
     playReveal();
     saveTirageToHistory(oracleType, randomCards);
+
+    // 📊 Sauvegarder le tirage
+    if (onSaveReading) {
+      try {
+        await onSaveReading({
+          type: 'crossSpread',
+          cards: randomCards.map(idx => oracle.cards[idx].name),
+          date: new Date(),
+          answer: 'Tirage en croix'
+        });
+      } catch (error) {
+        console.error('❌ Erreur sauvegarde:', error);
+      }
+    }
+
+    // 📊 Notifier le parent qu'un tirage est terminé
+    if (onReadingComplete) {
+      console.log(`✅ [CROSS_SPREAD] Tirage ${oracleType} terminé, incrémentation compteur`);
+      onReadingComplete(oracleType);
+    }
+
     onCardsSelected(randomCards);
   };
 
@@ -299,7 +353,7 @@ export default function CrossSpreadGame({
         </div>
       </div>
 
-      {/* MODALE DE RÉVÉLATION - ✅ CORRECTION ICI */}
+      {/* MODALE DE RÉVÉLATION */}
       {showModal && currentRevealedCard !== null && (() => {
         const actualCardIndex = randomCards[currentRevealedCard];
         const originalCard = oracle.cards[actualCardIndex];
@@ -315,7 +369,7 @@ export default function CrossSpreadGame({
             onClose={handleCloseModal}
             cardNumber={currentRevealedCard + 1}
             totalCards={totalCards}
-            originalCardName={originalCard.name} // ✅ Passer le nom français original
+            originalCardName={originalCard.name}
           />
         );
       })()}

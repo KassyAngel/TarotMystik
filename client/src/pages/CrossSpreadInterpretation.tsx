@@ -15,6 +15,9 @@ interface CrossSpreadInterpretationProps {
   selectedCards: OracleCard[];
   onHome: () => void;
   onBackToMode: () => void;
+  onSaveReading?: (reading: any) => Promise<void>;
+  shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>;
+  onReadingComplete?: (oracleType: string) => void;
 }
 
 interface PositionInterpretation {
@@ -33,7 +36,10 @@ export default function CrossSpreadInterpretation({
   selectedCardIndices,
   selectedCards,
   onHome,
-  onBackToMode
+  onBackToMode,
+  onSaveReading,
+  shouldShowAdBeforeReading,
+  onReadingComplete
 }: CrossSpreadInterpretationProps) {
   const { t } = useLanguage();
   const [expandedCard, setExpandedCard] = useState<number | null>(0);

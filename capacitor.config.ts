@@ -1,18 +1,28 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.tarotmystik.app',
-  appName: 'TarotMystik',
-  webDir: 'dist',
+  appId: 'com.tarotmystik.app', // ✅ Mis à jour pour TarotMystik
+  appName: 'TarotMystik', // ✅ Mis à jour pour TarotMystik
+  webDir: 'dist/public',
   server: {
-    androidScheme: 'https',
-    cleartext: true
+    cleartext: true, // ✅ Activé pour développement local (HTTP)
+    // ❌ STRIPE & RENDER DÉSACTIVÉS - App mobile uniquement avec RevenueCat
+    // allowNavigation: [
+    //   'cartomystikappk.onrender.com',
+    //   '*.stripe.com',
+    //   'checkout.stripe.com'
+    // ]
+  },
+  android: {
+    allowMixedContent: false
   },
   plugins: {
-    SplashScreen: {
-      launchShowDuration: 2000,
-      backgroundColor: "#1a1a2e",
-      showSpinner: false
+    CapacitorHttp: {
+      enabled: true
+    },
+    // ✅ Configuration RevenueCat (Google Play)
+    PurchasesPlugin: {
+      // Configuration gérée dans le code TypeScript
     }
   }
 };

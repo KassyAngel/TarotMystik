@@ -34,12 +34,18 @@ export async function initializeRevenueCat(): Promise<void> {
     // Configure RevenueCat
     await Purchases.configure({ apiKey });
 
-    // Activer les logs pour debug
-    await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+    // ✅ MODIFIÉ : Activer les logs SEULEMENT en dev
+    if (import.meta.env.DEV) {
+      await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+      console.log('🐛 Mode DEBUG RevenueCat activé');
+    } else {
+      await Purchases.setLogLevel({ level: LOG_LEVEL.INFO });
+    }
 
     console.log('✅ RevenueCat initialisé avec succès pour TarotMystik');
   } catch (error) {
     console.error('❌ Erreur initialisation RevenueCat:', error);
+    throw error; // ✅ AJOUTÉ : Propager l'erreur
   }
 }
 
@@ -54,7 +60,7 @@ export async function getOfferings(): Promise<PurchasesOfferings | null> {
 
   try {
     const result = await Purchases.getOfferings();
-    console.log('📦 Offres récupérées:', result);
+    console.log('📦 Offres récupérées:', result.current);
     return result;
   } catch (error) {
     console.error('❌ Erreur récupération offres:', error);
@@ -114,7 +120,7 @@ export async function purchasePackage(
     return { success: false };
   } catch (error: any) {
     if (error.userCancelled) {
-      console.log('❌ Achat annulé par l\'utilisateur');
+      console.log('ℹ️ Achat annulé par l\'utilisateur');
     } else {
       console.error('❌ Erreur achat:', error);
     }
@@ -307,3 +313,23 @@ export async function getPremiumData(email: string): Promise<PremiumData | null>
     return null;
   }
 }
+
+/**
+ * 🚪 Déconnexion utilisateur RevenueCat
+ */
+export async function logoutUser(): Promise<void> {
+  if (!Capacitor.isNativePlatform()) {
+    console.log('🌐 logoutUser : Non disponible sur Web');
+    return;
+  }
+
+  try {
+    await Purchases.logOut();
+    console.log('🚪 Utilisateur déconnecté de RevenueCat');
+  } catch (error) {
+    console.error('❌ Erreur déconnexion RevenueCat:', error);
+  }
+}
+
+// ✅ AJOUTÉ : Export du type PremiumData
+export type { PremiumData };
