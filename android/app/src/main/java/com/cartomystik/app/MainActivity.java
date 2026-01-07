@@ -1,4 +1,4 @@
-package com.cartomystik.app;
+package com.tarotmystik.app;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
