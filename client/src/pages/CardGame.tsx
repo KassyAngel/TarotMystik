@@ -230,12 +230,12 @@ export default function CardGame({
           {[...Array(15)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-0.5 h-0.5 bg-[#c9a87f] rounded-full animate-twinkle-soft"
+              className="absolute w-0.5 h-0.5 bg-[#c9a87f] rounded-full"
               style={{
                 top: `${Math.random() * 100}%`,
                 left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`
-              }}
+                 opacity: 0.5, 
+                 }}
             />
           ))}
         </div>

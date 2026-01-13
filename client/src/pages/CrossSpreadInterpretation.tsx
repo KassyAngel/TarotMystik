@@ -123,13 +123,13 @@ export default function CrossSpreadInterpretation({
 
       {/* Étoiles */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(40)].map((_, i) => (
+        {[...Array(15)].map((_, i) => (
           <div
             key={i}
-            className="absolute bg-[#c9a87f] rounded-full animate-twinkle-elegant"
+            className="absolute bg-[#c9a87f] rounded-full"
             style={{
-              width: Math.random() > 0.7 ? '2px' : '1px',
-              height: Math.random() > 0.7 ? '2px' : '1px',
+              width: '1px',
+              height: '1px',
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 3}s`,
@@ -244,23 +244,6 @@ export default function CrossSpreadInterpretation({
           ← {t('common.back') || 'Retour aux Tirages'}
         </MysticalButton>
       </div>
-
-      <style>{`
-        @keyframes pulse-very-slow {
-          0%, 100% { opacity: 0.15; transform: scale(1); }
-          50% { opacity: 0.3; transform: scale(1.08); }
-        }
-        @keyframes twinkle-elegant {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 0.9; }
-        }
-        .animate-pulse-very-slow {
-          animation: pulse-very-slow 5s ease-in-out infinite;
-        }
-        .animate-twinkle-elegant {
-          animation: twinkle-elegant 3s ease-in-out infinite;
-        }
-      `}</style>
-    </div>
+        </div>
   );
 }

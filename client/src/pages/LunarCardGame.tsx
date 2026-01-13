@@ -175,18 +175,14 @@ export default function LunarCardGame({
 
         {/* Étoiles améliorées */}
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(80)].map((_, i) => (
+          {[...Array(20)].map((_, i) => (
             <div
               key={i}
-              className="absolute rounded-full bg-white animate-twinkle"
+              className="absolute rounded-full bg-white"
               style={{
-                width: Math.random() > 0.5 ? '2px' : '1px',
-                height: Math.random() > 0.5 ? '2px' : '1px',
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 2}s`,
-                opacity: Math.random() * 0.5 + 0.3
+                width: '1px',
+                  height: '1px',
+                  opacity: 0.5,
               }}
             />
           ))}
