@@ -1,12 +1,11 @@
-// shared/schema.ts
 import { z } from 'zod';
 
-// ✅ TYPES D'ORACLES avec Oracle Lunaire
+// ✅ TYPES D'ORACLES avec Magicien (remplace pendulum)
 export const OracleTypeSchema = z.enum([
   'loveOracle',
-  'lunar',        // ✅ NOUVEAU : Oracle Lunaire (remplace 'angels')
+  'lunar',
   'runes',
-  'pendulum',
+  'wizard',        // ✅ NOUVEAU : Azraël le Magicien (remplace 'pendulum')
   'wheel',
   'loveCalculator'
 ]);
@@ -16,12 +15,12 @@ export type OracleType = z.infer<typeof OracleTypeSchema>;
 // Types d'oracles basés sur des cartes
 export type CardBasedOracleType = 'loveOracle' | 'lunar' | 'runes';
 
-// ✅ NOUVEAU : Phases lunaires
+// ✅ Phases lunaires
 export const LunarPhaseSchema = z.enum([
-  'newMoon',       // Nouvelle Lune
-  'firstQuarter',  // Premier Quartier
-  'fullMoon',      // Pleine Lune
-  'lastQuarter'    // Dernier Quartier
+  'newMoon',
+  'firstQuarter',
+  'fullMoon',
+  'lastQuarter'
 ]);
 
 export type LunarPhase = z.infer<typeof LunarPhaseSchema>;
@@ -54,7 +53,7 @@ export type UserSession = z.infer<typeof UserSessionSchema>;
 export const OracleCardSchema = z.object({
   name: z.string(),
   meaning: z.string(),
-  phase: z.string().optional() // ✅ Phase lunaire pour Oracle Lunaire
+  phase: z.string().optional()
 });
 
 export type OracleCard = z.infer<typeof OracleCardSchema>;
@@ -78,7 +77,7 @@ export const ReadingSchema = z.object({
   answer: z.string().optional(),
   notes: z.string(),
   isFavorite: z.boolean(),
-  lunarPhase: z.string().optional() // ✅ Phase lunaire choisie
+  lunarPhase: z.string().optional()
 });
 
 export type Reading = z.infer<typeof ReadingSchema>;

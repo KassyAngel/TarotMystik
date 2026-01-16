@@ -1,5 +1,5 @@
 // client/src/data/wheelData.ts
-// 🌙 Roue de la Destinée - Palette Monochrome Nuit Étoilée
+// 🌟 Roue de la Destinée - Design Mystique Professionnel
 
 export interface WheelSegment {
   id: string;
@@ -7,16 +7,14 @@ export interface WheelSegment {
   color: string;
 }
 
-// ✨ 8 segments en dégradés de bleu nuit élégants
-// Alternance bleu marine profond ↔ bleu nuit clair
-// Très transparent pour effet mystique
+// ✨ 8 segments bleu nuit profond avec effet translucide
 export const wheelSegments: WheelSegment[] = [
-  { id: 'love', label: 'Love', color: 'rgba(30, 58, 138, 0.35)' },          // Bleu marine profond
-  { id: 'work', label: 'Work', color: 'rgba(56, 189, 248, 0.30)' },         // Cyan clair
-  { id: 'money', label: 'Money', color: 'rgba(37, 99, 235, 0.35)' },        // Bleu royal
-  { id: 'health', label: 'Health', color: 'rgba(103, 232, 249, 0.28)' },    // Cyan très pâle
-  { id: 'family', label: 'Family', color: 'rgba(29, 78, 216, 0.35)' },      // Bleu foncé
-  { id: 'success', label: 'success', color: 'rgba(125, 211, 252, 0.28)' },  // Bleu ciel pâle
-  { id: 'friendship', label: 'Friendship', color: 'rgba(30, 64, 175, 0.35)' }, // Bleu indigo
-  { id: 'mystery', label: 'mystery', color: 'rgba(34, 211, 238, 0.30)' }    // Cyan cristal
+  { id: 'love', label: 'Love', color: 'rgba(15, 23, 42, 0.92)' },
+  { id: 'work', label: 'Work', color: 'rgba(30, 41, 59, 0.88)' },
+  { id: 'money', label: 'Money', color: 'rgba(15, 23, 42, 0.92)' },
+  { id: 'health', label: 'Health', color: 'rgba(30, 41, 59, 0.88)' },
+  { id: 'family', label: 'Family', color: 'rgba(15, 23, 42, 0.92)' },
+  { id: 'success', label: 'Success', color: 'rgba(30, 41, 59, 0.88)' },
+  { id: 'friendship', label: 'Friendship', color: 'rgba(15, 23, 42, 0.92)' },
+  { id: 'mystery', label: 'Mystery', color: 'rgba(30, 41, 59, 0.88)' }
 ];

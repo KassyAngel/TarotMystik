@@ -19,11 +19,11 @@ import { initializeRevenueCat } from './services/revenueCatService';
 type AppStep =
   | 'landing' | 'name' | 'date' | 'gender'
   | 'oracle' | 'game' | 'revelation' | 'interpretation'
-  | 'pendulum' | 'wheel' | 'loveCalculator';  
+  | 'wizard' | 'wheel' | 'loveCalculator';  
 
 interface OracleCounters {
   lunar: number;
-  pendulum: number;
+  wizard: number;
   loveCalculator: number;
   cardDrawing: number;
   wheel: number;
@@ -72,7 +72,7 @@ function App() {
 
   const [oracleCounters, setOracleCounters] = useState<OracleCounters>({
     lunar: 0,
-    pendulum: 0,
+    wizard: 0,
     loveCalculator: 0,
     cardDrawing: 0,
     wheel: 0
@@ -171,11 +171,11 @@ function App() {
         console.log(`📊 LUNAR: current=${currentCount}, next=${nextCount} | Pub: ${shouldShowPub ? 'OUI ✅' : 'NON ❌'}`);
         break;
 
-      case 'pendulum':
-        counterKey = 'pendulum';
+      case 'wizard':
+        counterKey = 'wizard';
         // Pub au 2ème tirage (nextCount=2), puis tous les 3 (nextCount=5, 8, 11...)
         shouldShowPub = nextCount === 2 || (nextCount > 2 && (nextCount - 2) % 3 === 0);
-        console.log(`📊 PENDULUM: current=${currentCount}, next=${nextCount} | Pub: ${shouldShowPub ? 'OUI ✅' : 'NON ❌'}`);
+        console.log(`📊 WIZARD: current=${currentCount}, next=${nextCount} | Pub: ${shouldShowPub ? 'OUI ✅' : 'NON ❌'}`);
         break;
 
       case 'loveCalculator':
@@ -215,7 +215,7 @@ function App() {
 
     switch (counterKey) {
       case 'lunar':
-      case 'pendulum':
+      case 'wizard':
       case 'cardDrawing':
         shouldPreloadNext = followingCount === 2 || (followingCount > 2 && (followingCount - 2) % 3 === 0);
         break;
@@ -247,9 +247,9 @@ function App() {
           console.log(`✅ LUNAR: ${prev.lunar} → ${newCounters.lunar}`);
           break;
 
-        case 'pendulum':
-          newCounters.pendulum += 1;
-          console.log(`✅ PENDULUM: ${prev.pendulum} → ${newCounters.pendulum}`);
+        case 'wizard':
+          newCounters.wizard += 1;
+          console.log(`✅ WIZARD: ${prev.wizard} → ${newCounters.wizard}`);
           break;
 
         case 'loveCalculator':

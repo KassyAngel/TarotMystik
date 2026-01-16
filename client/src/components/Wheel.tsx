@@ -1,6 +1,5 @@
 // client/src/components/Wheel.tsx
-// 🌙 Roue Monochrome Nuit Étoilée - VERSION SPECTACULAIRE
-// ✨ Changements MAJEURS: Aura dynamique, particules volumineuses, effets de lumière, animations marquées
+// 🎡 Roue de la Destinée - VERSION OPTIMISÉE PLEIN ÉCRAN
 
 import React, { useState } from 'react';
 import { showInterstitialAd } from '@/admobService';
@@ -14,17 +13,6 @@ interface WheelProps {
   isPremium?: boolean;
 }
 
-const getWheelStyles = (variation: string | null) => {
-  return {
-    gradient: 'from-blue-900/20 via-cyan-800/20 to-blue-900/20',
-    glow: 'bg-blue-400/15',
-    border: 'border-cyan-400/30',
-    resultBg: 'from-[#0f1a2e] via-[#1e3a8a] to-[#0f1a2e]',
-    resultBorder: 'border-cyan-400/50',
-    resultShadow: 'shadow-[0_8px_32px_rgba(34,211,238,0.4)]'
-  };
-};
-
 export default function Wheel({ onComplete, variation, onReset, isPremium = false }: WheelProps) {
   const { t } = useLanguage();
   const [rotation, setRotation] = useState(0);
@@ -34,8 +22,6 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
   const [interpretation, setInterpretation] = useState<{ title: string; message: string } | null>(null);
   const [isLoadingAd, setIsLoadingAd] = useState(false);
   const [spinCount, setSpinCount] = useState(0);
-
-  const styles = getWheelStyles(variation);
 
   async function spinWheel() {
     if (isSpinning || isLoadingAd) return;
@@ -56,8 +42,6 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
     }
 
     setIsSpinning(true);
-    setResult(null);
-    setInterpretation(null);
 
     const spins = Math.floor(Math.random() * 5) + 8;
     const randomAngle = Math.floor(Math.random() * 360);
@@ -103,400 +87,350 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
   const segmentAngle = 360 / wheelSegments.length;
 
   return (
-    <div className="wheel-container w-full h-full flex flex-col p-3 sm:p-5 overflow-hidden">
+    <div className="wheel-container-full h-full flex flex-col pb-[140px]">
 
-      {/* HEADER avec titre TRÈS lumineux */}
-      <div className="text-center mb-4 sm:mb-5 flex-shrink-0">
-        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-200 to-cyan-300 font-serif mb-3 tracking-wide animate-glow-text" 
-          style={{
-            textShadow: '0 0 40px rgba(34, 211, 238, 0.8), 0 0 20px rgba(34, 211, 238, 0.6), 0 4px 25px rgba(0, 0, 0, 0.9)',
-            filter: 'drop-shadow(0 2px 15px rgba(34, 211, 238, 0.9))'
-          }}>
-          {t('oracle.wheel.title') || 'Roue de la Destinée'}
+      {/* HEADER COMPACT */}
+      <div className="text-center mb-3 flex-shrink-0 px-4">
+        <h3 className="text-xl sm:text-2xl font-bold text-amber-100 font-serif mb-1">
+          {t('oracle.wheel.title') || 'Wheel of Destiny'}
         </h3>
-        <p className="text-cyan-100 text-base sm:text-lg leading-snug px-2 font-medium" 
-          style={{
-            textShadow: '0 2px 12px rgba(0, 0, 0, 0.95), 0 0 20px rgba(34, 211, 238, 0.4)'
-          }}>
+        <p className="text-amber-200/60 text-xs sm:text-sm">
           {!hasSpun 
-            ? (t('oracle.wheel.subtitle') || 'Tournez la roue pour découvrir votre destin') 
-            : '✨ Votre destinée est révélée ✨'
+            ? (t('oracle.wheel.subtitle') || 'Spin the wheel to discover your fate') 
+            : '✨ Your destiny is revealed ✨'
           }
         </p>
       </div>
 
-      {/* ROUE */}
-      <div className="flex-1 flex flex-col items-center justify-center min-h-0 py-2">
-        <div className="w-full max-w-md mx-auto px-2">
-          <div className="relative w-full aspect-square max-w-[340px] sm:max-w-[380px] mx-auto flex-shrink-0 mb-4 sm:mb-5">
+      {/* ROUE - MAXIMALE */}
+      <div className="flex-1 flex items-center justify-center min-h-0 px-2 sm:px-4">
+        <div className="w-full h-full max-w-[min(600px,90vh)] max-h-[min(600px,90vh)] flex items-center justify-center">
 
-            {/* 🌟 AURA DYNAMIQUE - Dominante BLEUE subtile */}
-            <div className="absolute inset-0 rounded-full animate-pulse-aura">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-400/25 to-cyan-400/20 rounded-full blur-[70px]"></div>
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-300/15 via-cyan-500/20 to-blue-300/15 rounded-full blur-[50px]" style={{animationDelay: '0.5s'}}></div>
+          {/* Container principal de la roue */}
+          <div className="relative w-full aspect-square">
+
+            {/* Cadre doré aux coins */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none z-30" viewBox="0 0 100 100">
+              <defs>
+                <linearGradient id="goldCorner" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#d4af37"/>
+                  <stop offset="100%" stopColor="#aa8a2e"/>
+                </linearGradient>
+              </defs>
+              <g opacity="0.5">
+                <path d="M1,1 L10,1 M1,1 L1,10" stroke="url(#goldCorner)" strokeWidth="0.8" strokeLinecap="round"/>
+                <text x="6" y="6" fontSize="3" fill="#d4af37">✦</text>
+                <path d="M99,1 L90,1 M99,1 L99,10" stroke="url(#goldCorner)" strokeWidth="0.8" strokeLinecap="round"/>
+                <text x="93" y="6" fontSize="3" fill="#d4af37">✦</text>
+                <path d="M1,99 L10,99 M1,99 L1,90" stroke="url(#goldCorner)" strokeWidth="0.8" strokeLinecap="round"/>
+                <text x="6" y="97" fontSize="3" fill="#d4af37">✦</text>
+                <path d="M99,99 L90,99 M99,99 L99,90" stroke="url(#goldCorner)" strokeWidth="0.8" strokeLinecap="round"/>
+                <text x="93" y="97" fontSize="3" fill="#d4af37">✦</text>
+              </g>
+            </svg>
+
+            {/* Halos lumineux */}
+            <div className="absolute inset-0 rounded-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-400/30 to-cyan-400/20 rounded-full blur-[50px] animate-pulse-slow"></div>
+              <div className="absolute inset-[8%] bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-blue-500/30 rounded-full blur-[40px] animate-pulse-medium"></div>
             </div>
 
-            {/* ✨ Flèche dorée élégante avec animation subtile */}
-            <div className="absolute top-0 left-1/2 -translate-y-5 z-20" style={{ marginLeft: '-24px' }}>
-              <div className="relative animate-bounce-arrow">
-                <div className="absolute inset-0 blur-xl bg-amber-200/40 animate-pulse"></div>
-                <div className="absolute inset-0 blur-lg bg-amber-100/30"></div>
-                <div className="relative w-0 h-0 border-l-[24px] sm:border-l-[28px] border-l-transparent border-r-[24px] sm:border-r-[28px] border-r-transparent border-t-[48px] sm:border-t-[56px] border-t-amber-100/90" 
-                  style={{
-                    filter: 'drop-shadow(0 0 15px rgba(251, 191, 36, 0.5)) drop-shadow(0 4px 10px rgba(251, 191, 36, 0.4))'
-                  }}
-                ></div>
+            {/* Flèche indicatrice VERS LE BAS */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 z-20">
+              <div className="relative">
+                <div className="absolute inset-0 blur-2xl bg-amber-600/50 animate-pulse"></div>
+                <svg width="40" height="50" viewBox="0 0 32 40" className="relative scale-125">
+                  <defs>
+                    <linearGradient id="arrowGold" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#d4af37"/>
+                      <stop offset="100%" stopColor="#aa8a2e"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M 16 40 L 0 4 L 32 4 Z" 
+                    fill="url(#arrowGold)" 
+                    stroke="#8b7020" 
+                    strokeWidth="2.5"/>
+                </svg>
               </div>
             </div>
 
-            {/* Cercle de la roue - PROFONDEUR MAXIMALE */}
-            <div
-              className={`relative w-full h-full rounded-full overflow-hidden transition-transform ease-out ${isSpinning ? 'animate-spin-glow' : ''}`}
-              style={{ 
-                transform: `rotate(${rotation}deg)`,
-                transitionDuration: isSpinning ? '6000ms' : '0ms',
-                background: 'radial-gradient(circle at 35% 35%, rgba(15, 23, 42, 0.85) 0%, rgba(10, 14, 26, 0.92) 45%, rgba(5, 8, 15, 0.97) 100%)',
-                boxShadow: `
-                  0 0 80px rgba(34,211,238,0.4),
-                  0 0 120px rgba(34,211,238,0.2),
-                  0 12px 60px rgba(0,0,0,0.9),
-                  inset 0 0 120px rgba(34,211,238,0.15),
-                  inset 0 -30px 60px rgba(0,0,0,0.6),
-                  inset 0 2px 40px rgba(251,191,36,0.08)
-                `
-              }}
-            >
-              {/* Bordure dorée subtile */}
-              <div className="absolute inset-0 rounded-full border-[2px] border-amber-300/35 shadow-[inset_0_0_30px_rgba(251,191,36,0.08),0_0_15px_rgba(251,191,36,0.2)]"></div>
+            {/* Roue rotative */}
+            <div className="absolute inset-[1%] rounded-full overflow-hidden">
+              <div
+                className="relative w-full h-full transition-transform ease-out"
+                style={{ 
+                  transform: `rotate(${rotation}deg)`,
+                  transitionDuration: isSpinning ? '6000ms' : '0ms'
+                }}
+              >
+                {/* Triple bordure dorée */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#d4af37] via-[#c9a234] to-[#d4af37] p-[4px]">
+                  <div className="w-full h-full rounded-full bg-slate-950/60 p-[3px]">
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-[#d4af37] via-[#b8942d] to-[#d4af37] p-[3px]">
+                      <div className="w-full h-full rounded-full relative overflow-hidden bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 backdrop-blur-sm">
 
-              {/* SVG segments avec meilleure luminosité */}
-              <svg viewBox="0 0 200 200" className="w-full h-full">
-                <defs>
-                  {wheelSegments.map((segment, i) => {
-                    const rgba = segment.color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-                    if (!rgba) return null;
+                        {/* Points dorés animés */}
+                        <svg viewBox="0 0 400 400" className="absolute inset-0 w-full h-full">
+                          <circle cx="200" cy="200" r="190" fill="none" stroke="#b8942d" strokeWidth="0.8" opacity="0.3"/>
+                          {[...Array(24)].map((_, i) => {
+                            const angle = (i * 360 / 24) * Math.PI / 180;
+                            const x = 200 + 190 * Math.cos(angle);
+                            const y = 200 + 190 * Math.sin(angle);
+                            return (
+                              <circle key={i} cx={x} cy={y} r="2.5" fill="#d4af37" opacity="0.6">
+                                <animate attributeName="opacity" values="0.3;0.9;0.3" dur="3s" begin={`${i * 0.1}s`} repeatCount="indefinite"/>
+                              </circle>
+                            );
+                          })}
+                        </svg>
 
-                    const [_, r, g, b, a = '1'] = rgba;
-                    const opacity = parseFloat(a);
+                        {/* Segments de la roue */}
+                        <svg viewBox="0 0 400 400" className="w-full h-full">
+                          <defs>
+                            {wheelSegments.map((_, index) => (
+                              <radialGradient key={`grad-${index}`} id={`segment${index}`}>
+                                <stop offset="20%" stopColor="rgba(30, 58, 138, 0.6)"/>
+                                <stop offset="100%" stopColor={wheelSegments[index].color}/>
+                              </radialGradient>
+                            ))}
+                          </defs>
 
-                    return (
-                      <radialGradient key={`grad-${i}`} id={`segment-${i}`}>
-                        <stop offset="0%" style={{ stopColor: `rgb(${r}, ${g}, ${b})`, stopOpacity: opacity * 1.0 }} />
-                        <stop offset="50%" style={{ stopColor: `rgb(${r}, ${g}, ${b})`, stopOpacity: opacity * 0.85 }} />
-                        <stop offset="100%" style={{ stopColor: `rgb(${r}, ${g}, ${b})`, stopOpacity: opacity * 0.65 }} />
-                      </radialGradient>
-                    );
-                  })}
+                          {wheelSegments.map((segment, index) => {
+                            const startAngle = (index * segmentAngle - 90) * (Math.PI / 180);
+                            const endAngle = ((index + 1) * segmentAngle - 90) * (Math.PI / 180);
+                            const midAngle = startAngle + (endAngle - startAngle) / 2;
 
-                  <linearGradient id="glassShine" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style={{ stopColor: '#ffffff', stopOpacity: 0.2 }} />
-                    <stop offset="50%" style={{ stopColor: '#ffffff', stopOpacity: 0 }} />
-                    <stop offset="100%" style={{ stopColor: '#ffffff', stopOpacity: 0.15 }} />
-                  </linearGradient>
+                            const x1 = 200 + 188 * Math.cos(startAngle);
+                            const y1 = 200 + 188 * Math.sin(startAngle);
+                            const x2 = 200 + 188 * Math.cos(endAngle);
+                            const y2 = 200 + 188 * Math.sin(endAngle);
 
-                  <radialGradient id="centerGrad">
-                    <stop offset="0%" stopColor="rgba(15, 23, 42, 0.98)" stopOpacity={1}/>
-                    <stop offset="100%" stopColor="rgba(5, 8, 15, 1)" stopOpacity={1}/>
-                  </radialGradient>
+                            const textRadius = 140;
+                            const textX = 200 + textRadius * Math.cos(midAngle);
+                            const textY = 200 + textRadius * Math.sin(midAngle);
+                            const textRotation = (midAngle * 180 / Math.PI) + 90;
 
-                  <filter id="nightGlow">
-                    <feGaussianBlur stdDeviation="1.2" result="coloredBlur"/>
-                    <feOffset dx="0" dy="0" result="offsetBlur"/>
-                    <feMerge>
-                      <feMergeNode in="offsetBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                  </filter>
+                            const translatedLabel = t(`oracle.wheel.segment.${segment.id}`) || segment.label;
 
-                  <pattern id="starsPattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-                    <circle cx="10" cy="10" r="0.8" fill="#ffffff" opacity="0.25"/>
-                    <circle cx="30" cy="20" r="0.6" fill="#67e8f9" opacity="0.20"/>
-                    <circle cx="48" cy="15" r="0.5" fill="#fbbf24" opacity="0.18"/>
-                    <circle cx="20" cy="45" r="0.7" fill="#ffffff" opacity="0.22"/>
-                    <circle cx="45" cy="50" r="0.5" fill="#67e8f9" opacity="0.19"/>
-                  </pattern>
-                </defs>
+                            return (
+                              <g key={segment.id}>
+                                <path
+                                  d={`M 200 200 L ${x1} ${y1} A 188 188 0 0 1 ${x2} ${y2} Z`}
+                                  fill={`url(#segment${index})`}
+                                  stroke="rgba(212, 175, 55, 0.2)"
+                                  strokeWidth="1.2"
+                                />
 
-                {wheelSegments.map((segment, index) => {
-                  const startAngle = (index * segmentAngle - 90) * (Math.PI / 180);
-                  const endAngle = ((index + 1) * segmentAngle - 90) * (Math.PI / 180);
-                  const midAngle = startAngle + (endAngle - startAngle) / 2;
+                                <line 
+                                  x1="200" y1="200" 
+                                  x2={x2} y2={y2}
+                                  stroke="#b8942d"
+                                  strokeWidth="1"
+                                  opacity="0.5"
+                                />
 
-                  const x1 = 100 + 98 * Math.cos(startAngle);
-                  const y1 = 100 + 98 * Math.sin(startAngle);
-                  const x2 = 100 + 98 * Math.cos(endAngle);
-                  const y2 = 100 + 98 * Math.sin(endAngle);
+                                <text
+                                  x={200 + 168 * Math.cos(midAngle)}
+                                  y={200 + 168 * Math.sin(midAngle)}
+                                  fontSize="11"
+                                  fill="#d4af37"
+                                  textAnchor="middle"
+                                  dominantBaseline="middle"
+                                  opacity="0.7"
+                                >
+                                  ★
+                                </text>
 
-                  const largeArcFlag = segmentAngle > 180 ? 1 : 0;
+                                <text
+                                  x={textX}
+                                  y={textY}
+                                  fontSize="15"
+                                  fontWeight="700"
+                                  textAnchor="middle"
+                                  dominantBaseline="middle"
+                                  fill="#f5e6d3"
+                                  stroke="#0f172a"
+                                  strokeWidth="4"
+                                  transform={`rotate(${textRotation}, ${textX}, ${textY})`}
+                                  style={{ 
+                                    fontFamily: 'serif',
+                                    letterSpacing: '1.2px',
+                                    paintOrder: 'stroke fill'
+                                  }}
+                                >
+                                  {translatedLabel.toUpperCase()}
+                                </text>
+                              </g>
+                            );
+                          })}
 
-                  const textRadius = 70;
-                  const textX = 100 + textRadius * Math.cos(midAngle);
-                  const textY = 100 + textRadius * Math.sin(midAngle);
-                  const textRotation = (midAngle * 180 / Math.PI) + 90;
+                          {/* Centre de la roue */}
+                          <defs>
+                            <radialGradient id="centerGlow">
+                              <stop offset="0%" stopColor="#1e40af" stopOpacity="0.7"/>
+                              <stop offset="100%" stopColor="#0f172a" stopOpacity="1"/>
+                            </radialGradient>
+                          </defs>
+                          <circle cx="200" cy="200" r="52" fill="url(#centerGlow)"/>
+                          <circle cx="200" cy="200" r="52" fill="none" stroke="#d4af37" strokeWidth="3"/>
+                          <circle cx="200" cy="200" r="48" fill="none" stroke="#b8942d" strokeWidth="1.5"/>
+                          <circle cx="200" cy="200" r="44" fill="none" stroke="#d4af37" strokeWidth="0.8" opacity="0.5"/>
 
-                  const translatedLabel = t(`oracle.wheel.segment.${segment.id}`) || segment.label;
+                          {/* Motif solaire */}
+                          <g opacity="0.7">
+                            {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => {
+                              const rad = (angle * Math.PI) / 180;
+                              const x1 = 200 + 32 * Math.cos(rad);
+                              const y1 = 200 + 32 * Math.sin(rad);
+                              const x2 = 200 + 44 * Math.cos(rad);
+                              const y2 = 200 + 44 * Math.sin(rad);
+                              return (
+                                <g key={angle}>
+                                  <line 
+                                    x1={x1} y1={y1} 
+                                    x2={x2} y2={y2}
+                                    stroke="#d4af37" 
+                                    strokeWidth="1.5"
+                                  />
+                                  <circle cx={x2} cy={y2} r="2.5" fill="#d4af37"/>
+                                </g>
+                              );
+                            })}
+                          </g>
+                        </svg>
 
-                  return (
-                    <g key={segment.id} filter="url(#nightGlow)">
-                      <path
-                        d={`M 100 100 L ${x1} ${y1} A 98 98 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-                        fill={`url(#segment-${index})`}
-                        stroke="rgba(5, 8, 15, 0.6)"
-                        strokeWidth="1.5"
-                      />
+                        {/* Mandala central animé */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 flex items-center justify-center">
+                          <div className="absolute inset-0 bg-amber-600/40 rounded-full blur-2xl animate-pulse"></div>
+                          <svg viewBox="0 0 100 100" className="w-full h-full animate-spin-slow">
+                            <defs>
+                              <radialGradient id="mandalaGold">
+                                <stop offset="0%" stopColor="#d4af37"/>
+                                <stop offset="100%" stopColor="#aa8a2e"/>
+                              </radialGradient>
+                            </defs>
+                            <circle cx="50" cy="50" r="36" fill="none" stroke="url(#mandalaGold)" strokeWidth="2" opacity="0.8"/>
+                            <circle cx="50" cy="50" r="26" fill="none" stroke="url(#mandalaGold)" strokeWidth="1.5" opacity="0.7"/>
+                            <circle cx="50" cy="50" r="16" fill="none" stroke="url(#mandalaGold)" strokeWidth="1.2" opacity="0.6"/>
+                            {[0, 90, 180, 270].map((angle) => {
+                              const rad = (angle * Math.PI) / 180;
+                              const x = 50 + 31 * Math.cos(rad);
+                              const y = 50 + 31 * Math.sin(rad);
+                              return <circle key={angle} cx={x} cy={y} r="3.5" fill="url(#mandalaGold)" opacity="0.9"/>;
+                            })}
+                            {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => {
+                              const rad = (angle * Math.PI) / 180;
+                              const x = 50 + 19 * Math.cos(rad);
+                              const y = 50 + 19 * Math.sin(rad);
+                              const x2 = 50 + 33 * Math.cos(rad);
+                              const y2 = 50 + 33 * Math.sin(rad);
+                              return <line key={angle} x1={x} y1={y} x2={x2} y2={y2} stroke="url(#mandalaGold)" strokeWidth="1" opacity="0.6"/>;
+                            })}
+                          </svg>
+                        </div>
 
-                      <path
-                        d={`M 100 100 L ${x1} ${y1} A 98 98 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-                        fill="url(#glassShine)"
-                        opacity="0.7"
-                      />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                      <path
-                        d={`M 100 100 L ${x1} ${y1} A 98 98 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-                        fill="url(#starsPattern)"
-                        opacity="0.4"
-                      />
+        </div>
+      </div>
 
-                      <path
-                        d={`M 100 100 L ${x1} ${y1} A 98 98 0 ${largeArcFlag} 1 ${x2} ${y2} Z`}
-                        fill="none"
-                        stroke="rgba(251, 191, 36, 0.35)"
-                        strokeWidth="1.5"
-                        opacity="0.9"
-                      />
+      {/* INTERPRÉTATION - COMPACTE */}
+      {hasSpun && interpretation && (
+        <div className="flex-shrink-0 px-4 pb-2 max-h-[25vh] overflow-y-auto">
+          <div className="p-3 bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-xl border-2 border-amber-600/50 shadow-[0_6px_20px_rgba(212,175,55,0.3)] backdrop-blur-sm">
 
-                      <text
-                        x={textX}
-                        y={textY}
-                        fontSize={translatedLabel.length > 7 ? "8" : "9.5"}
-                        fontWeight="800"
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        fill="rgba(255, 255, 255, 1)"
-                        stroke="rgba(5, 8, 15, 0.95)"
-                        strokeWidth="2"
-                        transform={`rotate(${textRotation}, ${textX}, ${textY})`}
-                        style={{ 
-                          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                          letterSpacing: translatedLabel.length > 7 ? '1.8px' : '2.5px',
-                          paintOrder: 'stroke fill',
-                          filter: 'drop-shadow(0 2px 6px rgba(34, 211, 238, 0.6)) drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))'
-                        }}
-                      >
-                        {translatedLabel.toUpperCase()}
-                      </text>
-                    </g>
-                  );
-                })}
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="h-[1.5px] w-6 bg-gradient-to-r from-transparent via-amber-600 to-transparent"></div>
+              <h4 className="text-sm sm:text-base font-bold text-amber-500 text-center">
+                {interpretation.title}
+              </h4>
+              <div className="h-[1.5px] w-6 bg-gradient-to-l from-transparent via-amber-600 to-transparent"></div>
+            </div>
 
-                {/* Cercle central BRILLANT */}
-                <circle cx="100" cy="100" r="30" fill="url(#centerGrad)" opacity="0.98"/>
-                <circle cx="100" cy="100" r="30" fill="none" stroke="rgba(251, 191, 36, 0.5)" strokeWidth="3" opacity="0.8"/>
-                <circle cx="100" cy="100" r="26" fill="none" stroke="rgba(34, 211, 238, 0.45)" strokeWidth="2" opacity="0.7"/>
-                <circle cx="100" cy="100" r="22" fill="none" stroke="rgba(251, 191, 36, 0.35)" strokeWidth="1.5" opacity="0.6"/>
-              </svg>
+            <div className="bg-slate-950/80 rounded-lg p-2.5 border border-amber-600/20 mb-2">
+              <p className="text-amber-100 text-xs sm:text-sm leading-relaxed text-center">
+                {interpretation.message}
+              </p>
+            </div>
 
-              {/* Symbole central lumineux mais subtil */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 sm:w-16 h-14 sm:h-16 flex items-center justify-center pointer-events-none z-20">
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-300/30 to-blue-300/30 rounded-full blur-xl animate-pulse"></div>
-                <span className="relative text-5xl sm:text-6xl animate-spin-slow" style={{
-                  filter: 'drop-shadow(0 0 12px rgba(34, 211, 238, 0.7)) drop-shadow(0 0 8px rgba(255, 255, 255, 0.4))',
-                  color: 'rgba(240, 250, 255, 0.95)'
-                }}>
-                  ✦
+            <div className="text-center">
+              <div className="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-950 to-slate-900 border-2 border-amber-600/70 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                <span className="text-amber-500 font-bold text-xs sm:text-sm">
+                  {result}
                 </span>
               </div>
             </div>
-
-            {/* Particules dorées subtiles - équilibre bleu/or */}
-            <div className="absolute inset-0 pointer-events-none">
-              {[...Array(20)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute rounded-full animate-float-mystical-big"
-                  style={{
-                    width: i % 3 === 0 ? '3px' : '2px',
-                    height: i % 3 === 0 ? '3px' : '2px',
-                    backgroundColor: i % 4 === 0 ? 'rgba(251, 191, 36, 0.5)' : 'rgba(34, 211, 238, 0.6)',
-                    top: `${5 + Math.random() * 90}%`,
-                    left: `${5 + Math.random() * 90}%`,
-                    animationDelay: `${i * 0.5}s`,
-                    animationDuration: `${2.5 + Math.random() * 1.5}s`,
-                    filter: 'blur(0.5px)',
-                    boxShadow: i % 4 === 0 
-                      ? '0 0 10px rgba(251, 191, 36, 0.5), 0 0 5px currentColor'
-                      : '0 0 12px rgba(34, 211, 238, 0.7), 0 0 6px currentColor'
-                  }}
-                />
-              ))}
-            </div>
           </div>
         </div>
+      )}
 
-        {/* INTERPRÉTATION AMÉLIORÉE */}
-        <div className="w-full max-w-lg mx-auto px-2" style={{ minHeight: hasSpun ? '220px' : '0px' }}>
-          {interpretation && (
-            <div className="p-4 sm:p-5 md:p-6 bg-gradient-to-br from-[#0f1a2e]/98 via-[#1a2440]/98 to-[#0f1a2e]/98 rounded-2xl border-2 border-cyan-400/40 shadow-[0_10px_60px_rgba(34,211,238,0.4),inset_0_2px_40px_rgba(34,211,238,0.12)] animate-fade-in-scale backdrop-blur-xl">
-              <div className="flex items-center justify-center gap-3 mb-3 sm:mb-4">
-                <div className="h-[3px] w-10 bg-gradient-to-r from-transparent via-cyan-400/70 to-transparent rounded-full"></div>
-                <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-blue-100 to-cyan-200 text-center leading-tight break-words max-w-[240px]" 
-                  style={{
-                    filter: 'drop-shadow(0 2px 12px rgba(34, 211, 238, 0.8))'
-                  }}>
-                  {interpretation.title}
-                </h4>
-                <div className="h-[3px] w-10 bg-gradient-to-l from-transparent via-cyan-400/70 to-transparent rounded-full"></div>
-              </div>
+      {/* BOUTONS - AU-DESSUS DES BOUTONS DE PAGE */}
+      <div className="fixed bottom-[70px] left-0 right-0 px-4 z-[60]">
+        <div className="max-w-lg mx-auto">
+          {!hasSpun && !isSpinning && !isLoadingAd && (
+            <button
+              onClick={spinWheel}
+              className="w-full text-base sm:text-lg min-h-[50px] bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:via-amber-400 hover:to-amber-500 shadow-[0_4px_25px_rgba(212,175,55,0.5)] hover:shadow-[0_6px_35px_rgba(212,175,55,0.7)] border-2 border-amber-400 hover:border-amber-300 text-slate-900 font-bold rounded-xl transition-all duration-300 active:scale-[0.98]"
+            >
+              ✨ {t('oracle.wheel.spinButton') || 'Spin the Wheel'} ✨
+            </button>
+          )}
 
-              <div className="bg-[#0a0e1a]/90 rounded-xl p-3 sm:p-4 md:p-5 border border-cyan-400/30 shadow-[inset_0_2px_20px_rgba(34,211,238,0.15)]">
-                <p className="text-cyan-50/90 text-sm sm:text-base leading-relaxed break-words text-center font-medium">
-                  {interpretation.message}
-                </p>
-              </div>
+          {isSpinning && (
+            <div className="w-full text-center py-3 min-h-[50px] flex items-center justify-center bg-slate-900/90 border-2 border-amber-500/50 rounded-xl backdrop-blur-sm">
+              <p className="text-amber-500 font-bold text-base sm:text-lg animate-pulse">
+                ✦ {t('oracle.wheel.spinning') || 'The wheel is spinning...'} ✦
+              </p>
+            </div>
+          )}
 
-              <div className="mt-4 sm:mt-5 text-center">
-                <div className={`inline-block px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-gradient-to-r ${styles.resultBg} border-3 ${styles.resultBorder} ${styles.resultShadow}`}>
-                  <span className="text-white font-bold text-base sm:text-lg md:text-xl drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
-                    {result}
-                  </span>
-                </div>
-              </div>
+          {hasSpun && (
+            <button
+              onClick={() => {
+                setHasSpun(false);
+                setInterpretation(null);
+                setResult(null);
+                if (onReset) onReset();
+              }}
+              className="w-full text-base min-h-[50px] bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 border-2 border-amber-600/70 hover:border-amber-600/90 text-amber-500 shadow-[0_4px_20px_rgba(212,175,55,0.3)] rounded-xl transition-all duration-300 font-bold active:scale-[0.98] backdrop-blur-sm"
+            >
+              ↻ {t('oracle.wheel.newSpin') || 'New Spin'}
+            </button>
+          )}
+
+          {isLoadingAd && (
+            <div className="w-full text-center py-3 min-h-[50px] flex flex-col items-center justify-center bg-slate-900/90 border-2 border-amber-500/50 rounded-xl backdrop-blur-sm">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+              <p className="text-amber-500 text-sm mt-2">
+                {t('oracle.wheel.loadingAd') || 'Loading...'}
+              </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* BOUTONS AMÉLIORÉS */}
-      <div className="flex-shrink-0 pt-4 sm:pt-5">
-        {!hasSpun && !isSpinning && !isLoadingAd && (
-          <button
-            onClick={spinWheel}
-            className="relative w-full text-base sm:text-lg min-h-[52px] sm:min-h-[56px] bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 shadow-[0_6px_40px_rgba(251,191,36,0.5)] hover:shadow-[0_8px_60px_rgba(251,191,36,0.7),0_0_80px_rgba(251,191,36,0.4)] border-3 border-amber-300/50 hover:border-amber-200/70 text-amber-100 font-bold backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] overflow-hidden group"
-          >
-            <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <span className="absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-amber-300/40 to-transparent group-hover:animate-shine-fast"></span>
-            </span>
-            <span className="relative z-10 flex items-center justify-center gap-2">
-              <span>{t('oracle.wheel.spinButton') || 'Tourner la Roue'}</span>
-            </span>
-          </button>
-        )}
-
-        {isSpinning && (
-          <div className="text-center py-4 sm:py-5">
-            <p className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-cyan-100 to-amber-200 font-bold text-lg sm:text-xl animate-pulse-fast"
-              style={{
-                textShadow: '0 0 30px rgba(251, 191, 36, 0.6)'
-              }}>
-              ✦ {t('oracle.wheel.spinning') || 'La roue tourne...'} ✦
-            </p>
-          </div>
-        )}
-
-        {hasSpun && (
-          <button
-            onClick={() => {
-              setHasSpun(false);
-              setInterpretation(null);
-              setResult(null);
-              if (onReset) onReset();
-            }}
-            className="w-full text-base sm:text-lg min-h-[52px] sm:min-h-[56px] bg-gradient-to-r from-slate-900/70 via-slate-800/70 to-slate-900/70 hover:from-slate-800/80 hover:via-slate-700/80 hover:to-slate-800/80 border-2 border-amber-300/40 hover:border-amber-300/60 text-amber-100 backdrop-blur-sm shadow-[0_4px_30px_rgba(251,191,36,0.3)] hover:shadow-[0_6px_40px_rgba(251,191,36,0.4)] rounded-xl transition-all duration-300 active:scale-[0.98] font-semibold"
-          >
-            <span className="inline-flex items-center gap-2 justify-center">
-              <span className="text-2xl">↻</span>
-              <span>{t('oracle.wheel.newSpin') || 'Nouveau Tirage'}</span>
-            </span>
-          </button>
-        )}
-
-        {isLoadingAd && (
-          <div className="text-center py-3 sm:py-4">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-3 border-amber-300 shadow-[0_0_20px_rgba(251,191,36,0.5)]"></div>
-            <p className="text-amber-100 text-base sm:text-lg mt-3 font-medium">
-              {t('oracle.wheel.loadingAd') || 'Chargement...'}
-            </p>
-          </div>
-        )}
-      </div>
-
       <style>{`
-        @keyframes fade-in-scale {
-          0% { opacity: 0; transform: scale(0.95) translateY(8px); }
-          100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        @keyframes float-mystical-big {
-          0%, 100% {
-            transform: translateY(0) translateX(0) scale(1);
-            opacity: 0.4;
-          }
-          50% {
-            transform: translateY(-50px) translateX(25px) scale(1.8);
-            opacity: 1;
-          }
-        }
-        @keyframes bounce-arrow {
-          0%, 100% { 
-            margin-top: 0;
-            filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.9)) drop-shadow(0 6px 15px rgba(251, 191, 36, 0.7));
-          }
-          50% { 
-            margin-top: -8px;
-            filter: drop-shadow(0 0 35px rgba(251, 191, 36, 1)) drop-shadow(0 8px 20px rgba(251, 191, 36, 0.9));
-          }
-        }
-        @keyframes pulse-aura {
-          0%, 100% { 
-            opacity: 0.6; 
-            transform: scale(1);
-          }
-          50% { 
-            opacity: 1; 
-            transform: scale(1.1);
-          }
-        }
-        @keyframes pulse-fast {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 1; }
-        }
-        @keyframes glow-text {
-          0%, 100% { 
-            filter: drop-shadow(0 2px 15px rgba(34, 211, 238, 0.9));
-          }
-          50% { 
-            filter: drop-shadow(0 2px 20px rgba(34, 211, 238, 1)) drop-shadow(0 0 30px rgba(34, 211, 238, 0.8));
-          }
-        }
-        @keyframes shine-fast {
-          to { left: 100%; }
-        }
-        @keyframes spin-glow {
-          0%, 100% {
-            box-shadow: 
-              0 0 80px rgba(34,211,238,0.4),
-              0 0 120px rgba(34,211,238,0.2),
-              0 12px 60px rgba(0,0,0,0.9);
-          }
-          50% {
-            box-shadow: 
-              0 0 100px rgba(34,211,238,0.6),
-              0 0 150px rgba(34,211,238,0.3),
-              0 15px 70px rgba(0,0,0,0.95);
-          }
-        }
         @keyframes spin-slow {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        .animate-fade-in-scale { animation: fade-in-scale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .animate-float-mystical-big { animation: float-mystical-big ease-in-out infinite; }
-        .animate-bounce-arrow { animation: bounce-arrow 1.5s ease-in-out infinite; }
-        .animate-pulse-aura { animation: pulse-aura 3s ease-in-out infinite; }
-        .animate-pulse-fast { animation: pulse-fast 1.5s ease-in-out infinite; }
-        .animate-glow-text { animation: glow-text 2s ease-in-out infinite; }
-        .animate-shine-fast { animation: shine-fast 2s infinite; }
-        .animate-spin-glow { animation: spin-glow 2s ease-in-out infinite; }
-        .animate-spin-slow { animation: spin-slow 8s linear infinite; }
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.2; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.03); }
+        }
+        @keyframes pulse-medium {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        .animate-spin-slow { animation: spin-slow 25s linear infinite; }
+        .animate-pulse-slow { animation: pulse-slow 6s ease-in-out infinite; }
+        .animate-pulse-medium { animation: pulse-medium 4s ease-in-out infinite; }
       `}</style>
     </div>
   );

@@ -13,7 +13,7 @@ import InterpretationPage from './InterpretationPage';
 import CrossSpreadInterpretation from './CrossSpreadInterpretation';
 import WheelPage from './WheelPage';
 import LoveCalculatorPage from './LoveCalculatorPage';
-import PendulumPage from './PendulumPage';
+import WizardPage from './WizardPage';
 import LunarPhasePage from './LunarPhasePage';
 import LunarCardGame from './LunarCardGame';
 import LunarInterpretation from './LunarInterpretation';
@@ -25,14 +25,14 @@ import { useUser } from '@/contexts/UserContext';
 type AppStep =
   | 'landing' | 'name' | 'date' | 'gender'
   | 'oracle' | 'modeSelection' | 'game' | 'revelation' | 'interpretation'
-  | 'pendulum'
+  | 'wizard'
   | 'wheel'
   | 'loveCalculator'
   | 'lunarPhase' | 'lunarGame' | 'lunarInterpretation'
   | 'responsiveTest';
 
 type CardBasedOracleType = 'loveOracle' | 'lunar' | 'runes';
-type OracleType = CardBasedOracleType | 'pendulum' | 'wheel' | 'loveCalculator';
+type OracleType = CardBasedOracleType | 'wizard' | 'wheel' | 'loveCalculator';
 type GameMode = 'classic' | 'cross';
 
 interface OracleMystiqueAppProps {
@@ -125,7 +125,7 @@ export default function OracleMystiqueApp({
 
     setSelectedOracle(oracleType as OracleType);
 
-    if (oracleType === 'pendulum') setCurrentStep('pendulum');
+    if (oracleType === 'wizard') setCurrentStep('wizard');
     else if (oracleType === 'wheel') setCurrentStep('wheel');
     else if (oracleType === 'loveCalculator') setCurrentStep('loveCalculator');
     else if (oracleType === 'lunar') setCurrentStep('lunarPhase');
@@ -173,7 +173,7 @@ export default function OracleMystiqueApp({
   const handleBackToGender = () => setCurrentStep('gender');
   const handleBackToOracle = () => setCurrentStep('oracle');
   const handleBackToModeSelection = () => setCurrentStep('modeSelection');
-  const handleGoToPendulum = () => setCurrentStep('pendulum');
+  const handleGoToPendulum = () => setCurrentStep('wizard');
   const handleBackToLunarPhase = () => setCurrentStep('lunarPhase');
 
   const handleBackToHome = () => {
@@ -333,8 +333,8 @@ export default function OracleMystiqueApp({
           </>
         )}
 
-        {currentStep === 'pendulum' && (
-          <PendulumPage
+        {currentStep === 'wizard' && (
+          <WizardPage
             user={user}
             onBack={handleBackToOracle}
             onSaveReading={onSaveReading}
