@@ -1404,7 +1404,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
       "interpretation.tarot.advice.var10":"accepte ce qui arrive et fonce, le moment est le bon.",
    
        /// Page Wizard - Titres et sous-titres
-        "wizard.title": "🧙‍♂️ Azraël le Voyant",
+        "wizard.title": "Azraël le Voyant",
         "wizard.subtitle.home": "Le grand magicien révèle les mystères de votre destinée",
         "wizard.subtitle.question": "Formulez votre question avec clarté",
         "wizard.subtitle.channeling": "✧ Azraël consulte les forces cosmiques... ✧",
@@ -3193,7 +3193,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "interpretation.tarot.advice.var10":"accept what comes and go for it, the time is right.",
     
 // WIZARD
-    "wizard.title": "🧙‍♂️ Azraël the Seer",
+    "wizard.title": "Azraël the Seer",
     "wizard.subtitle.home": "The great wizard reveals the mysteries of your destiny",
     "wizard.subtitle.question": "Formulate your question clearly",
     "wizard.subtitle.channeling": "✧ Azraël consults the cosmic forces... ✧",
@@ -4939,7 +4939,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "interpretation.tarot.advice.var10":"acepta lo que llega y ve a por ello, el momento es el adecuado.",
 
     // AZRAËL
-    "wizard.title": "🧙‍♂️ Azraël el Vidente",
+    "wizard.title": "Azraël el Vidente",
       "wizard.subtitle.home": "El gran mago revela los misterios de tu destino",
       "wizard.subtitle.question": "Formula tu pregunta con claridad",
       "wizard.subtitle.channeling": "✧ Azraël consulta las fuerzas cósmicas... ✧",
@@ -6684,7 +6684,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "interpretation.tarot.advice.var10":"akzeptiere, was kommt, und geh voran, der Moment ist günstig.",
     
 // AZRAËL
-    "wizard.title": "🧙‍♂️ Azraël der Seher",
+    "wizard.title": "Azraël der Seher",
       "wizard.subtitle.home": "Der große Magier enthüllt die Geheimnisse deines Schicksals",
       "wizard.subtitle.question": "Formuliere deine Frage klar",
       "wizard.subtitle.channeling": "✧ Azraël befragt die kosmischen Kräfte... ✧",
@@ -8431,7 +8431,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "interpretation.tarot.advice.var10":"accetta ciò che arriva e vai avanti, il momento è quello giusto.",
 
     //AZRAEL 
-    "wizard.title": "🧙‍♂️ Azraël il Veggente",
+    "wizard.title": "Azraël il Veggente",
       "wizard.subtitle.home": "Il grande mago rivela i misteri del tuo destino",
       "wizard.subtitle.question": "Formula la tua domanda con chiarezza",
       "wizard.subtitle.channeling": "✧ Azraël consulta le forze cosmiche... ✧",
