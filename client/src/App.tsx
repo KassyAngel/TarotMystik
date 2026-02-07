@@ -294,32 +294,53 @@ function App() {
               {/* ✅ CSS pour éviter que la bannière cache les boutons */}
               {!isPremium && bannerShown && (
                 <style>{`
-                  /* ✅ Espace réservé pour la bannière AdMob (60px) + marge de sécurité (50px) */
+                  /* ✅ Espace réservé pour la bannière AdMob */
+                  :root {
+                    --admob-banner-height: 60px;
+                    --admob-safe-spacing: 50px;
+                    --admob-total-spacing: calc(var(--admob-banner-height) + var(--admob-safe-spacing));
+                  }
+
+                  /* Classe globale pour les pages avec bannière */
+                  .has-banner-padding {
+                    padding-bottom: var(--admob-total-spacing) !important;
+                  }
+
+                  /* Zone de sécurité pour boutons fixes en bas */
+                  .safe-bottom-buttons {
+                    padding-bottom: max(110px, calc(110px + env(safe-area-inset-bottom))) !important;
+                  }
+
+                  /* Container principal avec espace */
                   .main-content {
-                    padding-bottom: 110px !important;
+                    padding-bottom: var(--admob-total-spacing) !important;
                   }
 
-                  /* ✅ Classe pour les éléments qui doivent rester visibles */
-                  .pb-safe {
-                    padding-bottom: 110px !important;
+                  /* Boutons fixes en bas de page */
+                  .fixed-bottom-controls {
+                    bottom: calc(var(--admob-banner-height) + 10px) !important;
                   }
 
-                  /* ✅ Responsive desktop */
-                  @media (min-width: 640px) {
-                    .main-content, .pb-safe {
-                      padding-bottom: 120px !important;
-                    }
-                  }
-
-                  /* ⚠️ CRITIQUE : Empêcher l'overlap des boutons avec la bannière */
-                  button, a, input, textarea {
+                  /* S'assurer que les boutons restent au-dessus */
+                  button, a[role="button"] {
                     position: relative;
                     z-index: 10;
                   }
 
-                  /* ⚠️ Bannière au-dessus du fond mais sous les overlays */
-                  #admob-banner {
-                    z-index: 5 !important;
+                  /* Responsive desktop */
+                  @media (min-width: 640px) {
+                    .main-content, .has-banner-padding, .safe-bottom-buttons {
+                      padding-bottom: 120px !important;
+                    }
+                    .fixed-bottom-controls {
+                      bottom: calc(var(--admob-banner-height) + 15px) !important;
+                    }
+                  }
+
+                  /* Zone tactile minimale (normes d'accessibilité) */
+                  button {
+                    min-height: 48px;
+                    min-width: 48px;
                   }
                 `}</style>
               )}

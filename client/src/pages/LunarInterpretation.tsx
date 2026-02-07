@@ -80,7 +80,7 @@ export default function LunarInterpretation({
   const phaseName = t(`lunar.phases.${selectedPhase}.name`);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-4 pt-20 sm:pt-24 pb-24 bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a] relative overflow-hidden">
+    <div className="min-h-screen flex flex-col justify-between p-4 pt-20 sm:pt-24 pb-safe bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a] relative overflow-hidden">
 
       {/* Étoiles */}
       <div className="absolute inset-0 pointer-events-none">
@@ -150,24 +150,30 @@ export default function LunarInterpretation({
         </div>
       </div>
 
-      {/* Boutons */}
-      <div className="text-center space-y-3 relative z-10">
+      {/* Boutons avec espacement amélioré */}
+      <div className="text-center space-y-4 relative z-10 px-4 pb-4 mt-8">
         <button
           onClick={onBack}
-          className="w-full max-w-md px-6 py-4 bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 border-2 border-slate-500/50 text-slate-100 rounded-xl font-semibold hover:from-slate-600 hover:via-slate-500 hover:to-slate-600 hover:scale-105 transition-all duration-300 shadow-[0_4px_20px_rgba(100,116,139,0.3)]"
+          className="w-full max-w-md mx-auto px-6 py-4 bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 border-2 border-slate-500/50 text-slate-100 rounded-xl font-semibold hover:from-slate-600 hover:via-slate-500 hover:to-slate-600 hover:scale-105 transition-all duration-300 shadow-[0_4px_20px_rgba(100,116,139,0.3)] flex items-center justify-center gap-2"
         >
-          ✨ {t('interpretation.newConsultation') || 'Nouvelle Consultation'}
+          <span className="text-xl">✨</span>
+          <span>{t('interpretation.newConsultation') || 'Nouvelle Consultation'}</span>
         </button>
 
         <button
           onClick={onHome}
-          className="px-6 py-3 text-slate-300 hover:text-slate-100 transition-colors text-sm"
+          className="px-6 py-3 text-slate-300 hover:text-slate-100 transition-colors text-sm block mx-auto flex items-center justify-center gap-2"
         >
-          ← {t('common.back') || 'Retour'}
+          <span>←</span>
+          <span>{t('common.back') || 'Retour'}</span>
         </button>
       </div>
 
       <style>{`
+        .pb-safe {
+          padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+        }
+
         @keyframes float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-10px); }

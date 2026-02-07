@@ -1,5 +1,5 @@
 // ============================================
-// client/src/components/CardRevealModal.tsx - VERSION FINALE
+// client/src/components/CardRevealModal.tsx - VERSION CORRIGÉE BANNIÈRE ADMOB
 // ============================================
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -305,10 +305,10 @@ export default function CardRevealModal({
     );
   }
 
-  // ✅ MODAL NORMALE (comportement original restauré)
+  // ✅ MODAL NORMALE avec padding pour bannière AdMob
   return (
     <div 
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-md"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-md pb-safe-banner-modal"
       onClick={onClose}
       style={{
         background: 'radial-gradient(circle at center, rgba(10,20,32,0.96) 0%, rgba(13,27,46,0.98) 100%)'
@@ -362,7 +362,6 @@ export default function CardRevealModal({
                   className="absolute inset-0 w-full h-full object-cover"
                   onError={() => {
                     console.error('❌ Erreur chargement image:', imagePath);
-                    console.error('Fichier attendu:', imagePath);
                     setImageError(true);
                   }}
                   onLoad={() => {
@@ -410,9 +409,6 @@ export default function CardRevealModal({
                       {translatedCardName}
                     </h2>
                     <div className="text-[#c9a87f]/40 text-sm">✦</div>
-                    <p className="text-[#c9a87f]/60 text-xs mt-2">
-                      Image non trouvée: {imagePath.split('/').pop()}
-                    </p>
                   </div>
                 </div>
                 <div className="absolute inset-0 bg-gradient-radial from-[#c9a87f]/5 via-transparent to-transparent pointer-events-none rounded-3xl"></div>
@@ -445,23 +441,26 @@ export default function CardRevealModal({
             ))}
           </div>
 
-          <MysticalButton
-            variant="primary"
-            onClick={handleButtonClick}
-            className="min-h-[50px] px-10 bg-gradient-to-r from-[#a8896f] via-[#c9a87f] to-[#a8896f] text-[#0a1420] font-semibold text-base border border-[#c9a87f]/60 shadow-[0_4px_16px_rgba(201,168,127,0.3)] hover:shadow-[0_6px_24px_rgba(201,168,127,0.5)] hover:scale-105 transition-all duration-300"
-          >
-            {isLastCard ? (
-              <span className="flex items-center gap-2">
-                {oracleType === 'lunar' ? t('cardgame.seeInterpretation') : t('cardgame.continue')}
-                <span className="text-base">{oracleType === 'lunar' ? '✦' : '→'}</span>
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                {t('cardgame.continue')}
-                <span className="text-base">→</span>
-              </span>
-            )}
-          </MysticalButton>
+          {/* ✅ CORRECTION : Bouton avec plus d'espace en bas */}
+          <div className="pb-4">
+            <MysticalButton
+              variant="primary"
+              onClick={handleButtonClick}
+              className="min-h-[50px] px-10 bg-gradient-to-r from-[#a8896f] via-[#c9a87f] to-[#a8896f] text-[#0a1420] font-semibold text-base border border-[#c9a87f]/60 shadow-[0_4px_16px_rgba(201,168,127,0.3)] hover:shadow-[0_6px_24px_rgba(201,168,127,0.5)] hover:scale-105 transition-all duration-300"
+            >
+              {isLastCard ? (
+                <span className="flex items-center gap-2">
+                  {oracleType === 'lunar' ? t('cardgame.seeInterpretation') : t('cardgame.continue')}
+                  <span className="text-base">{oracleType === 'lunar' ? '✦' : '→'}</span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  {t('cardgame.continue')}
+                  <span className="text-base">→</span>
+                </span>
+              )}
+            </MysticalButton>
+          </div>
         </div>
       </div>
 
@@ -488,6 +487,17 @@ export default function CardRevealModal({
         .animate-pulse-very-slow { animation: pulse-very-slow 4s ease-in-out infinite; }
         .animate-twinkle-soft { animation: twinkle-soft 3s ease-in-out infinite; }
         .bg-gradient-radial { background: radial-gradient(circle, var(--tw-gradient-stops)); }
+
+        /* ✅ CORRECTION : Espace pour la bannière AdMob */
+        .pb-safe-banner-modal {
+          padding-bottom: calc(70px + env(safe-area-inset-bottom));
+        }
+
+        @media (min-width: 640px) {
+          .pb-safe-banner-modal {
+            padding-bottom: calc(80px + env(safe-area-inset-bottom));
+          }
+        }
       `}</style>
     </div>
   );

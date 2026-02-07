@@ -244,7 +244,7 @@ export default function InterpretationPage({
   const { sections, finalMessage, greeting } = generateInterpretationSections();
 
   return (
-    <div className="interpretation-page min-h-screen flex flex-col justify-between p-2 sm:p-3 pb-20 sm:pb-24 bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420] relative overflow-hidden">
+      <div className="interpretation-page min-h-screen flex flex-col justify-between p-2 sm:p-3 pb-safe-banner bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420] relative overflow-hidden">
 
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#1a2d45]/30 rounded-full blur-3xl animate-pulse-very-slow"></div>
@@ -294,7 +294,7 @@ export default function InterpretationPage({
         />
       </div>
 
-      <div className="interpretation-controls flex flex-col gap-3 items-center pb-1 relative z-10">
+        <div className="interpretation-controls flex flex-col gap-3 items-center pb-1 mb-safe-banner relative z-10">
         <MysticalButton 
           variant="primary" 
           onClick={onBackToMode} 
@@ -313,22 +313,39 @@ export default function InterpretationPage({
         </MysticalButton>
       </div>
 
-      <style>{`
-        @keyframes pulse-very-slow {
-          0%, 100% { opacity: 0.2; transform: scale(1); }
-          50% { opacity: 0.35; transform: scale(1.05); }
-        }
-        @keyframes twinkle-elegant {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 0.9; }
-        }
-        .animate-pulse-very-slow {
-          animation: pulse-very-slow 5s ease-in-out infinite;
-        }
-        .animate-twinkle-elegant {
-          animation: twinkle-elegant 3s ease-in-out infinite;
-        }
-      `}</style>
+        <style>{`
+          @keyframes pulse-very-slow {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(1.05); }
+          }
+          @keyframes twinkle-elegant {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.9; }
+          }
+          .animate-pulse-very-slow {
+            animation: pulse-very-slow 5s ease-in-out infinite;
+          }
+          .animate-twinkle-elegant {
+            animation: twinkle-elegant 3s ease-in-out infinite;
+          }
+
+          /* ✅ AJOUT pour bannière AdMob */
+          .pb-safe-banner {
+            padding-bottom: calc(110px + env(safe-area-inset-bottom)) !important;
+          }
+          .mb-safe-banner {
+            margin-bottom: calc(70px + env(safe-area-inset-bottom)) !important;
+          }
+
+          @media (min-width: 640px) {
+            .pb-safe-banner {
+              padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
+            }
+            .mb-safe-banner {
+              margin-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+            }
+          }
+        `}</style>
     </div>
   );
 }

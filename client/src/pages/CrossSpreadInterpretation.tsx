@@ -112,7 +112,7 @@ export default function CrossSpreadInterpretation({
   const interpretations = generateInterpretations();
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-4 sm:p-6 pt-20 sm:pt-24 pb-24 bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420] relative overflow-hidden">
+    <div className="min-h-screen flex flex-col justify-between p-4 sm:p-6 pt-20 sm:pt-24 pb-safe-banner bg-gradient-to-br from-[#0a1e1a] via-[#1a1540] to-[#0a0e1a] relative overflow-hidden">
 
       {/* Effets de fond */}
       <div className="absolute inset-0 pointer-events-none">
@@ -140,7 +140,7 @@ export default function CrossSpreadInterpretation({
       </div>
 
       {/* Header */}
-      <div className="text-center mb-8 relative z-10">
+      <div className="text-center mb-6 relative z-10">
         <div className="inline-block px-6 py-2 bg-gradient-to-r from-[#152238]/60 via-[#1a2d45]/80 to-[#152238]/60 rounded-full border border-[#c9a87f]/30 backdrop-blur-sm mb-4">
           <h1 className="text-[#e8d4b8] text-xl sm:text-2xl md:text-3xl font-serif leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
             {t('crossSpread.interpretation.title') || 'Votre Tirage en Croix'}
@@ -153,7 +153,7 @@ export default function CrossSpreadInterpretation({
       </div>
 
       {/* Interprétations des cartes */}
-      <div className="flex-1 relative z-10 max-w-4xl mx-auto w-full space-y-4 sm:space-y-5">
+      <div className="flex-1 relative z-10 max-w-4xl mx-auto w-full space-y-4 sm:space-y-5 mb-6">
         {interpretations.map((interp, index) => (
           <div 
             key={index}
@@ -226,8 +226,8 @@ export default function CrossSpreadInterpretation({
         ))}
       </div>
 
-      {/* Boutons */}
-      <div className="flex flex-col gap-3 items-center pt-8 relative z-10">
+      {/* Boutons avec marges corrigées */}
+      <div className="flex flex-col gap-3 items-center relative z-10 px-4 pb-4">
         <MysticalButton 
           variant="primary" 
           onClick={onBackToMode}
@@ -244,6 +244,18 @@ export default function CrossSpreadInterpretation({
           ← {t('common.back') || 'Retour aux Tirages'}
         </MysticalButton>
       </div>
-        </div>
+
+      <style>{`
+        .pb-safe-banner {
+          padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+        }
+
+        @media (min-width: 640px) {
+          .pb-safe-banner {
+            padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
+          }
+        }
+      `}</style>
+    </div>
   );
 }

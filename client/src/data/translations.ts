@@ -1581,6 +1581,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "oracle.wheel.variations.golden": "Roue Dorée",
     "oracle.wheel.variations.silver": "Roue Argentée",
     "oracle.wheel.variations.cosmic": "Roue Cosmique",
+    "oracle.wheel.destinyRevealed": "Votre destin est révélé",
      
     
     // Interprétations Wheel de la destinée
@@ -3354,6 +3355,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "oracle.wheel.variations.golden": "Golden Wheel",
     "oracle.wheel.variations.silver": "Silver Wheel",
     "oracle.wheel.variations.cosmic": "Cosmic Wheel",
+    "oracle.wheel.destinyRevealed": "Your destiny is revealed",
 
     // Destiny Wheel Interpretations
     "oracle.wheel.love.title.1": "💖 Love Smiles At You",
@@ -5100,6 +5102,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "oracle.wheel.variations.golden": "Rueda Dorada",
     "oracle.wheel.variations.silver": "Rueda Plateada",
     "oracle.wheel.variations.cosmic": "Rueda Cósmica", 
+    "oracle.wheel.destinyRevealed": "Tu destino es revelado",
 
     "oracle.wheel.love.title.1": "💖 El Amor te sonríe",
     "oracle.wheel.love.message.1": [
@@ -6845,6 +6848,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "oracle.wheel.variations.golden": "Goldenes Rad",
     "oracle.wheel.variations.silver": "Silbernes Rad",
     "oracle.wheel.variations.cosmic": "Kosmisches Rad", 
+    "oracle.wheel.destinyRevealed": "Dein Schicksal ist enthüllt",
 
     "oracle.wheel.love.title.1": "💖 Die Liebe lächelt dir zu",
     "oracle.wheel.love.message.1": [
@@ -8592,6 +8596,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "oracle.wheel.variations.golden": "Ruota Dorata",
     "oracle.wheel.variations.silver": "Ruota Argentata",
     "oracle.wheel.variations.cosmic": "Ruota Cosmica",
+    "oracle.wheel.destinyRevealed": "Il tuo destino è rivelato",
 
         "oracle.wheel.love.title.1": "💖 L'Amore ti sorride",
         "oracle.wheel.love.message.1": [

@@ -181,8 +181,11 @@ export default function LunarCardGame({
               className="absolute rounded-full bg-white"
               style={{
                 width: '1px',
-                  height: '1px',
-                  opacity: 0.5,
+                height: '1px',
+                opacity: 0.5,
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 3}s`
               }}
             />
           ))}
@@ -210,7 +213,7 @@ export default function LunarCardGame({
         </div>
 
         {/* Instructions proéminentes */}
-        <div className="relative z-10 mb-8 px-4">
+        <div className="relative z-10 mb-12 px-4">
           <div className="max-w-2xl mx-auto text-center">
             <div className="relative bg-slate-800/40 backdrop-blur-sm border-2 border-slate-500/30 rounded-2xl p-6 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
               <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-slate-400/40 rounded-tl-2xl"></div>
@@ -242,9 +245,9 @@ export default function LunarCardGame({
               </div>
             </div>
 
-            <div className="flex justify-center mt-6">
+            <div className="flex justify-center mt-8">
               <div className="flex flex-col items-center gap-2 animate-bounce-slow">
-                <div className="w-px h-8 bg-gradient-to-b from-slate-400/60 to-transparent"></div>
+                <div className="w-px h-12 bg-gradient-to-b from-slate-400/60 to-transparent"></div>
                 <span className="text-slate-400/60 text-2xl">↓</span>
               </div>
             </div>

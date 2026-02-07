@@ -1,5 +1,5 @@
 // client/src/pages/WheelPage.tsx
-// 🎡 Page Roue - VERSION OPTIMISÉE PLEIN ÉCRAN
+// 🎡 Page Roue - VERSION ESPACEMENT MINIMAL
 
 import { useState, useEffect } from 'react';
 import Wheel from '@/components/Wheel';
@@ -123,7 +123,6 @@ export default function WheelPage({
   if (isLoadingAd) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#0a0e1a] via-[#1a1540] to-[#0a0e1a] z-50">
-        {/* Étoiles de fond */}
         <div className="absolute inset-0 opacity-30">
           {[...Array(50)].map((_, i) => (
             <div
@@ -143,7 +142,6 @@ export default function WheelPage({
         </div>
 
         <div className="text-center relative z-10 max-w-md px-6">
-          {/* Icône animée */}
           <div className="relative w-32 h-32 mx-auto mb-8">
             <div className="absolute inset-0 bg-purple-400/40 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute inset-0 flex items-center justify-center">
@@ -179,7 +177,7 @@ export default function WheelPage({
     );
   }
 
-  // ÉCRAN PRINCIPAL - ROUE PLEIN ÉCRAN
+  // ÉCRAN PRINCIPAL
   if (wheelUnlocked) {
     return (
       <div className="fixed inset-0 flex flex-col bg-gradient-to-br from-[#0a0e1a] via-[#1a1540] to-[#0a0e1a]">
@@ -221,8 +219,8 @@ export default function WheelPage({
           ))}
         </div>
 
-        {/* Container principal - ESPACE POUR LES BOUTONS */}
-        <div className="flex-1 flex flex-col min-h-0 pt-3">
+        {/* Container principal - La roue */}
+        <div className="flex-1 flex flex-col min-h-0">
           <Wheel 
             onComplete={handleComplete}
             variation={variation}
@@ -235,33 +233,32 @@ export default function WheelPage({
           />
         </div>
 
-        {/* Boutons fixes en bas - TOUJOURS VISIBLES */}
-        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/98 via-slate-900/95 to-transparent backdrop-blur-md border-t border-amber-500/20 z-50">
-          <div className="max-w-lg mx-auto px-4 py-3 pb-safe-area">
-            {!isComplete ? (
-              <button 
-                onClick={onBack}
-                className="w-full min-h-[48px] text-base font-bold px-4 bg-gradient-to-r from-slate-900/70 via-slate-800/70 to-slate-900/70 hover:from-slate-800/80 hover:via-slate-700/80 hover:to-slate-800/80 border-2 border-amber-500/40 hover:border-amber-500/60 text-amber-100 backdrop-blur-sm rounded-xl transition-all duration-300 active:scale-[0.97] shadow-lg"
-              >
-                ← {t('common.back') || 'Retour'}
-              </button>
-            ) : (
-              <div className="flex gap-3">
+        {/* ✅ BOUTONS DE NAVIGATION - MINIMAUX */}
+        <div 
+          className="fixed left-0 right-0 pointer-events-none"
+          style={{
+            bottom: '60px', // Au-dessus de la bannière pub
+            zIndex: 50
+          }}
+        >
+          <div className="bg-gradient-to-t from-slate-900/98 via-slate-900/95 to-transparent backdrop-blur-md border-t border-amber-500/20 pointer-events-auto">
+            <div className="max-w-lg mx-auto px-4 py-2 pb-safe-ios">
+              {!isComplete ? (
                 <button 
                   onClick={onBack}
-                  className="flex-1 min-h-[48px] text-sm sm:text-base font-bold px-3 bg-gradient-to-r from-slate-900/70 via-slate-800/70 to-slate-900/70 hover:from-slate-800/80 hover:via-slate-700/80 hover:to-slate-800/80 border-2 border-amber-500/40 hover:border-amber-500/60 text-amber-100 backdrop-blur-sm rounded-xl transition-all duration-300 active:scale-[0.97] shadow-lg"
+                  className="w-full min-h-[50px] text-base font-bold px-4 bg-gradient-to-r from-slate-900/70 via-slate-800/70 to-slate-900/70 hover:from-slate-800/80 hover:via-slate-700/80 hover:to-slate-800/80 border-2 border-amber-500/40 hover:border-amber-500/60 text-amber-100 backdrop-blur-sm rounded-xl transition-all duration-300 active:scale-[0.97] shadow-lg"
                 >
-                  ← {t('common.back') || 'Back'}
+                  ← {t('common.back') || 'Retour'}
                 </button>
-
+              ) : (
                 <button 
                   onClick={onBack}
-                  className="flex-1 min-h-[48px] text-sm sm:text-base font-bold px-3 bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 shadow-[0_0_25px_rgba(212,175,55,0.3)] text-amber-100 backdrop-blur-sm rounded-xl border-2 border-amber-500/50 hover:border-amber-400/70 transition-all duration-300 active:scale-[0.97]"
+                  className="w-full min-h-[50px] text-base font-bold px-4 bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 shadow-[0_0_25px_rgba(212,175,55,0.3)] text-amber-100 backdrop-blur-sm rounded-xl border-2 border-amber-500/50 hover:border-amber-400/70 transition-all duration-300 active:scale-[0.97]"
                 >
-                  {t('oracle.backToOracles') || 'Oracles'} →
+                  {t('oracle.backToOracles') || 'Retour aux oracles'} →
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
@@ -295,8 +292,10 @@ export default function WheelPage({
           .animate-fade-in {
             animation: fade-in 0.4s ease-out;
           }
-          .pb-safe-area {
-            padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+
+          /* Safe area pour iOS */
+          .pb-safe-ios {
+            padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
           }
         `}</style>
       </div>
