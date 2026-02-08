@@ -1,5 +1,5 @@
 // ============================================
-// client/src/components/CardRevealModal.tsx - VERSION CORRIGÉE BANNIÈRE ADMOB
+// client/src/components/CardRevealModal.tsx - VERSION CORRIGÉE
 // ============================================
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -305,10 +305,10 @@ export default function CardRevealModal({
     );
   }
 
-  // ✅ MODAL NORMALE avec padding pour bannière AdMob
+  // ✅ MODAL NORMALE - Carte bien centrée avec padding pour pub
   return (
     <div 
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-md pb-safe-banner-modal"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-md pb-20"
       onClick={onClose}
       style={{
         background: 'radial-gradient(circle at center, rgba(10,20,32,0.96) 0%, rgba(13,27,46,0.98) 100%)'
@@ -344,14 +344,14 @@ export default function CardRevealModal({
       </div>
 
       <div 
-        className={`relative w-full max-w-sm transform transition-all duration-500 ${
+        className={`relative w-full max-w-sm my-auto transform transition-all duration-500 ${
           isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="absolute -inset-12 bg-[#c9a87f]/10 blur-3xl rounded-full animate-pulse-very-slow"></div>
 
-        <div className="relative aspect-[2/3] w-full max-w-[320px] mx-auto">
+        <div className="relative aspect-[2/3] w-full max-w-[280px] mx-auto">
           <div className="absolute inset-0 rounded-3xl shadow-2xl overflow-hidden">
 
             {!imageError ? (
@@ -417,18 +417,18 @@ export default function CardRevealModal({
           </div>
         </div>
 
-        <div className="mt-6 text-center">
-          <h2 className="text-[#e8d4b8] text-xl sm:text-2xl font-serif leading-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.9)]">
+        <div className="mt-4 text-center">
+          <h2 className="text-[#e8d4b8] text-lg sm:text-xl font-serif leading-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.9)]">
             {translatedCardName}
           </h2>
         </div>
 
-        <div className="mt-8 text-center space-y-5">
-          <p className="text-[#e8d4b8]/90 text-base font-light drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+        <div className="mt-4 text-center space-y-3 pb-safe-modal">
+          <p className="text-[#e8d4b8]/90 text-sm font-light drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             {t('cardgame.cardRevealed')} {cardNumber} / {totalCards}
           </p>
 
-          <div className="flex justify-center gap-2.5 mb-8">
+          <div className="flex justify-center gap-2.5 mb-4">
             {Array.from({ length: totalCards }).map((_, i) => (
               <div 
                 key={i}
@@ -441,26 +441,23 @@ export default function CardRevealModal({
             ))}
           </div>
 
-          {/* ✅ CORRECTION : Bouton avec plus d'espace en bas */}
-          <div className="pb-4">
-            <MysticalButton
-              variant="primary"
-              onClick={handleButtonClick}
-              className="min-h-[50px] px-10 bg-gradient-to-r from-[#a8896f] via-[#c9a87f] to-[#a8896f] text-[#0a1420] font-semibold text-base border border-[#c9a87f]/60 shadow-[0_4px_16px_rgba(201,168,127,0.3)] hover:shadow-[0_6px_24px_rgba(201,168,127,0.5)] hover:scale-105 transition-all duration-300"
-            >
-              {isLastCard ? (
-                <span className="flex items-center gap-2">
-                  {oracleType === 'lunar' ? t('cardgame.seeInterpretation') : t('cardgame.continue')}
-                  <span className="text-base">{oracleType === 'lunar' ? '✦' : '→'}</span>
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  {t('cardgame.continue')}
-                  <span className="text-base">→</span>
-                </span>
-              )}
-            </MysticalButton>
-          </div>
+          <MysticalButton
+            variant="primary"
+            onClick={handleButtonClick}
+            className="min-h-[50px] px-10 bg-gradient-to-r from-[#a8896f] via-[#c9a87f] to-[#a8896f] text-[#0a1420] font-semibold text-base border border-[#c9a87f]/60 shadow-[0_4px_16px_rgba(201,168,127,0.3)] hover:shadow-[0_6px_24px_rgba(201,168,127,0.5)] hover:scale-105 transition-all duration-300"
+          >
+            {isLastCard ? (
+              <span className="flex items-center gap-2">
+                {oracleType === 'lunar' ? t('cardgame.seeInterpretation') : t('cardgame.continue')}
+                <span className="text-base">{oracleType === 'lunar' ? '✦' : '→'}</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                {t('cardgame.continue')}
+                <span className="text-base">→</span>
+              </span>
+            )}
+          </MysticalButton>
         </div>
       </div>
 
@@ -488,15 +485,9 @@ export default function CardRevealModal({
         .animate-twinkle-soft { animation: twinkle-soft 3s ease-in-out infinite; }
         .bg-gradient-radial { background: radial-gradient(circle, var(--tw-gradient-stops)); }
 
-        /* ✅ CORRECTION : Espace pour la bannière AdMob */
-        .pb-safe-banner-modal {
-          padding-bottom: calc(70px + env(safe-area-inset-bottom));
-        }
-
-        @media (min-width: 640px) {
-          .pb-safe-banner-modal {
-            padding-bottom: calc(80px + env(safe-area-inset-bottom));
-          }
+        /* Padding minimal pour bannière pub */
+        .pb-safe-modal {
+          padding-bottom: 80px;
         }
       `}</style>
     </div>

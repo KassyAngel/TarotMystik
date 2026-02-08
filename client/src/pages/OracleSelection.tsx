@@ -169,8 +169,8 @@ export default function OracleSelection({
       <div className="flex-1 flex items-center justify-center px-2">
         <div className="w-full max-w-5xl space-y-3 sm:space-y-4">
 
-          {/* Grid 2x2 pour les 4 premiers oracles */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          {/* Grid 2x2 pour les 4 premiers oracles - PADDING TOP AUGMENTÉ */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-3">
             {oracles.map((oracle) => (
               <div
                 key={oracle.id}
@@ -180,24 +180,30 @@ export default function OracleSelection({
                   border-2 ${oracle.border} ${oracle.hoverBorder}
                   ${oracle.shadow} ${oracle.hoverShadow}
                   ${selectedOracle === oracle.id ? 'scale-[1.03]' : 'hover:scale-[1.03]'}
-                  backdrop-blur-xl overflow-hidden
-                  before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100`}
+                  backdrop-blur-xl
+                  before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100 before:rounded-3xl`}
+                style={{ 
+                  overflow: 'visible'
+                }}
               >
-                {/* Badge si présent - CORRIGÉ */}
+                {/* Badge si présent - CORRIGÉ AVEC OVERFLOW VISIBLE */}
                 {oracle.badge && (
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 max-w-[85%]">
-                    <div className={`bg-gradient-to-r ${oracle.badgeColor} text-white px-2 sm:px-2.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wide shadow-lg border border-purple-300/40 whitespace-nowrap`}>
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 max-w-[90%]">
+                    <div className={`bg-gradient-to-r ${oracle.badgeColor} text-white px-3 sm:px-3.5 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wide shadow-lg border border-purple-300/40 whitespace-nowrap`}>
                       <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">💕 {oracle.badge}</span>
                     </div>
                   </div>
                 )}
 
-                {/* Effet de brillance animé */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+                {/* Wrapper interne avec overflow hidden pour les effets */}
+                <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+                  {/* Effet de brillance animé */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
 
-                {/* Particules flottantes subtiles */}
-                <div className="absolute top-2 right-2 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
-                <div className="absolute bottom-3 left-3 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                  {/* Particules flottantes subtiles */}
+                  <div className="absolute top-2 right-2 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
+                  <div className="absolute bottom-3 left-3 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                </div>
 
                 {/* Contenu */}
                 <div className="relative flex flex-col items-center text-center">

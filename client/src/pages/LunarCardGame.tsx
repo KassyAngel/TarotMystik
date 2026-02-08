@@ -1,5 +1,5 @@
 // client/src/pages/LunarCardGame.tsx
-// ✅ VERSION PROFESSIONNELLE - Traductions + Largeur contrôlée
+// ✅ VERSION PROFESSIONNELLE - Traductions + Largeur contrôlée + LOADING CORRIGÉ
 
 import { useState, useEffect } from 'react';
 import TarotCard from '@/components/TarotCard';
@@ -158,9 +158,38 @@ export default function LunarCardGame({
   if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a]">
-        <div className="text-center">
-          <div className="text-6xl mb-4 animate-pulse">🌙</div>
-          <p className="text-slate-300 text-lg">{t('common.loading') || 'Préparation du tirage...'}</p>
+        <div className="text-center relative">
+          {/* Cercle de chargement - DIMENSIONS AGRANDIES */}
+          <div className="relative w-48 h-48 sm:w-56 sm:h-56 mx-auto mb-8">
+            {/* Cercle externe animé */}
+            <div className="absolute inset-0 rounded-full border-4 border-purple-500/20"></div>
+            <div 
+              className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 border-r-purple-500"
+              style={{ animation: 'spin 1.5s linear infinite' }}
+            ></div>
+
+            {/* Lune au centre - TAILLE AUGMENTÉE */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-8xl sm:text-9xl animate-pulse-gentle">{phaseInfo.emoji}</div>
+            </div>
+          </div>
+
+          {/* Texte de chargement */}
+          <p className="text-slate-300 text-lg mb-2 font-light">
+            {t('lunar.loading.connecting') || 'Connexion avec les énergies lunaires...'}
+          </p>
+
+          {/* Points de chargement animés */}
+          <div className="flex justify-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0s' }}></div>
+            <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+            <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+          </div>
+
+          {/* Message subliminal */}
+          <p className="text-slate-500 text-sm mt-6 italic font-light">
+            {t('lunar.loading.stars') || 'Les astres alignent votre destinée...'}
+          </p>
         </div>
       </div>
     );
@@ -406,6 +435,10 @@ export default function LunarCardGame({
       )}
 
       <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
         @keyframes twinkle {
           0%, 100% { opacity: 0.2; }
           50% { opacity: 0.8; }
@@ -444,6 +477,9 @@ export default function LunarCardGame({
         }
         .animate-fade-pulse {
           animation: fade-pulse 3s ease-in-out infinite;
+        }
+        .animate-pulse-gentle {
+          animation: pulse-gentle 2s ease-in-out infinite;
         }
         .perspective-1000 {
           perspective: 1000px;
