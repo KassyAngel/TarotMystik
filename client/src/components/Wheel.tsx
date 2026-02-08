@@ -1,5 +1,5 @@
 // client/src/components/Wheel.tsx
-// 🎡 Roue de la Destinée - VERSION AVEC GROS ESPACEMENT
+// 🎡 Roue de la Destinée - SANS SOUS-TITRE SUR INTERPRETATION
 
 import React, { useState } from 'react';
 import { showInterstitialAd } from '@/admobService';
@@ -80,7 +80,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
 
   const segmentAngle = 360 / wheelSegments.length;
 
-  // Tailles encore plus réduites pour garantir l'espace
+  // Tailles optimisées
   const wheelSize = hasSpun
     ? `min(calc(100vh - ${NAVBAR_TOP + BAR_BOTTOM + 340}px), 300px, 74vw)`
     : `min(calc(100vh - ${NAVBAR_TOP + BAR_BOTTOM + 210}px), 400px, 80vw)`;
@@ -95,17 +95,16 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
       }}
     >
 
-      {/* ── TITRE DESCENDU ── */}
+      {/* ── TITRE (sans sous-titre si interprétation) ── */}
       <div className="text-center pt-6 pb-2 px-4 flex-shrink-0 w-full">
-        <h3 className="text-2xl sm:text-3xl font-bold text-amber-100 font-serif mb-0.5 drop-shadow-[0_2px_10px_rgba(212,175,55,0.6)]">
+        <h3 className="text-2xl sm:text-3xl font-bold text-amber-100 font-serif drop-shadow-[0_2px_10px_rgba(212,175,55,0.6)]">
           {t('oracle.wheel.title') || 'Roue de la Destinée'}
         </h3>
-        <p className="text-amber-200/70 text-xs sm:text-sm font-medium">
-          {!hasSpun
-            ? (t('oracle.wheel.subtitle') || 'Tournez la roue pour découvrir votre destin')
-            : (t('oracle.wheel.destinyRevealed') || 'Votre destin est révélé')
-          }
-        </p>
+        {!hasSpun && (
+          <p className="text-amber-200/70 text-xs sm:text-sm font-medium mt-0.5">
+            {t('oracle.wheel.subtitle') || 'Tournez la roue pour découvrir votre destin'}
+          </p>
+        )}
       </div>
 
       {/* ── ROUE ── */}
@@ -313,7 +312,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
         </div>
       )}
 
-      {/* ── BOUTON AVEC GROS ESPACEMENT (32px = pb-8) ── */}
+      {/* ── BOUTON AVEC GROS ESPACEMENT ── */}
       <div className="px-4 pt-2 pb-8 flex-shrink-0 w-full flex justify-center">
         <div className="w-full max-w-md">
 

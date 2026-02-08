@@ -1,5 +1,5 @@
 // client/src/pages/LunarCardGame.tsx
-// ✅ VERSION CORRIGÉE - La pub doit être appelée AVANT d'arriver ici
+// ✅ VERSION PROFESSIONNELLE - Traductions + Largeur contrôlée
 
 import { useState, useEffect } from 'react';
 import TarotCard from '@/components/TarotCard';
@@ -45,29 +45,33 @@ export default function LunarCardGame({
   const lunarOracle = oracleData.lunar;
 
   const getPhaseInfo = (phase: string) => {
-    const phaseMap: Record<string, { emoji: string; color: string; name: string; lightColor: string }> = {
+    const phaseMap: Record<string, { emoji: string; color: string; name: string; lightColor: string; accentColor: string }> = {
       newMoon: { 
         emoji: '🌑', 
         color: 'from-slate-700 via-slate-600 to-slate-700',
-        lightColor: 'from-slate-500/20 via-slate-400/10 to-transparent',
+        lightColor: 'from-slate-500/15 via-slate-400/8 to-transparent',
+        accentColor: '#64748b',
         name: t('lunar.phases.newMoon.name') || 'Nouvelle Lune'
       },
       firstQuarter: { 
         emoji: '🌓', 
         color: 'from-indigo-700 via-indigo-600 to-indigo-700',
-        lightColor: 'from-indigo-500/20 via-indigo-400/10 to-transparent',
+        lightColor: 'from-indigo-500/15 via-indigo-400/8 to-transparent',
+        accentColor: '#6366f1',
         name: t('lunar.phases.firstQuarter.name') || 'Premier Quartier'
       },
       fullMoon: { 
         emoji: '🌕', 
         color: 'from-amber-600 via-yellow-500 to-amber-600',
-        lightColor: 'from-amber-400/20 via-yellow-300/10 to-transparent',
+        lightColor: 'from-amber-400/15 via-yellow-300/8 to-transparent',
+        accentColor: '#f59e0b',
         name: t('lunar.phases.fullMoon.name') || 'Pleine Lune'
       },
       lastQuarter: { 
         emoji: '🌗', 
         color: 'from-purple-700 via-violet-600 to-purple-700',
-        lightColor: 'from-purple-500/20 via-violet-400/10 to-transparent',
+        lightColor: 'from-purple-500/15 via-violet-400/8 to-transparent',
+        accentColor: '#8b5cf6',
         name: t('lunar.phases.lastQuarter.name') || 'Dernier Quartier'
       }
     };
@@ -76,12 +80,10 @@ export default function LunarCardGame({
 
   const phaseInfo = getPhaseInfo(selectedPhase);
 
-  // ✅ Initialisation : Générer les cartes SEULEMENT (pas de pub ici)
   useEffect(() => {
     const initGame = async () => {
       console.log('🎯 [LUNAR GAME] Initialisation des cartes');
 
-      // Générer les cartes
       const cardsForPhase = lunarOracle.cards
         .map((card, index) => ({ card, index }))
         .filter(({ card }) => card.phase === selectedPhase);
@@ -127,7 +129,6 @@ export default function LunarCardGame({
     const actualIndex = phaseCards[revealedCard.index];
     const selectedCard = lunarOracle.cards[actualIndex];
 
-    // 1️⃣ Sauvegarder le tirage
     if (onSaveReading) {
       try {
         await onSaveReading({
@@ -143,13 +144,11 @@ export default function LunarCardGame({
       }
     }
 
-    // 2️⃣ ✅ Incrémenter le compteur IMMÉDIATEMENT
     if (onReadingComplete) {
       console.log('📈 [LUNAR] Incrémentation compteur');
       onReadingComplete('lunar');
     }
 
-    // 3️⃣ Attendre un peu pour que le compteur soit mis à jour, puis naviguer
     setTimeout(() => {
       console.log('🚀 [LUNAR] Navigation vers interprétation');
       onCardSelected({ card: selectedCard, phase: selectedPhase });
@@ -161,7 +160,7 @@ export default function LunarCardGame({
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a]">
         <div className="text-center">
           <div className="text-6xl mb-4 animate-pulse">🌙</div>
-          <p className="text-slate-300 text-lg">Préparation du tirage...</p>
+          <p className="text-slate-300 text-lg">{t('common.loading') || 'Préparation du tirage...'}</p>
         </div>
       </div>
     );
@@ -169,174 +168,228 @@ export default function LunarCardGame({
 
   return (
     <>
-      <div className={`min-h-screen flex flex-col p-4 pt-12 pb-20 bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a] relative overflow-hidden transition-opacity duration-700 ${
+      <div className={`min-h-screen w-full max-w-full overflow-x-hidden flex flex-col bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a] relative transition-opacity duration-700 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       }`}>
 
-        {/* Étoiles améliorées */}
-        <div className="absolute inset-0 pointer-events-none">
-          {[...Array(20)].map((_, i) => (
+        {/* Étoiles d'ambiance */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {[...Array(30)].map((_, i) => (
             <div
               key={i}
               className="absolute rounded-full bg-white"
               style={{
-                width: '1px',
-                height: '1px',
-                opacity: 0.5,
+                width: Math.random() > 0.8 ? '2px' : '1px',
+                height: Math.random() > 0.8 ? '2px' : '1px',
+                opacity: 0.4 + Math.random() * 0.3,
                 top: `${Math.random() * 100}%`,
                 left: `${Math.random() * 100}%`,
+                animation: `twinkle ${2 + Math.random() * 3}s ease-in-out infinite`,
                 animationDelay: `${Math.random() * 3}s`
               }}
             />
           ))}
         </div>
 
-        {/* Effet de lumière de phase lunaire */}
-        <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-radial ${phaseInfo.lightColor} blur-3xl pointer-events-none animate-pulse-slow`}></div>
+        {/* Effet de lumière douce */}
+        <div 
+          className={`absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-radial ${phaseInfo.lightColor} blur-3xl pointer-events-none opacity-60`}
+          style={{ animation: 'pulse-gentle 4s ease-in-out infinite' }}
+        ></div>
 
-        {/* Header avec phase lunaire */}
-        <div className="text-center mb-6 relative z-10">
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              <div className={`absolute inset-0 bg-gradient-to-br ${phaseInfo.color} opacity-30 rounded-full blur-3xl animate-pulse-slow scale-150`}></div>
-              <span className="relative text-7xl sm:text-8xl animate-float drop-shadow-[0_0_30px_rgba(148,163,184,0.6)]">
-                {phaseInfo.emoji}
-              </span>
+        {/* Container principal avec padding safe et largeur contrôlée */}
+        <div className="flex-1 flex flex-col w-full max-w-full px-4 pt-16 pb-24 relative z-10">
+
+          {/* HEADER ÉLÉGANT */}
+          <div className="text-center mb-6">
+            {/* Icône de phase avec effet halo */}
+            <div className="flex justify-center mb-3">
+              <div className="relative inline-block">
+                <div 
+                  className="absolute inset-0 rounded-full blur-2xl opacity-40"
+                  style={{ 
+                    background: `radial-gradient(circle, ${phaseInfo.accentColor}40 0%, transparent 70%)`,
+                    animation: 'pulse-glow 3s ease-in-out infinite'
+                  }}
+                ></div>
+                <span className="relative text-6xl block animate-float-gentle" style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }}>
+                  {phaseInfo.emoji}
+                </span>
+              </div>
+            </div>
+
+            {/* Titre de la phase */}
+            <h2 className="text-2xl font-serif text-slate-100 mb-3 tracking-wide px-4" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>
+              {phaseInfo.name}
+            </h2>
+
+            {/* Séparateur décoratif */}
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="h-px w-12 bg-gradient-to-r from-transparent to-slate-500/40"></div>
+              <div className="w-1 h-1 rounded-full bg-slate-400/60"></div>
+              <div className="h-px w-12 bg-gradient-to-l from-transparent to-slate-500/40"></div>
             </div>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-serif text-slate-100 mb-3 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
-            {phaseInfo.name}
-          </h2>
+          {/* INSTRUCTIONS MODERNES */}
+          <div className="mb-6 w-full">
+            <div className="max-w-md mx-auto w-full">
+              <div className="relative bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-md rounded-2xl p-5 border border-slate-600/20 shadow-xl">
 
-          <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-slate-400/50 to-transparent mb-4"></div>
-        </div>
+                {/* Coins décoratifs minimaux */}
+                <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-slate-500/30 rounded-tl-2xl"></div>
+                <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-slate-500/30 rounded-tr-2xl"></div>
+                <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-slate-500/30 rounded-bl-2xl"></div>
+                <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-slate-500/30 rounded-br-2xl"></div>
 
-        {/* Instructions proéminentes */}
-        <div className="relative z-10 mb-12 px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="relative bg-slate-800/40 backdrop-blur-sm border-2 border-slate-500/30 rounded-2xl p-6 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-              <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-slate-400/40 rounded-tl-2xl"></div>
-              <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-slate-400/40 rounded-tr-2xl"></div>
-              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-slate-400/40 rounded-bl-2xl"></div>
-              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-slate-400/40 rounded-br-2xl"></div>
+                {/* Icône centrale */}
+                <div className="flex justify-center mb-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center border border-slate-600/40 shadow-lg">
+                    <span className="text-xl">✨</span>
+                  </div>
+                </div>
 
-              <div className="flex justify-center mb-3">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-slate-400/20 rounded-full blur-xl"></div>
-                  <span className="relative text-3xl">✨</span>
+                {/* Texte principal */}
+                <p className="text-slate-100 text-center text-lg font-medium mb-2 leading-relaxed">
+                  {t('lunar.cardGame.instruction') || 'Choisissez la carte qui vous attire'}
+                </p>
+
+                {/* Sous-texte */}
+                <p className="text-slate-400 text-center text-sm font-light italic">
+                  {t('lunar.cardGame.singleCard') || 'Une seule carte révélera le message de la lune'}
+                </p>
+
+                {/* Badge indicateur - AVEC CLÉ DE TRADUCTION */}
+                <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-slate-600/20">
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-700/40 rounded-full border border-slate-600/30">
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></div>
+                    <span className="text-slate-300 text-xs font-medium uppercase tracking-wider">
+                      {t('lunar.cardGame.oneCard') || '1 carte'}
+                    </span>
+                  </div>
                 </div>
               </div>
-
-              <p className="text-slate-100 text-xl sm:text-2xl font-medium mb-2 leading-relaxed">
-                {t('lunar.cardGame.instruction') || 'Choisissez la carte qui vous attire'}
-              </p>
-
-              <p className="text-slate-300/70 text-sm sm:text-base font-light italic">
-                {t('lunar.cardGame.singleCard') || 'Une seule carte révélera le message de la lune'}
-              </p>
-
-              <div className="flex items-center justify-center gap-2 mt-4">
-                <div className="w-2 h-2 bg-slate-400/60 rounded-full animate-pulse"></div>
-                <span className="text-slate-400/80 text-xs uppercase tracking-wider font-light">
-                  {t('lunar.cardGame.oneChoice') || '1 carte à choisir'}
-                </span>
-                <div className="w-2 h-2 bg-slate-400/60 rounded-full animate-pulse"></div>
-              </div>
-            </div>
-
-            <div className="flex justify-center mt-8">
-              <div className="flex flex-col items-center gap-2 animate-bounce-slow">
-                <div className="w-px h-12 bg-gradient-to-b from-slate-400/60 to-transparent"></div>
-                <span className="text-slate-400/60 text-2xl">↓</span>
-              </div>
             </div>
           </div>
-        </div>
 
-        {/* Zone des cartes */}
-        <div className="flex-1 flex items-start justify-center relative z-10 px-4">
-          <div className="relative w-full max-w-4xl">
+          {/* ZONE DES CARTES - DESIGN PROFESSIONNEL */}
+          <div className="flex-1 flex items-center justify-center w-full px-4 py-8">
+            <div className="relative w-full max-w-lg">
 
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] rounded-full border border-slate-600/15 opacity-40"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] rounded-full border border-slate-500/10 opacity-30"></div>
+              {/* Cercle de fond élégant - DIMENSIONS CONTRÔLÉES */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] sm:w-80 sm:h-80">
+                <div 
+                  className="absolute inset-0 rounded-full border border-slate-600/10"
+                  style={{ animation: 'rotate-slow 30s linear infinite' }}
+                ></div>
+                <div 
+                  className="absolute inset-4 rounded-full border border-slate-500/8"
+                  style={{ animation: 'rotate-slow-reverse 25s linear infinite' }}
+                ></div>
+                <div 
+                  className="absolute inset-8 rounded-full border border-slate-400/6"
+                  style={{ animation: 'rotate-slow 20s linear infinite' }}
+                ></div>
+              </div>
 
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-10">
-              {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute top-1/2 left-1/2 w-0.5 h-[200px] bg-gradient-to-t from-transparent via-slate-400/30 to-transparent origin-bottom"
-                  style={{
-                    transform: `translateX(-50%) rotate(${i * 45}deg)`,
-                  }}
-                />
-              ))}
-            </div>
+              {/* Pattern de rayons subtils - HAUTEUR CONTRÔLÉE */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-5">
+                {[...Array(12)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute top-1/2 left-1/2 w-px h-24 sm:h-32 bg-gradient-to-t from-transparent via-slate-400 to-transparent origin-bottom"
+                    style={{ transform: `translateX(-50%) rotate(${i * 30}deg)` }}
+                  />
+                ))}
+              </div>
 
-            {/* Cartes disposées en arc */}
-            <div className="relative flex justify-center items-center gap-4 sm:gap-8 perspective-1000 py-8">
-              {phaseCards.map((actualIndex, localIndex) => {
-                const cardData = lunarOracle.cards[actualIndex];
-                const isFlipped = flippedCard === localIndex;
-                const canClick = flippedCard === null;
+              {/* CARTES EN ARC ÉLÉGANT - LARGEUR CONTRÔLÉE */}
+              <div className="relative flex justify-center items-center gap-2 sm:gap-4 perspective-1000 w-full">
+                {phaseCards.map((actualIndex, localIndex) => {
+                  const cardData = lunarOracle.cards[actualIndex];
+                  const isFlipped = flippedCard === localIndex;
+                  const canClick = flippedCard === null;
 
-                const rotationAngle = (localIndex - 1) * 12;
-                const translateY = Math.abs(localIndex - 1) * -15;
+                  // Calcul de position en arc plus doux
+                  const totalCards = phaseCards.length;
+                  const centerIndex = (totalCards - 1) / 2;
+                  const offsetFromCenter = localIndex - centerIndex;
+                  const rotationAngle = offsetFromCenter * 8; // Rotation douce
+                  const translateY = Math.abs(offsetFromCenter) * -10; // Légère élévation
 
-                return (
-                  <div 
-                    key={`lunar-${localIndex}-${actualIndex}`} 
-                    className="relative transition-all duration-500"
-                    style={{
-                      transform: `rotateZ(${rotationAngle}deg) translateY(${translateY}px) ${isFlipped ? 'scale(1.1)' : 'scale(1)'}`,
-                      zIndex: isFlipped ? 20 : 10 - Math.abs(localIndex - 1)
-                    }}
-                  >
-                    {canClick && (
-                      <div className={`absolute inset-0 bg-gradient-to-br ${phaseInfo.color} opacity-20 blur-2xl rounded-2xl scale-110 animate-pulse-slow`}></div>
-                    )}
+                  return (
+                    <div 
+                      key={`lunar-${localIndex}-${actualIndex}`} 
+                      className="relative transition-all duration-500 ease-out"
+                      style={{
+                        transform: `rotateZ(${rotationAngle}deg) translateY(${translateY}px) ${isFlipped ? 'scale(1.05)' : 'scale(1)'}`,
+                        zIndex: isFlipped ? 30 : 20 - Math.abs(offsetFromCenter)
+                      }}
+                    >
+                      {/* Halo de sélection */}
+                      {canClick && (
+                        <div 
+                          className="absolute -inset-2 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                          style={{ 
+                            background: `radial-gradient(circle, ${phaseInfo.accentColor}30 0%, transparent 70%)`,
+                            animation: 'pulse-card 2s ease-in-out infinite'
+                          }}
+                        ></div>
+                      )}
 
-                    <TarotCard
-                      number={isFlipped ? actualIndex + 1 : 0}
-                      isSelected={isFlipped}
-                      isSelectable={canClick}
-                      onClick={() => handleCardClick(localIndex)}
-                      cardName={isFlipped ? cardData.name : undefined}
-                      oracleType="lunar"
-                    />
+                      {/* Carte - TAILLE CONTRÔLÉE */}
+                      <div className={`group relative ${canClick ? 'cursor-pointer' : ''}`}>
+                        <div className="w-20 sm:w-24 transition-transform duration-300 hover:scale-105">
+                          <TarotCard
+                            number={isFlipped ? actualIndex + 1 : 0}
+                            isSelected={isFlipped}
+                            isSelectable={canClick}
+                            onClick={() => handleCardClick(localIndex)}
+                            cardName={isFlipped ? cardData.name : undefined}
+                            oracleType="lunar"
+                          />
+                        </div>
 
-                    {canClick && (
-                      <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
-                        <div className="w-3 h-3 bg-slate-400/50 rounded-full animate-pulse border border-slate-300/30"></div>
-                        <span className="text-slate-400/50 text-xs font-light">{localIndex + 1}</span>
+                        {/* Indicateur de position */}
+                        {canClick && (
+                          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div 
+                              className="w-2 h-2 rounded-full border-2 animate-pulse"
+                              style={{ 
+                                borderColor: phaseInfo.accentColor,
+                                boxShadow: `0 0 8px ${phaseInfo.accentColor}80`
+                              }}
+                            ></div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {flippedCard === null && (
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-center w-full">
-                <p className="text-slate-300/60 text-sm font-light italic animate-fade-in-out">
-                  {t('lunar.cardGame.hint') || 'Écoutez votre intuition...'}
-                </p>
+                    </div>
+                  );
+                })}
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Bouton retour */}
-        <div className="text-center relative z-10 mt-8">
-          <button
-            onClick={onBack}
-            className="group px-8 py-3 bg-slate-800/40 border border-slate-600/30 text-slate-300 rounded-xl hover:bg-slate-700/50 hover:border-slate-500/50 transition-all duration-300 backdrop-blur-sm hover:scale-105"
-          >
-            <span className="flex items-center gap-2">
-              <span className="group-hover:-translate-x-1 transition-transform">←</span>
-              {t('cardgame.back') || 'Retour'}
-            </span>
-          </button>
+              {/* Message d'intuition */}
+              {flippedCard === null && (
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-center w-full px-4">
+                  <p className="text-slate-400/80 text-sm font-light italic animate-fade-pulse">
+                    {t('lunar.cardGame.hint') || 'Écoutez votre intuition...'}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* BOUTON RETOUR MODERNE */}
+          <div className="text-center pt-6">
+            <button
+              onClick={onBack}
+              className="group inline-flex items-center gap-2 px-6 py-3 bg-slate-800/60 hover:bg-slate-700/70 border border-slate-600/40 hover:border-slate-500/60 text-slate-300 hover:text-slate-100 rounded-xl transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-xl hover:scale-105"
+            >
+              <span className="text-sm group-hover:-translate-x-1 transition-transform">←</span>
+              <span className="text-sm font-medium">{t('cardgame.back') || 'Retour'}</span>
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -353,40 +406,44 @@ export default function LunarCardGame({
       )}
 
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-12px); }
-        }
         @keyframes twinkle {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 1; }
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 0.8; }
         }
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.05); }
-        }
-        @keyframes fade-in-out {
-          0%, 100% { opacity: 0.5; }
-          50% { opacity: 1; }
-        }
-        @keyframes bounce-slow {
+        @keyframes float-gentle {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-8px); }
         }
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
+        @keyframes pulse-gentle {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 0.8; }
         }
-        .animate-twinkle {
-          animation: twinkle ease-in-out infinite;
+        @keyframes pulse-glow {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.1); }
         }
-        .animate-pulse-slow {
-          animation: pulse-slow 3s ease-in-out infinite;
+        @keyframes pulse-card {
+          0%, 100% { opacity: 0; }
+          50% { opacity: 0.4; }
         }
-        .animate-fade-in-out {
-          animation: fade-in-out 2.5s ease-in-out infinite;
+        @keyframes fade-pulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
         }
-        .animate-bounce-slow {
-          animation: bounce-slow 2s ease-in-out infinite;
+        @keyframes rotate-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes rotate-slow-reverse {
+          from { transform: rotate(360deg); }
+          to { transform: rotate(0deg); }
+        }
+
+        .animate-float-gentle {
+          animation: float-gentle 3s ease-in-out infinite;
+        }
+        .animate-fade-pulse {
+          animation: fade-pulse 3s ease-in-out infinite;
         }
         .perspective-1000 {
           perspective: 1000px;

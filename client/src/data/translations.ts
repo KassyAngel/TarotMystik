@@ -445,7 +445,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "crossSpread.positions.future": "L'Avenir",
         "crossSpread.positions.synthesis": "La Synthèse",
         "crossSpread.interpretation.title": "Votre Tirage en Croix",
-        "crossSpread.interpretation.subtitle": "{{name}}, votre tirage révèle un chemin amoureux riche en enseignements.",
+        "crossSpread.interpretation.subtitle": "{name}, votre tirage révèle un chemin amoureux riche en enseignements.",
         "crossSpread.interpretation.sections.positive": "Aspects Positifs",
         "crossSpread.interpretation.sections.attention": "Points d'Attention",
         "crossSpread.interpretation.sections.advice": "Conseil",
@@ -1046,6 +1046,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "lunar.cardGame.hint": "Écoutez votre intuition...",
         "lunar.cardGame.singleCard": "Une seule carte révélera le message de la lune", 
         "lunar.cardGame.oneChoice": "1 carte à choisir",
+        "lunar.cardGame.oneCard": "1 carte",
 
         //Cartes Oracles lunaire
         // Nouvelle Lune
@@ -2235,7 +2236,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "crossSpread.positions.future": "The Future",
     "crossSpread.positions.synthesis": "The Synthesis",
     "crossSpread.interpretation.title": "Your Cross Spread",
-    "crossSpread.interpretation.subtitle": "{{name}}, your reading reveals a love path filled with insight.",
+    "crossSpread.interpretation.subtitle": "{name}, your reading reveals a love path filled with insight.",
     "crossSpread.interpretation.sections.positive": "Positive Aspects",
     "crossSpread.interpretation.sections.attention": "Points of Attention",
     "crossSpread.interpretation.sections.advice": "Guidance",
@@ -2835,6 +2836,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
      "lunar.cardGame.hint": "Listen to your intuition...",
     "lunar.cardGame.singleCard": "A single card will reveal the moon's message",
     "lunar.cardGame.oneChoice": "1 card to choose",
+    "lunar.cardGame.oneCard": "1 card",
    
     // Lunar Oracle Cards
     // New Moon
@@ -3997,7 +3999,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "crossSpread.positions.future": "El Futuro",
         "crossSpread.positions.synthesis": "La Síntesis",
         "crossSpread.interpretation.title": "Tu Tirada en Cruz",
-        "crossSpread.interpretation.subtitle": "{{name}}, tu lectura revela un camino amoroso lleno de mensajes y claridad.",
+        "crossSpread.interpretation.subtitle": "{name}, tu lectura revela un camino amoroso lleno de mensajes y claridad.",
         "crossSpread.interpretation.sections.positive": "Aspectos Positivos",
         "crossSpread.interpretation.sections.attention": "Puntos de Atención",
         "crossSpread.interpretation.sections.advice": "Consejo",
@@ -4597,6 +4599,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "lunar.cardGame.hint": "Escucha tu intuición...",
     "lunar.cardGame.singleCard": "Una sola carta revelará el mensaje de la luna",
     "lunar.cardGame.oneChoice": "1 carta para elegir",
+    "lunar.cardGame.oneCard": "1 carta",
 
     // Cartas del Oráculo Lunar
     // Luna Nueva
@@ -5742,7 +5745,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "crossSpread.positions.future": "Die Zukunft",
     "crossSpread.positions.synthesis": "Die Zusammenfassung",
     "crossSpread.interpretation.title": "Dein Kreuz-Legesystem",
-    "crossSpread.interpretation.subtitle": "{{name}}, deine Auslegung zeigt einen Liebesweg voller Erkenntnisse.",
+    "crossSpread.interpretation.subtitle": "{name}, deine Auslegung zeigt einen Liebesweg voller Erkenntnisse.",
     "crossSpread.interpretation.sections.positive": "Positive Aspekte",
     "crossSpread.interpretation.sections.attention": "Worauf du achten solltest",
     "crossSpread.interpretation.sections.advice": "Ratschlag",
@@ -6342,6 +6345,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "lunar.cardGame.hint": "Höre auf deine Intuition...",
         "lunar.cardGame.singleCard": "Eine einzelne Karte wird die Botschaft des Mondes enthüllen",
         "lunar.cardGame.oneChoice": "1 Karte auswählen",
+        "lunar.cardGame.oneCard": "1 Karte",
 
     // Karten des Mondorakels
     // Neumond
@@ -7493,7 +7497,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "crossSpread.positions.future": "Il Futuro",
     "crossSpread.positions.synthesis": "La Sintesi",
     "crossSpread.interpretation.title": "La Tua Lettura a Croce",
-    "crossSpread.interpretation.subtitle": "{{name}}, la tua lettura rivela un percorso amoroso ricco di intuizioni.",
+    "crossSpread.interpretation.subtitle": "{name}, la tua lettura rivela un percorso amoroso ricco di intuizioni.",
     "crossSpread.interpretation.sections.positive": "Aspetti Positivi",
     "crossSpread.interpretation.sections.attention": "Punti di Attenzione",
     "crossSpread.interpretation.sections.advice": "Consiglio",
@@ -8093,6 +8097,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "lunar.cardGame.hint": "Ascolta la tua intuizione...",
     "lunar.cardGame.singleCard": "Una sola carta rivelerà il messaggio della luna",
     "lunar.cardGame.oneChoice": "1 carta da scegliere",
+    "lunar.cardGame.oneCard": "1 carta",
 
     // Carte dell'Oracolo Lunare
     // Luna Nuova

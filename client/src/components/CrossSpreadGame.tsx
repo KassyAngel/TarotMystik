@@ -212,17 +212,17 @@ export default function CrossSpreadGame({
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-4 sm:p-6 pt-20 sm:pt-24 pb-24 sm:pb-28 bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420] relative overflow-hidden">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col justify-between p-4 sm:p-6 pt-safe-top pb-safe-bottom bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420] relative">
 
       {/* Effets de fond */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#ff6692]/8 rounded-full blur-3xl animate-pulse-romantic"></div>
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-[#1a2d45]/25 rounded-full blur-3xl animate-pulse-slow"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#c9a87f]/6 rounded-full blur-3xl"></div>
       </div>
 
       {/* Étoiles */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {[...Array(40)].map((_, i) => (
           <div
             key={i}
@@ -240,19 +240,19 @@ export default function CrossSpreadGame({
       </div>
 
       {/* Header */}
-      <div className="text-center mb-6 relative z-10">
-        <h2 className="text-[#e8d4b8] text-xl sm:text-2xl md:text-3xl font-serif mb-3 drop-shadow-[0_3px_10px_rgba(0,0,0,0.9)]">
+      <div className="text-center mb-4 sm:mb-6 relative z-10">
+        <h2 className="text-[#e8d4b8] text-xl sm:text-2xl md:text-3xl font-serif mb-2 sm:mb-3 drop-shadow-[0_3px_10px_rgba(0,0,0,0.9)] px-4">
           {t('crossSpread.title')}
         </h2>
-        <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-[#c9a87f]/50 to-transparent mb-3"></div>
-        <p className="text-[#c9a87f]/85 text-xs sm:text-sm max-w-xl mx-auto">
+        <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-[#c9a87f]/50 to-transparent mb-2 sm:mb-3"></div>
+        <p className="text-[#c9a87f]/85 text-xs sm:text-sm max-w-xl mx-auto px-4">
           {t('crossSpread.description')}
         </p>
       </div>
 
-      {/* Grille en croix */}
-      <div className="flex-1 flex items-center justify-center relative z-10 py-4">
-        <div className="grid grid-cols-3 grid-rows-3 gap-3 sm:gap-4 max-w-3xl w-full px-2">
+      {/* Grille en croix - CORRECTION ICI */}
+      <div className="flex-1 flex items-center justify-center relative z-10 py-4 w-full">
+        <div className="cross-spread-container w-full max-w-full px-2">
           {Array.from({ length: totalCards }).map((_, index) => {
             const actualIndex = randomCards[index];
             const cardData = oracle.cards[actualIndex];
@@ -262,10 +262,10 @@ export default function CrossSpreadGame({
             return (
               <div 
                 key={index}
-                className={`${getCardPosition(index)} flex flex-col items-center gap-2`}
+                className={`cross-card-wrapper cross-card-${index}`}
               >
                 {/* Label de position au-dessus */}
-                <div className="text-center">
+                <div className="text-center mb-1 sm:mb-2">
                   <p className={`text-xs sm:text-sm font-serif tracking-wide transition-all duration-300 ${
                     canFlip 
                       ? 'text-[#ff6692] font-bold animate-pulse-gentle' 
@@ -278,7 +278,7 @@ export default function CrossSpreadGame({
                 </div>
 
                 {/* Carte */}
-                <div className={`w-24 sm:w-32 md:w-36 relative transition-all duration-300 ${
+                <div className={`card-container relative transition-all duration-300 ${
                   canFlip ? 'opacity-100 scale-105' : isFlipped ? 'opacity-100' : 'opacity-40 scale-95'
                 }`}>
                   <FlipCard
@@ -313,7 +313,7 @@ export default function CrossSpreadGame({
       </div>
 
       {/* Progression et boutons */}
-      <div className="text-center space-y-6 relative z-10">
+      <div className="text-center space-y-4 sm:space-y-6 relative z-10">
         {/* Indicateur de progression */}
         <div className="flex items-center justify-center gap-2.5">
           {Array.from({ length: totalCards }).map((_, i) => (
@@ -331,11 +331,11 @@ export default function CrossSpreadGame({
         </div>
 
         {/* Boutons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center px-4">
           <MysticalButton 
             variant="secondary" 
             onClick={onBack}
-            className="px-6 py-3 bg-gradient-to-r from-[#152238]/70 to-[#1a2d45]/70 border border-[#c9a87f]/30 text-[#e8d4b8]"
+            className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#152238]/70 to-[#1a2d45]/70 border border-[#c9a87f]/30 text-[#e8d4b8]"
           >
             ← {t('cardgame.back')}
           </MysticalButton>
@@ -345,7 +345,7 @@ export default function CrossSpreadGame({
             <MysticalButton 
               variant="primary" 
               onClick={handleRevealInterpretation}
-              className="px-8 py-3 bg-gradient-to-r from-[#a8896f] via-[#c9a87f] to-[#a8896f] text-[#0a1420] font-semibold border-2 border-[#c9a87f]/50 shadow-[0_4px_20px_rgba(201,168,127,0.5)] hover:shadow-[0_6px_30px_rgba(201,168,127,0.7)] animate-fade-in"
+              className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-[#a8896f] via-[#c9a87f] to-[#a8896f] text-[#0a1420] font-semibold border-2 border-[#c9a87f]/50 shadow-[0_4px_20px_rgba(201,168,127,0.5)] hover:shadow-[0_6px_30px_rgba(201,168,127,0.7)] animate-fade-in"
             >
               ✨ {t('crossSpread.revealInterpretation')}
             </MysticalButton>
@@ -375,6 +375,83 @@ export default function CrossSpreadGame({
       })()}
 
       <style>{`
+        /* Safe Area pour Android et iOS */
+        .pt-safe-top {
+          padding-top: max(80px, env(safe-area-inset-top, 0px) + 80px);
+        }
+
+        .pb-safe-bottom {
+          padding-bottom: max(100px, env(safe-area-inset-bottom, 0px) + 100px);
+        }
+
+        @media (min-width: 640px) {
+          .pt-safe-top {
+            padding-top: max(96px, env(safe-area-inset-top, 0px) + 96px);
+          }
+
+          .pb-safe-bottom {
+            padding-bottom: max(112px, env(safe-area-inset-bottom, 0px) + 112px);
+          }
+        }
+
+        /* Container de la croix - empêche le débordement horizontal */
+        .cross-spread-container {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-rows: repeat(3, auto);
+          gap: 0.75rem;
+          max-width: min(100vw - 2rem, 48rem);
+          margin: 0 auto;
+          place-items: center;
+        }
+
+        @media (min-width: 640px) {
+          .cross-spread-container {
+            gap: 1rem;
+          }
+        }
+
+        /* Positionnement des cartes */
+        .cross-card-wrapper {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+          max-width: 100%;
+        }
+
+        .cross-card-0 { grid-column: 2; grid-row: 2; } /* Centre - Présent */
+        .cross-card-1 { grid-column: 1; grid-row: 2; } /* Gauche - Obstacle */
+        .cross-card-2 { grid-column: 2; grid-row: 3; } /* Bas - Passé */
+        .cross-card-3 { grid-column: 2; grid-row: 1; } /* Haut - Avenir */
+        .cross-card-4 { grid-column: 3; grid-row: 2; } /* Droite - Synthèse */
+
+        /* Taille des cartes responsive */
+        .card-container {
+          width: 100%;
+          max-width: 6rem;
+          aspect-ratio: 2/3;
+        }
+
+        @media (min-width: 400px) {
+          .card-container {
+            max-width: 7rem;
+          }
+        }
+
+        @media (min-width: 640px) {
+          .card-container {
+            max-width: 8rem;
+          }
+        }
+
+        @media (min-width: 768px) {
+          .card-container {
+            max-width: 9rem;
+          }
+        }
+
+        /* Animations */
         @keyframes pulse-romantic {
           0%, 100% { opacity: 0.5; }
           50% { opacity: 0.8; }
