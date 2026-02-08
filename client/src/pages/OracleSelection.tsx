@@ -172,67 +172,65 @@ export default function OracleSelection({
           {/* Grid 2x2 pour les 4 premiers oracles */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             {oracles.map((oracle) => (
-              <div key={oracle.id} className="relative pt-3">
-                {/* Badge EXTÉRIEUR de la carte - au-dessus */}
+              <div
+                key={oracle.id}
+                onClick={() => handleOracleClick(oracle.id)}
+                className={`relative cursor-pointer group rounded-3xl p-4 sm:p-5 transition-all duration-500
+                  bg-gradient-to-br ${oracle.gradient}
+                  border-2 ${oracle.border} ${oracle.hoverBorder}
+                  ${oracle.shadow} ${oracle.hoverShadow}
+                  ${selectedOracle === oracle.id ? 'scale-[1.03]' : 'hover:scale-[1.03]'}
+                  backdrop-blur-xl overflow-hidden
+                  before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100`}
+              >
+                {/* Badge si présent - CORRIGÉ */}
                 {oracle.badge && (
-                  <div className="absolute -top-0 left-1/2 -translate-x-1/2 z-20">
-                    <div className={`bg-gradient-to-r ${oracle.badgeColor} text-white px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wide shadow-lg border border-purple-300/40 whitespace-nowrap`}>
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 max-w-[85%]">
+                    <div className={`bg-gradient-to-r ${oracle.badgeColor} text-white px-2 sm:px-2.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold uppercase tracking-wide shadow-lg border border-purple-300/40 whitespace-nowrap`}>
                       <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">💕 {oracle.badge}</span>
                     </div>
                   </div>
                 )}
 
-                {/* Carte Oracle */}
-                <div
-                  onClick={() => handleOracleClick(oracle.id)}
-                  className={`relative cursor-pointer group rounded-3xl p-4 sm:p-5 transition-all duration-500
-                    bg-gradient-to-br ${oracle.gradient}
-                    border-2 ${oracle.border} ${oracle.hoverBorder}
-                    ${oracle.shadow} ${oracle.hoverShadow}
-                    ${selectedOracle === oracle.id ? 'scale-[1.03]' : 'hover:scale-[1.03]'}
-                    backdrop-blur-xl overflow-hidden
-                    before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100`}
-                >
-                  {/* Effet de brillance animé */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+                {/* Effet de brillance animé */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
 
-                  {/* Particules flottantes subtiles */}
-                  <div className="absolute top-2 right-2 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
-                  <div className="absolute bottom-3 left-3 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                {/* Particules flottantes subtiles */}
+                <div className="absolute top-2 right-2 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
+                <div className="absolute bottom-3 left-3 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
 
-                  {/* Contenu */}
-                  <div className="relative flex flex-col items-center text-center">
-                    {/* Icône OU Image */}
-                    <div className="relative w-14 h-14 sm:w-16 sm:h-16 mb-3 group-hover:scale-110 transition-transform duration-500">
-                      <div className={`absolute inset-0 ${oracle.iconGlow} rounded-full blur-2xl animate-pulse`}></div>
-                      <div className={`absolute inset-0 ${oracle.iconBg} rounded-full border-2 ${oracle.iconBorder} flex items-center justify-center shadow-inner overflow-hidden`}>
-                        {oracle.useImage && oracle.imageSrc ? (
-                          <img 
-                            src={oracle.imageSrc}
-                            alt={oracle.title}
-                            className={`w-full h-full object-cover ${oracle.imageStyle || ''}`}
-                            style={{
-                              filter: 'brightness(1.1) contrast(1.1) drop-shadow(0 2px 8px rgba(0,0,0,0.4))'
-                            }}
-                          />
-                        ) : (
-                          <span className="text-3xl sm:text-4xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
-                            {oracle.icon || ''}
-                          </span>
-                        )}
-                      </div>
+                {/* Contenu */}
+                <div className="relative flex flex-col items-center text-center">
+                  {/* Icône OU Image */}
+                  <div className="relative w-14 h-14 sm:w-16 sm:h-16 mb-3 group-hover:scale-110 transition-transform duration-500">
+                    <div className={`absolute inset-0 ${oracle.iconGlow} rounded-full blur-2xl animate-pulse`}></div>
+                    <div className={`absolute inset-0 ${oracle.iconBg} rounded-full border-2 ${oracle.iconBorder} flex items-center justify-center shadow-inner overflow-hidden`}>
+                      {oracle.useImage && oracle.imageSrc ? (
+                        <img 
+                          src={oracle.imageSrc}
+                          alt={oracle.title}
+                          className={`w-full h-full object-cover ${oracle.imageStyle || ''}`}
+                          style={{
+                            filter: 'brightness(1.1) contrast(1.1) drop-shadow(0 2px 8px rgba(0,0,0,0.4))'
+                          }}
+                        />
+                      ) : (
+                        <span className="text-3xl sm:text-4xl filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+                          {oracle.icon || ''}
+                        </span>
+                      )}
                     </div>
-
-                    {/* Titre */}
-                    <h3 className={`font-bold text-sm sm:text-base lg:text-lg mb-1.5 tracking-wide ${oracle.titleColor} drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]`}>
-                      {oracle.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className={`${oracle.descColor} text-xs sm:text-sm font-light leading-snug`}>
-                      {oracle.description}
-                    </p>
                   </div>
+
+                  {/* Titre */}
+                  <h3 className={`font-bold text-sm sm:text-base lg:text-lg mb-1.5 tracking-wide ${oracle.titleColor} drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]`}>
+                    {oracle.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className={`${oracle.descColor} text-xs sm:text-sm font-light leading-snug`}>
+                    {oracle.description}
+                  </p>
                 </div>
               </div>
             ))}

@@ -1,380 +1,306 @@
-// client/src/pages/WizardPage.tsx
-// 🧙‍♂️ Azraël le Magicien - VERSION MOBILE OPTIMISÉE - V2
+// client/src/pages/WheelPage.tsx
+// 🎡 Page Roue - VERSION ESPACEMENT MINIMAL
 
-import { useState } from 'react';
-import MysticalButton from '@/components/MysticalButton';
-import MysticalInput from '@/components/MysticalInput';
-import WizardAnimation from '@/components/WizardAnimation';
+import { useState, useEffect } from 'react';
+import Wheel from '@/components/Wheel';
 import { UserSession } from '@shared/schema';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getSecureRandomInt } from '@/lib/utils';
+import { showRewardedAd, showInterstitialAd } from '@/admobService';
 
-interface WizardPageProps {
-  onBack: () => void;
-  onSaveReading?: (reading: any) => Promise<void>;
-  shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>;
-  onReadingComplete?: (oracleType: string) => void;
+interface WheelPageProps {
   user: UserSession;
+  onBack: () => void;
+  onSaveReading?: (reading: any) => void;
+  isPremium?: boolean;
+  wheelCounter?: number;
+  onWheelComplete?: () => void;
+  onReadingComplete?: (oracleType: string) => void;
 }
 
-type Phase = 'home' | 'question' | 'channeling' | 'answer';
+const getRandomVariation = () => {
+  const variations = ['1', '2', '3'];
+  const choice = variations[Math.floor(Math.random() * variations.length)];
+  console.log(`🎲 Variation choisie: ${choice}`);
+  return choice;
+};
 
-const wizardAnswers = [
-  { key: 'yes',             icon: '◉',  color: 'text-emerald-400' },
-  { key: 'no',              icon: '⊘',  color: 'text-rose-400' },
-  { key: 'maybe',           icon: '◐',  color: 'text-amber-400' },
-  { key: 'veryLikely',      icon: '✶',  color: 'text-cyan-400' },
-  { key: 'unlikely',        icon: '◔',  color: 'text-indigo-400' },
-  { key: 'certain',         icon: '◎',  color: 'text-emerald-300' },
-  { key: 'noChance',        icon: '⦻',  color: 'text-rose-300' },
-  { key: 'askLater',        icon: '⧖',  color: 'text-slate-400' },
-  { key: 'dontCount',       icon: '⟁',  color: 'text-orange-400' },
-  { key: 'yesDefinitely',   icon: '✹',  color: 'text-emerald-500' },
-  { key: 'signsYes',        icon: '⌁',  color: 'text-yellow-300' },
-  { key: 'signsNo',         icon: '⌿',  color: 'text-purple-400' },
-  { key: 'unclear',         icon: '≈',  color: 'text-gray-400' },
-  { key: 'trustIntuition',  icon: '◈',  color: 'text-pink-400' }
-];
-
-function WizardPage({ 
+export default function WheelPage({ 
+  user, 
   onBack, 
-  onSaveReading, 
-  shouldShowAdBeforeReading,
-  onReadingComplete,
-  user 
-}: WizardPageProps) {
-  const [question, setQuestion] = useState('');
-  const [phase, setPhase] = useState<Phase>('home');
-  const [currentAnswer, setCurrentAnswer] = useState<{ key: string; icon: string; color: string } | null>(null);
+  onSaveReading,
+  isPremium = false,
+  wheelCounter = 0,
+  onWheelComplete,
+  onReadingComplete
+}: WheelPageProps) {
   const { t } = useLanguage();
+  const [isComplete, setIsComplete] = useState(false);
+  const [isLoadingAd, setIsLoadingAd] = useState(false);
+  const [showLongAdMessage, setShowLongAdMessage] = useState(false);
+  const [variation, setVariation] = useState<string | null>(null);
+  const [wheelUnlocked, setWheelUnlocked] = useState(isPremium);
 
-  const saveReading = async (answerKey: string) => {
-    if (onSaveReading) {
-      try {
-        await onSaveReading({
-          type: 'wizard',
-          question: question,
-          answer: answerKey,
-          date: new Date()
-        });
-      } catch (error) {
-        console.error('❌ Save error:', error);
+  useEffect(() => {
+    const unlockWheel = async () => {
+      if (isPremium) {
+        console.log('👑 [WHEEL] Premium actif → Déblocage instantané');
+        const chosenVariation = getRandomVariation();
+        setVariation(chosenVariation);
+        setWheelUnlocked(true);
+        return;
       }
+
+      const nextCount = wheelCounter + 1;
+      console.log(`🎯 [WHEEL] Tirage #${nextCount}`);
+
+      const chosenVariation = getRandomVariation();
+      setVariation(chosenVariation);
+
+      if (nextCount === 1) {
+        console.log('🎁 [WHEEL] 1er tirage → Pub récompensée');
+        setIsLoadingAd(true);
+        setShowLongAdMessage(false);
+
+        const messageTimeoutId = setTimeout(() => {
+          console.log('💬 [WHEEL] Affichage message "pub longue"');
+          setShowLongAdMessage(true);
+        }, 45000);
+
+        try {
+          const rewardGranted = await showRewardedAd('wheel_first');
+          clearTimeout(messageTimeoutId);
+          setIsLoadingAd(false);
+          setShowLongAdMessage(false);
+
+          console.log(`🎁 [WHEEL] Résultat: ${rewardGranted ? '✅ DÉBLOQUÉ' : '❌ BLOQUÉ'}`);
+
+          if (rewardGranted) {
+            console.log('✅ [WHEEL] Pub complétée → Déblocage');
+            setWheelUnlocked(true);
+          } else {
+            console.log('❌ [WHEEL] Pub non complétée → Retour');
+            alert(t('oracle.wheel.adNotCompleted') || 'Veuillez regarder la publicité jusqu\'à la fin.');
+            onBack();
+          }
+        } catch (error) {
+          console.error('❌ [WHEEL] Erreur:', error);
+          clearTimeout(messageTimeoutId);
+          setIsLoadingAd(false);
+          setShowLongAdMessage(false);
+          alert(t('oracle.wheel.adError') || 'Une erreur est survenue. Réessayez.');
+          onBack();
+        }
+      }
+      else if ((nextCount - 1) % 3 === 0 && nextCount > 1) {
+        console.log(`📺 [WHEEL] Tirage #${nextCount} → Pub interstitielle`);
+        try {
+          await showInterstitialAd(`wheel_${nextCount}`);
+          console.log('✅ [WHEEL] Pub interstitielle affichée');
+        } catch (error) {
+          console.error('❌ [WHEEL] Erreur pub interstitielle:', error);
+        }
+        setWheelUnlocked(true);
+      }
+      else {
+        console.log(`⏭️ [WHEEL] Tirage #${nextCount} → Pas de pub`);
+        setWheelUnlocked(true);
+      }
+    };
+
+    unlockWheel();
+  }, [isPremium, wheelCounter, t, onBack]);
+
+  const handleComplete = (result: { category: string; interpretation: string }) => {
+    setIsComplete(true);
+    console.log('✅ Roue complétée:', result);
+
+    if (onWheelComplete) {
+      onWheelComplete();
     }
   };
 
-  const handleGoToQuestion = () => {
-    setPhase('question');
-  };
-
-  const handleAskQuestion = async () => {
-    if (!question.trim()) return;
-
-    if (shouldShowAdBeforeReading) {
-      console.log('🎯 [WIZARD] Vérification pub avant consultation...');
-      await shouldShowAdBeforeReading('wizard');
-    }
-
-    setPhase('channeling');
-    setCurrentAnswer(null);
-
-    setTimeout(() => {
-      const randomAnswer = wizardAnswers[getSecureRandomInt(0, wizardAnswers.length - 1)];
-      setCurrentAnswer(randomAnswer);
-      setPhase('answer');
-      saveReading(randomAnswer.key);
-
-      if (onReadingComplete) {
-        console.log('✅ [WIZARD] Consultation terminée');
-        onReadingComplete('wizard');
-      }
-    }, 7000);
-  };
-
-  const handleNewQuestion = () => {
-    setQuestion('');
-    setCurrentAnswer(null);
-    setPhase('home');
-  };
-
-  return (
-    <div className="wizard-page fixed inset-0 flex flex-col overflow-hidden">
-
-      {/* FOND COSMIQUE SIMPLIFIÉ */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#030610] via-[#080b18] to-[#0b0f22]"></div>
-
-        {/* Nébuleuses simplifiées */}
+  // ÉCRAN DE CHARGEMENT
+  if (isLoadingAd) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#0a0e1a] via-[#1a1540] to-[#0a0e1a] z-50">
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-radial from-indigo-600/30 via-transparent to-transparent rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-radial from-purple-600/25 via-transparent to-transparent rounded-full blur-3xl"></div>
-        </div>
-
-        {/* Étoiles réduites */}
-        <div className="absolute inset-0 opacity-50">
-          {[...Array(30)].map((_, i) => (
+          {[...Array(50)].map((_, i) => (
             <div
               key={i}
-              className="absolute rounded-full"
+              className="absolute rounded-full animate-pulse"
               style={{
-                backgroundColor: i % 3 === 0 ? '#a78bfa' : i % 3 === 1 ? '#60a5fa' : '#e8d4b8',
-                width: '2px',
-                height: '2px',
+                backgroundColor: ['#8b5cf6', '#67e8f9', '#d4af37'][i % 3],
+                width: Math.random() * 3 + 1 + 'px',
+                height: Math.random() * 3 + 1 + 'px',
                 top: Math.random() * 100 + '%',
                 left: Math.random() * 100 + '%',
-                opacity: Math.random() * 0.5 + 0.5
+                animationDelay: Math.random() * 2 + 's',
+                animationDuration: Math.random() * 3 + 2 + 's'
               }}
             />
           ))}
         </div>
-      </div>
 
-      {/* HEADER FIXE - PADDING AUGMENTÉ */}
-      <div className="flex-shrink-0 text-center px-4 pt-6 pb-3 relative z-10 safe-area-top">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold
-                       bg-gradient-to-r from-indigo-100 via-purple-50 to-indigo-100 bg-clip-text text-transparent
-                       drop-shadow-[0_0_20px_rgba(129,140,248,0.6)]
-                       leading-tight">
-          {t('wizard.title')}
-        </h1>
-        <p className="text-indigo-50/90 text-xs sm:text-sm mt-2 font-medium 
-                      drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]
-                      leading-relaxed">
-          {phase === 'home' && t('wizard.subtitle.home')}
-          {phase === 'question' && t('wizard.subtitle.question')}
-          {phase === 'channeling' && t('wizard.subtitle.channeling')}
-          {phase === 'answer' && t('wizard.subtitle.answer')}
-        </p>
-      </div>
+        <div className="text-center relative z-10 max-w-md px-6">
+          <div className="relative w-32 h-32 mx-auto mb-8">
+            <div className="absolute inset-0 bg-purple-400/40 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-8xl">🎁</div>
+            </div>
+          </div>
 
-      {/* CONTENU SCROLLABLE */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pb-6 relative z-10">
-        <div className="max-w-3xl mx-auto w-full">
+          <p className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-purple-200 to-purple-300 text-3xl font-bold font-serif mb-4 animate-pulse">
+            {t('oracle.wheel.loadingAd') || 'Chargement...'}
+          </p>
+          <p className="text-purple-200/70 text-lg">
+            {t('oracle.wheel.pleaseWait') || 'Un instant'}
+          </p>
 
-          {/* HOME */}
-          {phase === 'home' && (
-            <div className="flex flex-col min-h-full py-4">
-              {/* Animation centrée */}
-              <div className="flex-1 flex items-center justify-center min-h-[400px]">
-                <WizardAnimation isChanneling={false} />
-              </div>
-
-              {/* Boutons en bas */}
-              <div className="flex-shrink-0 space-y-3 mt-6">
-                <MysticalButton
-                  onClick={handleGoToQuestion}
-                  className="w-full text-base sm:text-lg py-4
-                             bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600 
-                             hover:from-indigo-500 hover:via-purple-400 hover:to-indigo-500
-                             shadow-[0_0_30px_rgba(129,140,248,0.5)]
-                             border-2 border-indigo-300/50
-                             transition-all duration-300"
-                >
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="text-xl">🔮</span>
-                    <span className="font-bold tracking-wide">{t('wizard.consultButton')}</span>
-                    <span className="text-xl">✨</span>
-                  </span>
-                </MysticalButton>
-
-                <button
-                  onClick={onBack}
-                  className="w-full text-indigo-100 hover:text-indigo-50 
-                             text-sm font-semibold py-2 transition-all duration-300"
-                >
-                  {t('wizard.backButton')}
-                </button>
-              </div>
+          {showLongAdMessage && (
+            <div className="mt-8 p-6 bg-purple-500/20 border-2 border-purple-400/60 rounded-2xl backdrop-blur-lg animate-fade-in">
+              <p className="text-purple-200 text-xl font-semibold mb-3">
+                {t('oracle.wheel.adLongWarning') || 'Publicité en cours...'}
+              </p>
+              <p className="text-purple-200/70 text-base">
+                {t('oracle.wheel.pleaseWaitUntilEnd') || 'Merci de patienter'}
+              </p>
             </div>
           )}
 
-          {/* QUESTION */}
-          {phase === 'question' && (
-            <div className="py-6">
-              <div className="space-y-6 max-w-xl mx-auto">
-
-                <div className="text-center space-y-2">
-                  <div className="flex items-center justify-center gap-3">
-                    <div className="w-12 h-px bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent"></div>
-                    <span className="text-indigo-300 text-2xl">✧</span>
-                    <div className="w-12 h-px bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent"></div>
-                  </div>
-                  <h2 className="text-xl sm:text-2xl font-serif font-bold text-indigo-50">
-                    {t('wizard.askTitle')}
-                  </h2>
-                </div>
-
-                <div className="bg-gradient-to-br from-[#0a1420]/95 via-[#0d1b2e]/95 to-[#0a1420]/95
-                                border-2 border-indigo-500/50 rounded-2xl p-6
-                                shadow-[0_0_35px_rgba(129,140,248,0.4)] backdrop-blur-sm">
-
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="block text-indigo-100 text-sm font-semibold">
-                        {t('wizard.questionLabel')}
-                      </label>
-                      <MysticalInput
-                        placeholder={t('wizard.questionPlaceholder')}
-                        value={question}
-                        onChange={setQuestion}
-                        maxLength={200}
-                        className="text-base border-indigo-400/50 focus:border-indigo-300 bg-[#0a1420]/50 text-white"
-                      />
-                      <div className="flex justify-end">
-                        <span className="text-xs text-indigo-300/60">{question.length}/200</span>
-                      </div>
-                    </div>
-
-                    <div className="bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-indigo-900/60 
-                                    rounded-xl p-4 border-2 border-indigo-400/35">
-                      <div className="flex items-start gap-3">
-                        <span className="text-xl flex-shrink-0">✧</span>
-                        <div className="space-y-1">
-                          <p className="text-indigo-50 font-bold text-sm">{t('wizard.adviceTitle')}</p>
-                          <p className="text-indigo-50/90 text-sm leading-relaxed">
-                            {t('wizard.adviceText')}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <MysticalButton
-                      onClick={handleAskQuestion}
-                      disabled={!question.trim()}
-                      className="w-full text-lg py-4
-                                 bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600 
-                                 hover:from-indigo-500 hover:via-purple-400 hover:to-indigo-500
-                                 disabled:opacity-40 disabled:cursor-not-allowed
-                                 shadow-[0_0_35px_rgba(129,140,248,0.5)]
-                                 border-2 border-indigo-300/60
-                                 transition-all duration-300"
-                    >
-                      <span className="flex items-center justify-center gap-3">
-                        <span className="text-xl">🔮</span>
-                        <span className="font-bold tracking-wide">{t('wizard.consultAction')}</span>
-                        <span className="text-xl">✨</span>
-                      </span>
-                    </MysticalButton>
-
-                    <button
-                      onClick={() => setPhase('home')}
-                      className="w-full text-indigo-100 hover:text-indigo-50 
-                                 text-sm font-semibold py-2 transition-all duration-300"
-                    >
-                      {t('wizard.backButton')}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* CHANNELING */}
-          {phase === 'channeling' && (
-            <div className="flex flex-col min-h-full py-4">
-              <div className="flex-1 flex items-center justify-center min-h-[400px]">
-                <WizardAnimation isChanneling={true} />
-              </div>
-
-              <div className="flex-shrink-0 mt-4">
-                <div className="bg-gradient-to-br from-[#0a1420]/95 via-[#0d1b2e]/95 to-[#0a1420]/95
-                                border-2 border-indigo-500/60 rounded-xl px-6 py-4 
-                                shadow-[0_0_40px_rgba(129,140,248,0.5)] backdrop-blur-sm">
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-indigo-300 text-xl">✦</span>
-                    <p className="text-indigo-50 text-base font-medium">
-                      {t('wizard.channeling')}
-                    </p>
-                    <span className="text-purple-300 text-xl">✧</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ANSWER */}
-          {phase === 'answer' && currentAnswer && (
-            <div className="py-6">
-              <div className="space-y-4">
-                <div className="bg-gradient-to-br from-[#0a1420]/95 via-[#0d1b2e]/95 to-[#0a1420]/95
-                                border-2 border-indigo-500/70 rounded-2xl p-6 
-                                shadow-[0_0_45px_rgba(129,140,248,0.6)] backdrop-blur-sm">
-
-                  <div className="space-y-5 text-center">
-                    <div className="bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-indigo-900/60 
-                                    rounded-lg p-4 border-2 border-indigo-400/45">
-                      <p className="text-indigo-50 text-sm">
-                        <span className="font-bold uppercase tracking-wide block mb-1">{t('wizard.yourQuestion')}</span>
-                        <span className="italic text-base">"{question}"</span>
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className={`text-6xl sm:text-7xl ${currentAnswer.color} 
-                                       filter drop-shadow-[0_0_30px_currentColor]`}>
-                        {currentAnswer.icon}
-                      </div>
-
-                      <div className="flex items-center justify-center gap-2 py-1">
-                        <div className="h-px w-12 bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent"></div>
-                        <span className="text-indigo-200 text-sm">✧</span>
-                        <div className="h-px w-12 bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent"></div>
-                      </div>
-
-                      <p className="text-indigo-50 text-lg leading-relaxed font-medium px-4">
-                        {t(`wizard.answer.${currentAnswer.key}`)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <MysticalButton
-                    onClick={handleNewQuestion}
-                    className="w-full text-base py-4
-                               bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600 
-                               hover:from-indigo-500 hover:via-purple-400 hover:to-indigo-500
-                               shadow-[0_0_30px_rgba(129,140,248,0.5)]
-                               border-2 border-indigo-300/50
-                               transition-all duration-300"
-                  >
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="text-lg">✨</span>
-                      <span className="font-bold">{t('wizard.newQuestion')}</span>
-                      <span className="text-lg">🔮</span>
-                    </span>
-                  </MysticalButton>
-
-                  <button
-                    onClick={onBack}
-                    className="w-full text-indigo-100 hover:text-indigo-50 
-                               text-sm font-semibold py-2 transition-all duration-300"
-                  >
-                    {t('wizard.backHome')}
-                  </button>
-                </div>
-
-                <div className="bg-gradient-to-r from-amber-900/70 via-yellow-900/70 to-amber-900/70 
-                                rounded-xl p-4 border-2 border-amber-500/60">
-                  <p className="text-amber-50 text-sm text-center leading-relaxed font-bold">
-                    <span className="text-xl inline-block mr-2">⚠️</span>
-                    {t('wizard.disclaimer')}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="flex justify-center gap-4 mt-8">
+            <span className="w-4 h-4 bg-purple-400 rounded-full animate-bounce"></span>
+            <span className="w-4 h-4 bg-purple-300 rounded-full animate-bounce" style={{animationDelay: '0.15s'}}></span>
+            <span className="w-4 h-4 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.3s'}}></span>
+          </div>
         </div>
       </div>
+    );
+  }
 
-      {/* Support pour safe-area sur iOS */}
-      <style>{`
-        .safe-area-top {
-          padding-top: max(1.5rem, env(safe-area-inset-top));
-        }
-      `}</style>
-    </div>
-  );
+  // ÉCRAN PRINCIPAL
+  if (wheelUnlocked) {
+    return (
+      <div className="fixed inset-0 flex flex-col bg-gradient-to-br from-[#0a0e1a] via-[#1a1540] to-[#0a0e1a]">
+
+        {/* Background avec étoiles */}
+        <div className="fixed inset-0 -z-10">
+          <div className="absolute inset-0 opacity-25">
+            {[...Array(100)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full animate-twinkle"
+                style={{
+                  backgroundColor: ['#8b5cf6', '#67e8f9', '#d4af37'][i % 3],
+                  width: (i % 3 === 0 ? Math.random() * 3.5 : Math.random() * 2) + 0.5 + 'px',
+                  height: (i % 3 === 0 ? Math.random() * 3.5 : Math.random() * 2) + 0.5 + 'px',
+                  top: Math.random() * 100 + '%',
+                  left: Math.random() * 100 + '%',
+                  animationDelay: Math.random() * 4 + 's',
+                  animationDuration: Math.random() * 3 + 2 + 's'
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Étoiles filantes */}
+          {[...Array(3)].map((_, i) => (
+            <div
+              key={`shooting-${i}`}
+              className="absolute opacity-0 animate-shooting-star"
+              style={{
+                top: `${10 + i * 30}%`,
+                right: `${20 + i * 20}%`,
+                animationDelay: `${i * 10 + 4}s`,
+                animationDuration: '2.5s'
+              }}
+            >
+              <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full blur-sm shadow-[0_0_15px_rgba(34,211,238,0.9)]" />
+            </div>
+          ))}
+        </div>
+
+        {/* Container principal - La roue */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <Wheel 
+            onComplete={handleComplete}
+            variation={variation}
+            isPremium={isPremium}
+            onReset={() => {
+              const newVariation = getRandomVariation();
+              setVariation(newVariation);
+              console.log('🔄 Nouvelle variation:', newVariation);
+            }}
+          />
+        </div>
+
+        {/* ✅ BOUTONS DE NAVIGATION - MINIMAUX */}
+        <div 
+          className="fixed left-0 right-0 pointer-events-none"
+          style={{
+            bottom: '60px', // Au-dessus de la bannière pub
+            zIndex: 50
+          }}
+        >
+          <div className="bg-gradient-to-t from-slate-900/98 via-slate-900/95 to-transparent backdrop-blur-md border-t border-amber-500/20 pointer-events-auto">
+            <div className="max-w-lg mx-auto px-4 py-2 pb-safe-ios">
+              {!isComplete ? (
+                <button 
+                  onClick={onBack}
+                  className="w-full min-h-[50px] text-base font-bold px-4 bg-gradient-to-r from-slate-900/70 via-slate-800/70 to-slate-900/70 hover:from-slate-800/80 hover:via-slate-700/80 hover:to-slate-800/80 border-2 border-amber-500/40 hover:border-amber-500/60 text-amber-100 backdrop-blur-sm rounded-xl transition-all duration-300 active:scale-[0.97] shadow-lg"
+                >
+                  ← {t('common.back') || 'Retour'}
+                </button>
+              ) : (
+                <button 
+                  onClick={onBack}
+                  className="w-full min-h-[50px] text-base font-bold px-4 bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 shadow-[0_0_25px_rgba(212,175,55,0.3)] text-amber-100 backdrop-blur-sm rounded-xl border-2 border-amber-500/50 hover:border-amber-400/70 transition-all duration-300 active:scale-[0.97]"
+                >
+                  {t('oracle.backToOracles') || 'Retour aux oracles'} →
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <style>{`
+          @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+          }
+          @keyframes shooting-star {
+            0% { 
+              opacity: 0;
+              transform: translate(0, 0);
+            }
+            10% { opacity: 1; }
+            90% { opacity: 0.5; }
+            100% {
+              opacity: 0;
+              transform: translate(-250px, 250px);
+            }
+          }
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .animate-twinkle {
+            animation: twinkle ease-in-out infinite;
+          }
+          .animate-shooting-star {
+            animation: shooting-star ease-out infinite;
+          }
+          .animate-fade-in {
+            animation: fade-in 0.4s ease-out;
+          }
+
+          /* Safe area pour iOS */
+          .pb-safe-ios {
+            padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  return null;
 }
-
-export default WizardPage;
