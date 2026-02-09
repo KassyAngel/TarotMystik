@@ -165,116 +165,114 @@ export function LoveCalculatorPage({
 
           {/* PHASE 1: SAISIE */}
           {currentPhase === 'input' && (
-            <div className="flex items-center justify-center min-h-full py-4">
-              <div className="w-full max-w-md space-y-6">
+            <div className="w-full max-w-md mx-auto space-y-6 pt-16">
 
-                {/* HEADER dans le contenu scrollable */}
-                <div className="text-center pb-4">
-                  <h1 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-300 via-blue-200 to-indigo-300 bg-clip-text text-transparent drop-shadow-[0_2px_15px_rgba(6,182,212,0.4)]">
-                    {t('loveCalculator.title')}
-                  </h1>
-                  <p className="text-cyan-100/90 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed px-6 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                    {t('loveCalculator.subtitle')}
-                  </p>
-                </div>
-
-                <div className="relative">
-                  <label className="block text-cyan-200 text-sm font-semibold mb-2 text-center drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
-                    💕 {t('loveCalculator.name1Label')} 💕
-                  </label>
-                  <input
-                    type="text"
-                    value={name1}
-                    onChange={(e) => setName1(e.target.value)}
-                    placeholder={t('loveCalculator.name1Placeholder')}
-                    className="w-full px-6 py-4 text-lg text-center rounded-2xl
-                      bg-gradient-to-br from-slate-900/70 to-blue-900/70
-                      border-2 border-cyan-400/40 text-white 
-                      placeholder-cyan-200/60
-                      focus:outline-none focus:border-cyan-300/70 
-                      focus:shadow-[0_0_25px_rgba(6,182,212,0.3)]
-                      transition-all backdrop-blur-md"
-                  />
-                </div>
-
-                <div className="flex justify-center">
-                  <div className="relative w-16 h-16">
-                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-full blur-xl"></div>
-                    <div className="relative w-full h-full rounded-full bg-gradient-to-br from-cyan-600/60 to-blue-600/60 flex items-center justify-center text-3xl border-2 border-cyan-300/40 shadow-[0_0_25px_rgba(6,182,212,0.4)]">
-                      💕
-                    </div>
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <label className="block text-cyan-200 text-sm font-semibold mb-2 text-center drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
-                    💕 {t('loveCalculator.name2Label')} 💕
-                  </label>
-                  <input
-                    type="text"
-                    value={name2}
-                    onChange={(e) => setName2(e.target.value)}
-                    placeholder={t('loveCalculator.name2Placeholder')}
-                    className="w-full px-6 py-4 text-lg text-center rounded-2xl
-                      bg-gradient-to-br from-slate-900/70 to-blue-900/70
-                      border-2 border-cyan-400/40 text-white 
-                      placeholder-cyan-200/60
-                      focus:outline-none focus:border-cyan-300/70 
-                      focus:shadow-[0_0_25px_rgba(6,182,212,0.3)]
-                      transition-all backdrop-blur-md"
-                  />
-                </div>
-
-                {/* BOUTON CYAN/BLEU */}
-                <button
-                  onClick={handleCalculate}
-                  className="group relative w-full py-6 text-xl font-bold rounded-2xl
-                    bg-gradient-to-r from-cyan-600 via-blue-500 to-indigo-600
-                    hover:from-cyan-500 hover:via-blue-400 hover:to-indigo-500
-                    text-white overflow-hidden
-                    transform hover:scale-[1.02] active:scale-[0.98]
-                    transition-all duration-300
-                    shadow-[0_10px_40px_rgba(6,182,212,0.4)]
-                    hover:shadow-[0_15px_50px_rgba(6,182,212,0.6)]
-                    border-2 border-cyan-300/40"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
-                    translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-ping"></div>
-                    <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-cyan-200 rounded-full animate-ping" style={{animationDelay: '0.2s'}}></div>
-                    <div className="absolute bottom-1/4 left-1/3 w-1 h-1 bg-blue-200 rounded-full animate-ping" style={{animationDelay: '0.4s'}}></div>
-                  </div>
-
-                  <span className="relative z-10 flex items-center justify-center gap-3">
-                    <span className="text-2xl group-hover:scale-110 transition-transform duration-300">💙</span>
-                    <span className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">{t('loveCalculator.calculateButton')}</span>
-                    <span className="text-2xl group-hover:scale-110 transition-transform duration-300">💙</span>
-                  </span>
-                </button>
-
-                <div className="text-center text-cyan-200/70 text-sm bg-slate-900/40 rounded-xl p-4 border border-cyan-400/25 backdrop-blur-sm">
-                  <span>{t('loveCalculator.note')}</span>
-                </div>
-
-                {/* Bouton Retour */}
-                <div className="pt-6">
-                  <MysticalButton 
-                    variant="secondary" 
-                    onClick={onBack}
-                    className="w-full max-w-xs mx-auto block 
-                      bg-slate-900/60 hover:bg-slate-800/70 
-                      border-cyan-400/30 text-cyan-100 backdrop-blur-md"
-                  >
-                    ← {t('common.back')}
-                  </MysticalButton>
-                </div>
-
-                {/* Espace pour la bannière pub */}
-                <div className="h-20"></div>
-
+              {/* HEADER dans le contenu scrollable */}
+              <div className="text-center pb-4 pt-8">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-300 via-blue-200 to-indigo-300 bg-clip-text text-transparent drop-shadow-[0_2px_15px_rgba(6,182,212,0.4)]">
+                  {t('loveCalculator.title')}
+                </h1>
+                <p className="text-cyan-100/90 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed px-6 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                  {t('loveCalculator.subtitle')}
+                </p>
               </div>
+
+              <div className="relative">
+                <label className="block text-cyan-200 text-sm font-semibold mb-2 text-center drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+                  💕 {t('loveCalculator.name1Label')} 💕
+                </label>
+                <input
+                  type="text"
+                  value={name1}
+                  onChange={(e) => setName1(e.target.value)}
+                  placeholder={t('loveCalculator.name1Placeholder')}
+                  className="w-full px-6 py-4 text-lg text-center rounded-2xl
+                    bg-gradient-to-br from-slate-900/70 to-blue-900/70
+                    border-2 border-cyan-400/40 text-white 
+                    placeholder-cyan-200/60
+                    focus:outline-none focus:border-cyan-300/70 
+                    focus:shadow-[0_0_25px_rgba(6,182,212,0.3)]
+                    transition-all backdrop-blur-md"
+                />
+              </div>
+
+              <div className="flex justify-center">
+                <div className="relative w-16 h-16">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-full blur-xl"></div>
+                  <div className="relative w-full h-full rounded-full bg-gradient-to-br from-cyan-600/60 to-blue-600/60 flex items-center justify-center text-3xl border-2 border-cyan-300/40 shadow-[0_0_25px_rgba(6,182,212,0.4)]">
+                    💕
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative">
+                <label className="block text-cyan-200 text-sm font-semibold mb-2 text-center drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+                  💕 {t('loveCalculator.name2Label')} 💕
+                </label>
+                <input
+                  type="text"
+                  value={name2}
+                  onChange={(e) => setName2(e.target.value)}
+                  placeholder={t('loveCalculator.name2Placeholder')}
+                  className="w-full px-6 py-4 text-lg text-center rounded-2xl
+                    bg-gradient-to-br from-slate-900/70 to-blue-900/70
+                    border-2 border-cyan-400/40 text-white 
+                    placeholder-cyan-200/60
+                    focus:outline-none focus:border-cyan-300/70 
+                    focus:shadow-[0_0_25px_rgba(6,182,212,0.3)]
+                    transition-all backdrop-blur-md"
+                />
+              </div>
+
+              {/* BOUTON CYAN/BLEU */}
+              <button
+                onClick={handleCalculate}
+                className="group relative w-full py-6 text-xl font-bold rounded-2xl
+                  bg-gradient-to-r from-cyan-600 via-blue-500 to-indigo-600
+                  hover:from-cyan-500 hover:via-blue-400 hover:to-indigo-500
+                  text-white overflow-hidden
+                  transform hover:scale-[1.02] active:scale-[0.98]
+                  transition-all duration-300
+                  shadow-[0_10px_40px_rgba(6,182,212,0.4)]
+                  hover:shadow-[0_15px_50px_rgba(6,182,212,0.6)]
+                  border-2 border-cyan-300/40"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
+                  translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-ping"></div>
+                  <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-cyan-200 rounded-full animate-ping" style={{animationDelay: '0.2s'}}></div>
+                  <div className="absolute bottom-1/4 left-1/3 w-1 h-1 bg-blue-200 rounded-full animate-ping" style={{animationDelay: '0.4s'}}></div>
+                </div>
+
+                <span className="relative z-10 flex items-center justify-center gap-3">
+                  <span className="text-2xl group-hover:scale-110 transition-transform duration-300">💙</span>
+                  <span className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">{t('loveCalculator.calculateButton')}</span>
+                  <span className="text-2xl group-hover:scale-110 transition-transform duration-300">💙</span>
+                </span>
+              </button>
+
+              <div className="text-center text-cyan-200/70 text-sm bg-slate-900/40 rounded-xl p-4 border border-cyan-400/25 backdrop-blur-sm">
+                <span>{t('loveCalculator.note')}</span>
+              </div>
+
+              {/* Bouton Retour */}
+              <div className="pt-6">
+                <MysticalButton 
+                  variant="secondary" 
+                  onClick={onBack}
+                  className="w-full max-w-xs mx-auto block 
+                    bg-slate-900/60 hover:bg-slate-800/70 
+                    border-cyan-400/30 text-cyan-100 backdrop-blur-md"
+                >
+                  ← {t('common.back')}
+                </MysticalButton>
+              </div>
+
+              {/* Espace pour la bannière pub */}
+              <div className="h-20"></div>
+
             </div>
           )}
 

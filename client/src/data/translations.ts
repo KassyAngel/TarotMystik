@@ -219,6 +219,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "interpretation.newConsultation": "Nouvelle consultation",
 
     // Calculatrice Amoureuse
+    "loveCalculator.title": "Calculatrice Amoureuse",
     "oracle.loveCalculator.title": "💕 Calculatrice Amoureuse",
     "loveCalculator.subtitle": "✨ Teste ta compatibilité chaque jour simplement avec deux prénoms, et découvre si ça matche vraiment entre vous ! ✨",
     "loveCalculator.name1Label": "Premier Prénom",
@@ -2014,6 +2015,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
 
     // Love Calculator
     "oracle.loveCalculator.title": "💕 Love Calculator",
+    "loveCalculator.title": "Love Calculator",
     "loveCalculator.subtitle": "✨ Test your compatibility every day with just two names, and see if the spark is real between you! ✨",
     "loveCalculator.name1Label": "First Name",
     "loveCalculator.name1Placeholder": "Ex: Mary",
@@ -3791,6 +3793,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
 
     // Calculadora del Amor
     "oracle.loveCalculator.title": "💕 Calculadora del Amor",
+    "loveCalculator.title": "Calculadora del Amor",
     "loveCalculator.subtitle": "✨ Comprueba tu compatibilidad cada día con solo dos nombres y descubre si realmente hacen match! ✨",
     "loveCalculator.name1Label": "Primer Nombre",
     "loveCalculator.name1Placeholder": "Ej: María",
@@ -5537,6 +5540,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
 
     // Liebesrechner
     "oracle.loveCalculator.title": "💕 Liebesrechner",
+    "loveCalculator.title": "Liebesrechner",
     "loveCalculator.subtitle": "✨ Teste täglich eure Kompatibilität ganz einfach mit zwei Vornamen und finde heraus, ob es wirklich zwischen euch passt! ✨",
     "loveCalculator.name1Label": "Erster Vorname",
     "loveCalculator.name1Placeholder": "z.B. Marie",
@@ -7283,6 +7287,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
 
     // Calcolatrice d'Amore
     "oracle.loveCalculator.title": "💕 Calcolatrice d'Amore",
+    "loveCalculator.title": "Calcolatrice d'Amore",
     "loveCalculator.subtitle": "✨ Verifica la tua compatibilità ogni giorno con solo due nomi e scopri se tra voi scatta davvero la scintilla! ✨",
     "loveCalculator.name1Label": "Primo Nome",
     "loveCalculator.name1Placeholder": "Es: Maria",
