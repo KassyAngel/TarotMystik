@@ -1,5 +1,5 @@
 // client/src/components/Wheel.tsx
-// 🎡 Roue de la Destinée - SANS SOUS-TITRE SUR INTERPRETATION
+// 🎡 Roue de la Destinée - INTER PRÉTATION NON-SCROLLABLE
 
 import React, { useState } from 'react';
 import { showInterstitialAd } from '@/admobService';
@@ -82,8 +82,8 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
 
   // Tailles optimisées
   const wheelSize = hasSpun
-    ? `min(calc(100vh - ${NAVBAR_TOP + BAR_BOTTOM + 340}px), 300px, 74vw)`
-    : `min(calc(100vh - ${NAVBAR_TOP + BAR_BOTTOM + 210}px), 400px, 80vw)`;
+    ? `min(calc(100vh - ${NAVBAR_TOP + BAR_BOTTOM + 400}px), 280px, 70vw)`
+    : `min(calc(100vh - ${NAVBAR_TOP + BAR_BOTTOM + 210}px), 380px, 78vw)`;
 
   return (
     <div
@@ -95,7 +95,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
       }}
     >
 
-      {/* ── TITRE (sans sous-titre si interprétation) ── */}
+      {/* ── TITRE ── */}
       <div className="text-center pt-6 pb-2 px-4 flex-shrink-0 w-full">
         <h3 className="text-2xl sm:text-3xl font-bold text-amber-100 font-serif drop-shadow-[0_2px_10px_rgba(212,175,55,0.6)]">
           {t('oracle.wheel.title') || 'Roue de la Destinée'}
@@ -168,7 +168,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
                   <div className="w-full h-full rounded-full bg-gradient-to-br from-[#d4af37] via-[#b8942d] to-[#d4af37] p-[3px]">
                     <div className="w-full h-full rounded-full relative overflow-hidden bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 backdrop-blur-sm">
 
-                      {/* Points dorés animés sur le bord */}
+                      {/* Points dorés animés */}
                       <svg viewBox="0 0 400 400" className="absolute inset-0 w-full h-full">
                         <circle cx="200" cy="200" r="190" fill="none" stroke="#b8942d" strokeWidth="0.8" opacity="0.3"/>
                         {[...Array(24)].map((_, i) => {
@@ -196,30 +196,23 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
                           const startA = (index * segmentAngle - 90) * (Math.PI / 180);
                           const endA = ((index + 1) * segmentAngle - 90) * (Math.PI / 180);
                           const midA = startA + (endA - startA) / 2;
-
                           const x1 = 200 + 188 * Math.cos(startA);
                           const y1 = 200 + 188 * Math.sin(startA);
                           const x2 = 200 + 188 * Math.cos(endA);
                           const y2 = 200 + 188 * Math.sin(endA);
-
                           const tR = 140;
                           const tX = 200 + tR * Math.cos(midA);
                           const tY = 200 + tR * Math.sin(midA);
                           const rot = (midA * 180 / Math.PI) + 90;
-
                           const label = t(`oracle.wheel.segment.${segment.id}`) || segment.label;
 
                           return (
                             <g key={segment.id}>
-                              <path d={`M 200 200 L ${x1} ${y1} A 188 188 0 0 1 ${x2} ${y2} Z`}
-                                fill={`url(#segment${index})`} stroke="rgba(212,175,55,0.2)" strokeWidth="1.2"/>
+                              <path d={`M 200 200 L ${x1} ${y1} A 188 188 0 0 1 ${x2} ${y2} Z`} fill={`url(#segment${index})`} stroke="rgba(212,175,55,0.2)" strokeWidth="1.2"/>
                               <line x1="200" y1="200" x2={x2} y2={y2} stroke="#b8942d" strokeWidth="1" opacity="0.5"/>
-                              <text x={200 + 168 * Math.cos(midA)} y={200 + 168 * Math.sin(midA)}
-                                fontSize="11" fill="#d4af37" textAnchor="middle" dominantBaseline="middle" opacity="0.7">★</text>
-                              <text x={tX} y={tY} fontSize="15" fontWeight="700" textAnchor="middle" dominantBaseline="middle"
-                                fill="#f5e6d3" stroke="#0f172a" strokeWidth="4"
-                                transform={`rotate(${rot}, ${tX}, ${tY})`}
-                                style={{ fontFamily: 'serif', letterSpacing: '1.2px', paintOrder: 'stroke fill' }}>
+                              <text x={200 + 168 * Math.cos(midA)} y={200 + 168 * Math.sin(midA)} fontSize="11" fill="#d4af37" textAnchor="middle" dominantBaseline="middle" opacity="0.7">★</text>
+                              <text x={tX} y={tY} fontSize="15" fontWeight="700" textAnchor="middle" dominantBaseline="middle" fill="#f5e6d3" stroke="#0f172a" strokeWidth="4"
+                                transform={`rotate(${rot}, ${tX}, ${tY})`} style={{ fontFamily: 'serif', letterSpacing: '1.2px', paintOrder: 'stroke fill' }}>
                                 {label.toUpperCase()}
                               </text>
                             </g>
@@ -238,7 +231,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
                         <circle cx="200" cy="200" r="48" fill="none" stroke="#b8942d" strokeWidth="1.5"/>
                         <circle cx="200" cy="200" r="44" fill="none" stroke="#d4af37" strokeWidth="0.8" opacity="0.5"/>
 
-                        {/* Rayons solaires */}
+                        {/* Rayons */}
                         <g opacity="0.7">
                           {[0, 45, 90, 135, 180, 225, 270, 315].map(deg => {
                             const r = (deg * Math.PI) / 180;
@@ -284,28 +277,28 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
         </div>
       </div>
 
-      {/* ── INTERPRÉTATION ── */}
+      {/* ── INTERPRÉTATION - NON SCROLLABLE ── */}
       {hasSpun && interpretation && (
-        <div className="px-4 mt-2 flex justify-center flex-shrink-0 w-full max-h-[18vh] overflow-y-auto">
-          <div className="w-full max-w-md p-2 bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-lg border-2 border-amber-600/50 shadow-[0_4px_15px_rgba(212,175,55,0.25)] backdrop-blur-sm">
+        <div className="px-4 mt-2 flex justify-center flex-shrink-0 w-full">
+          <div className="w-full max-w-md p-3 bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-lg border-2 border-amber-600/50 shadow-[0_4px_15px_rgba(212,175,55,0.25)] backdrop-blur-sm">
 
-            <div className="flex items-center justify-center gap-1.5 mb-1">
+            <div className="flex items-center justify-center gap-1.5 mb-2">
               <div className="h-[1px] w-6 bg-gradient-to-r from-transparent via-amber-600 to-transparent"></div>
-              <h4 className="text-xs sm:text-sm font-bold text-amber-500 text-center">
+              <h4 className="text-sm sm:text-base font-bold text-amber-500 text-center">
                 {interpretation.title}
               </h4>
               <div className="h-[1px] w-6 bg-gradient-to-l from-transparent via-amber-600 to-transparent"></div>
             </div>
 
-            <div className="bg-slate-950/80 rounded-md p-2 border border-amber-600/20 mb-1">
-              <p className="text-amber-100 text-[11px] sm:text-xs leading-relaxed text-center">
+            <div className="bg-slate-950/80 rounded-md p-3 border border-amber-600/20 mb-2">
+              <p className="text-amber-100 text-xs sm:text-sm leading-relaxed text-center">
                 {interpretation.message}
               </p>
             </div>
 
             <div className="flex justify-center">
-              <div className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-blue-950 to-slate-900 border border-amber-600/70">
-                <span className="text-amber-500 font-bold text-[11px] sm:text-xs">{result}</span>
+              <div className="px-3 py-1 rounded-full bg-gradient-to-r from-blue-950 to-slate-900 border border-amber-600/70">
+                <span className="text-amber-500 font-bold text-xs sm:text-sm">{result}</span>
               </div>
             </div>
           </div>
@@ -313,7 +306,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
       )}
 
       {/* ── BOUTON AVEC GROS ESPACEMENT ── */}
-      <div className="px-4 pt-2 pb-8 flex-shrink-0 w-full flex justify-center">
+      <div className="px-4 pt-3 pb-8 flex-shrink-0 w-full flex justify-center">
         <div className="w-full max-w-md">
 
           {!hasSpun && !isSpinning && !isLoadingAd && (
