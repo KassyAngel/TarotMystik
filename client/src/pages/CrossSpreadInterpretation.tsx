@@ -112,7 +112,7 @@ export default function CrossSpreadInterpretation({
   const interpretations = generateInterpretations();
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-4 sm:p-6 pt-20 sm:pt-24 pb-safe-banner bg-gradient-to-br from-[#0a1e1a] via-[#1a1540] to-[#0a0e1a] relative overflow-hidden">
+    <div className="min-h-screen flex flex-col justify-between p-4 sm:p-6 pt-safe-top pb-safe-banner bg-gradient-to-br from-[#0a1e1a] via-[#1a1540] to-[#0a0e1a] relative overflow-hidden">
 
       {/* Effets de fond */}
       <div className="absolute inset-0 pointer-events-none">
@@ -246,11 +246,20 @@ export default function CrossSpreadInterpretation({
       </div>
 
       <style>{`
+        /* ✅ PADDING TOP AUGMENTÉ - TITRE BIEN VISIBLE */
+        .pt-safe-top {
+          padding-top: max(80px, env(safe-area-inset-top, 0px) + 80px);
+        }
+
         .pb-safe-banner {
           padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
         }
 
         @media (min-width: 640px) {
+          .pt-safe-top {
+            padding-top: max(90px, env(safe-area-inset-top, 0px) + 90px);
+          }
+
           .pb-safe-banner {
             padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
           }

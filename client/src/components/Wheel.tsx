@@ -1,5 +1,5 @@
 // client/src/components/Wheel.tsx
-// 🎡 Roue de la Destinée - AVEC TRANSITIONS FLUIDES
+// 🎡 Roue de la Destinée - VERSION AVEC ESPACEMENT BOUTON INTÉGRÉ
 
 import React, { useState } from 'react';
 import { showInterstitialAd } from '@/admobService';
@@ -14,7 +14,7 @@ interface WheelProps {
 }
 
 const NAVBAR_TOP = 60;
-const BAR_BOTTOM = 100;
+const BAR_BOTTOM = 160; // ✅ Augmenté pour laisser place au bouton externe
 
 export default function Wheel({ onComplete, variation, onReset, isPremium = false }: WheelProps) {
   const { t } = useLanguage();
@@ -80,8 +80,10 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
 
   const segmentAngle = 360 / wheelSegments.length;
 
-  // ✅ TAILLE CONSTANTE - pas de changement brusque
-  const wheelSize = `min(calc(100vh - ${NAVBAR_TOP + BAR_BOTTOM + 280}px), 340px, 75vw)`;
+  // Tailles optimisées avec transitions fluides
+  const wheelSize = hasSpun
+    ? `min(calc(100vh - ${NAVBAR_TOP + BAR_BOTTOM + 400}px), 300px, 72vw)`
+    : `min(calc(100vh - ${NAVBAR_TOP + BAR_BOTTOM + 160}px), 400px, 82vw)`;
 
   return (
     <div
@@ -94,12 +96,12 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
     >
 
       {/* ── TITRE ── */}
-      <div className="text-center pt-6 pb-3 px-4 flex-shrink-0 w-full">
+      <div className="text-center pt-3 pb-1.5 px-4 flex-shrink-0 w-full">
         <h3 className="text-2xl sm:text-3xl font-bold text-amber-100 font-serif drop-shadow-[0_2px_10px_rgba(212,175,55,0.6)]">
           {t('oracle.wheel.title') || 'Roue de la Destinée'}
         </h3>
         {!hasSpun && (
-          <p className="text-amber-200/70 text-xs sm:text-sm font-medium mt-1">
+          <p className="text-amber-200/70 text-xs sm:text-sm font-medium mt-0.5">
             {t('oracle.wheel.subtitle') || 'Tournez la roue pour découvrir votre destin'}
           </p>
         )}
@@ -107,13 +109,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
 
       {/* ── ROUE ── */}
       <div className="flex-1 flex items-center justify-center px-2 min-h-0">
-        <div 
-          className="relative transition-all duration-700 ease-out" 
-          style={{ 
-            width: wheelSize, 
-            height: wheelSize
-          }}
-        >
+        <div className="relative transition-all duration-800 ease-in-out" style={{ width: wheelSize, height: wheelSize }}>
 
           {/* Cadre doré aux coins */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none z-30" viewBox="0 0 100 100">
@@ -281,17 +277,10 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
         </div>
       </div>
 
-      {/* ── INTERPRÉTATION - AVEC ANIMATION FLUIDE ── */}
-      <div 
-        className={`px-4 flex justify-center flex-shrink-0 w-full transition-all duration-700 ease-out ${
-          hasSpun && interpretation ? 'mt-3 opacity-100 translate-y-0' : 'mt-0 opacity-0 -translate-y-4 pointer-events-none'
-        }`}
-        style={{
-          maxHeight: hasSpun && interpretation ? '200px' : '0px'
-        }}
-      >
-        {hasSpun && interpretation && (
-          <div className="w-full max-w-md p-3 bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-lg border-2 border-amber-600/50 shadow-[0_4px_15px_rgba(212,175,55,0.25)] backdrop-blur-sm animate-slide-up">
+      {/* ── INTERPRÉTATION ── */}
+      {hasSpun && interpretation && (
+        <div className="px-4 mt-2 flex justify-center flex-shrink-0 w-full">
+          <div className="w-full max-w-md p-3 bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-lg border-2 border-amber-600/50 shadow-[0_4px_15px_rgba(212,175,55,0.25)] backdrop-blur-sm">
 
             <div className="flex items-center justify-center gap-1.5 mb-2">
               <div className="h-[1px] w-6 bg-gradient-to-r from-transparent via-amber-600 to-transparent"></div>
@@ -301,7 +290,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
               <div className="h-[1px] w-6 bg-gradient-to-l from-transparent via-amber-600 to-transparent"></div>
             </div>
 
-            <div className="bg-slate-950/80 rounded-md p-3 border border-amber-600/20 mb-2 max-h-[100px] overflow-y-auto custom-scrollbar">
+            <div className="bg-slate-950/80 rounded-md p-2.5 border border-amber-600/20 mb-2">
               <p className="text-amber-100 text-xs sm:text-sm leading-relaxed text-center">
                 {interpretation.message}
               </p>
@@ -313,16 +302,16 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* ── BOUTON ── */}
-      <div className="px-4 pt-4 pb-6 flex-shrink-0 w-full flex justify-center">
+      {/* ── BOUTON INTÉGRÉ (dans le composant Wheel) ── */}
+      <div className="px-4 pt-3 pb-4 flex-shrink-0 w-full flex justify-center">
         <div className="w-full max-w-md">
 
           {!hasSpun && !isSpinning && !isLoadingAd && (
             <button onClick={spinWheel}
-              className="w-full text-base sm:text-lg font-bold min-h-[50px] bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600
+              className="w-full text-base sm:text-lg font-bold min-h-[52px] bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600
                          hover:from-amber-500 hover:via-amber-400 hover:to-amber-500
                          shadow-[0_4px_25px_rgba(212,175,55,0.5)] hover:shadow-[0_6px_35px_rgba(212,175,55,0.7)]
                          border-2 border-amber-400 hover:border-amber-300
@@ -332,7 +321,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
           )}
 
           {isSpinning && (
-            <div className="w-full text-center py-3 min-h-[50px] flex items-center justify-center bg-slate-900/90 border-2 border-amber-500/50 rounded-xl backdrop-blur-sm">
+            <div className="w-full text-center py-3 min-h-[52px] flex items-center justify-center bg-slate-900/90 border-2 border-amber-500/50 rounded-xl backdrop-blur-sm">
               <p className="text-amber-500 font-bold text-base sm:text-lg animate-pulse">
                 ✦ {t('oracle.wheel.spinning') || 'La roue tourne...'} ✦
               </p>
@@ -340,13 +329,8 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
           )}
 
           {hasSpun && (
-            <button onClick={() => { 
-              setHasSpun(false); 
-              setInterpretation(null); 
-              setResult(null); 
-              if (onReset) onReset(); 
-            }}
-              className="w-full text-base sm:text-lg font-bold min-h-[50px] bg-gradient-to-r from-amber-600/90 via-amber-500/90 to-amber-600/90
+            <button onClick={() => { setHasSpun(false); setInterpretation(null); setResult(null); if (onReset) onReset(); }}
+              className="w-full text-base sm:text-lg font-bold min-h-[52px] bg-gradient-to-r from-amber-600/90 via-amber-500/90 to-amber-600/90
                          hover:from-amber-600 hover:via-amber-500 hover:to-amber-600
                          border-2 border-amber-500/70 hover:border-amber-500/90
                          text-slate-900 shadow-[0_4px_25px_rgba(212,175,55,0.4)]
@@ -356,7 +340,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
           )}
 
           {isLoadingAd && (
-            <div className="w-full text-center py-2 min-h-[50px] flex flex-col items-center justify-center bg-slate-900/90 border-2 border-amber-500/50 rounded-xl backdrop-blur-sm">
+            <div className="w-full text-center py-2 min-h-[52px] flex flex-col items-center justify-center bg-slate-900/90 border-2 border-amber-500/50 rounded-xl backdrop-blur-sm">
               <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500"></div>
               <p className="text-amber-500 text-xs mt-1">{t('oracle.wheel.loadingAd') || 'Chargement...'}</p>
             </div>
@@ -378,30 +362,10 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
           0%, 100% { opacity: 0.3; transform: scale(1); }
           50%      { opacity: 0.6; transform: scale(1.05); }
         }
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
         .animate-spin-slow    { animation: spin-slow 25s linear infinite; }
         .animate-pulse-slow   { animation: pulse-slow 6s ease-in-out infinite; }
         .animate-pulse-medium { animation: pulse-medium 4s ease-in-out infinite; }
-        .animate-slide-up     { animation: slide-up 0.7s ease-out; }
-
-        /* Scrollbar personnalisée */
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(15, 23, 42, 0.5);
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(212, 175, 55, 0.5);
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(212, 175, 55, 0.7);
-        }
+        .duration-800 { transition-duration: 800ms; }
       `}</style>
     </div>
   );

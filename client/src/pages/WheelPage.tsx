@@ -1,5 +1,5 @@
 // client/src/pages/WheelPage.tsx
-// 🎡 Page Roue - VERSION OPTIMISÉE AVEC PRÉCHARGEMENT PUB
+// 🎡 Page Roue - VERSION BOUTONS BIEN ESPACÉS
 
 import { useState, useEffect } from 'react';
 import Wheel from '@/components/Wheel';
@@ -39,7 +39,6 @@ export default function WheelPage({
   const [showLongAdMessage, setShowLongAdMessage] = useState(false);
   const [variation, setVariation] = useState<string | null>(null);
   const [wheelUnlocked, setWheelUnlocked] = useState(isPremium);
-  const [adProgress, setAdProgress] = useState(0);
 
   useEffect(() => {
     const unlockWheel = async () => {
@@ -60,35 +59,25 @@ export default function WheelPage({
       if (nextCount === 1) {
         console.log('🎁 [WHEEL] 1er tirage → Pub récompensée');
 
-        // ✅ AFFICHER L'ÉCRAN DE CHARGEMENT IMMÉDIATEMENT
-        setIsLoadingAd(true);
-        setShowLongAdMessage(false);
-        setAdProgress(0);
-
-        // Simuler une progression pour feedback utilisateur
-        const progressInterval = setInterval(() => {
-          setAdProgress(prev => {
-            if (prev >= 90) {
-              clearInterval(progressInterval);
-              return 90;
-            }
-            return prev + 10;
-          });
-        }, 500);
-
-        const messageTimeoutId = setTimeout(() => {
-          console.log('💬 [WHEEL] Affichage message "pub longue"');
-          setShowLongAdMessage(true);
-        }, 5000); // Réduit à 5s au lieu de 45s
+        let messageTimeoutId: NodeJS.Timeout | null = null;
 
         try {
-          const rewardGranted = await showRewardedAd('wheel_first');
-          clearTimeout(messageTimeoutId);
-          clearInterval(progressInterval);
-          setAdProgress(100);
+          const adPromise = showRewardedAd('wheel_first');
 
-          // Petit délai pour montrer 100%
-          await new Promise(resolve => setTimeout(resolve, 300));
+          const loadingTimeoutId = setTimeout(() => {
+            console.log('⏳ [WHEEL] Affichage loading (pub en préparation)');
+            setIsLoadingAd(true);
+
+            messageTimeoutId = setTimeout(() => {
+              console.log('💬 [WHEEL] Affichage message "pub longue"');
+              setShowLongAdMessage(true);
+            }, 45000);
+          }, 500);
+
+          const rewardGranted = await adPromise;
+
+          clearTimeout(loadingTimeoutId);
+          if (messageTimeoutId) clearTimeout(messageTimeoutId);
 
           setIsLoadingAd(false);
           setShowLongAdMessage(false);
@@ -105,8 +94,7 @@ export default function WheelPage({
           }
         } catch (error) {
           console.error('❌ [WHEEL] Erreur:', error);
-          clearTimeout(messageTimeoutId);
-          clearInterval(progressInterval);
+          if (messageTimeoutId) clearTimeout(messageTimeoutId);
           setIsLoadingAd(false);
           setShowLongAdMessage(false);
           alert(t('oracle.wheel.adError') || 'Une erreur est survenue. Réessayez.');
@@ -141,18 +129,17 @@ export default function WheelPage({
     }
   };
 
-  // ✨ ÉCRAN DE CHARGEMENT - OPTIMISÉ
+  // ÉCRAN DE CHARGEMENT
   if (isLoadingAd) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#0a0e1a] via-[#1a1540] to-[#0a0e1a] z-50">
-        {/* Background avec étoiles */}
         <div className="absolute inset-0 opacity-30">
           {[...Array(50)].map((_, i) => (
             <div
               key={i}
               className="absolute rounded-full animate-pulse"
               style={{
-                backgroundColor: ['#67e8f9', '#60a5fa', '#d4af37'][i % 3],
+                backgroundColor: ['#8b5cf6', '#67e8f9', '#d4af37'][i % 3],
                 width: Math.random() * 3 + 1 + 'px',
                 height: Math.random() * 3 + 1 + 'px',
                 top: Math.random() * 100 + '%',
@@ -165,55 +152,35 @@ export default function WheelPage({
         </div>
 
         <div className="text-center relative z-10 max-w-md px-6">
-          {/* Icône cadeau avec halo */}
           <div className="relative w-32 h-32 mx-auto mb-8">
-            <div className="absolute inset-0 bg-cyan-400/40 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute inset-0 bg-amber-400/30 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+            <div className="absolute inset-0 bg-purple-400/40 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-8xl animate-bounce-slow">🎁</div>
+              <div className="text-8xl">🎁</div>
             </div>
           </div>
 
-          {/* Titre */}
-          <p className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-200 to-cyan-300 text-3xl font-bold font-serif mb-4 animate-pulse">
-            {t('oracle.wheel.loadingAd') || 'Préparation...'}
+          <p className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-purple-200 to-purple-300 text-3xl font-bold font-serif mb-4 animate-pulse">
+            {t('oracle.wheel.loadingAd') || 'Chargement...'}
+          </p>
+          <p className="text-purple-200/70 text-lg">
+            {t('oracle.wheel.pleaseWait') || 'Un instant'}
           </p>
 
-          {/* Barre de progression */}
-          <div className="w-full bg-slate-800/50 rounded-full h-3 mb-4 overflow-hidden border border-cyan-500/30">
-            <div 
-              className="h-full bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 transition-all duration-500 ease-out rounded-full"
-              style={{ width: `${adProgress}%` }}
-            >
-              <div className="w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
-            </div>
-          </div>
-
-          {/* Sous-titre */}
-          <p className="text-cyan-200/70 text-lg mb-2">
-            {adProgress < 90 
-              ? (t('oracle.wheel.preparingAd') || 'Chargement de la publicité...')
-              : (t('oracle.wheel.almostReady') || 'Presque prêt...')
-            }
-          </p>
-
-          {/* Message pub longue */}
           {showLongAdMessage && (
-            <div className="mt-6 p-6 bg-blue-900/20 border-2 border-cyan-400/60 rounded-2xl backdrop-blur-lg animate-fade-in">
-              <p className="text-cyan-200 text-xl font-semibold mb-3">
+            <div className="mt-8 p-6 bg-purple-500/20 border-2 border-purple-400/60 rounded-2xl backdrop-blur-lg animate-fade-in">
+              <p className="text-purple-200 text-xl font-semibold mb-3">
                 {t('oracle.wheel.adLongWarning') || 'Publicité en cours...'}
               </p>
-              <p className="text-cyan-200/70 text-base">
-                {t('oracle.wheel.pleaseWaitUntilEnd') || 'Merci de regarder jusqu\'à la fin'}
+              <p className="text-purple-200/70 text-base">
+                {t('oracle.wheel.pleaseWaitUntilEnd') || 'Merci de patienter'}
               </p>
             </div>
           )}
 
-          {/* Points de chargement */}
-          <div className="flex justify-center gap-4 mt-6">
-            <span className="w-4 h-4 bg-cyan-400 rounded-full animate-bounce"></span>
-            <span className="w-4 h-4 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.15s'}}></span>
-            <span className="w-4 h-4 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.3s'}}></span>
+          <div className="flex justify-center gap-4 mt-8">
+            <span className="w-4 h-4 bg-purple-400 rounded-full animate-bounce"></span>
+            <span className="w-4 h-4 bg-purple-300 rounded-full animate-bounce" style={{animationDelay: '0.15s'}}></span>
+            <span className="w-4 h-4 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.3s'}}></span>
           </div>
         </div>
       </div>
@@ -262,7 +229,7 @@ export default function WheelPage({
           ))}
         </div>
 
-        {/* Container principal - La roue */}
+        {/* Container principal - La roue avec son propre bouton intégré */}
         <div className="flex-1 flex flex-col min-h-0">
           <Wheel 
             onComplete={handleComplete}
@@ -276,27 +243,27 @@ export default function WheelPage({
           />
         </div>
 
-        {/* BOUTONS DE NAVIGATION */}
+        {/* ✅ BOUTON DE NAVIGATION EXTERNE - BIEN SÉPARÉ (20px de marge) */}
         <div 
           className="fixed left-0 right-0 pointer-events-none"
           style={{
-            bottom: '60px',
+            bottom: '60px', // Au-dessus de la bannière pub
             zIndex: 50
           }}
         >
           <div className="bg-gradient-to-t from-slate-900/98 via-slate-900/95 to-transparent backdrop-blur-md border-t border-amber-500/20 pointer-events-auto">
-            <div className="max-w-lg mx-auto px-4 py-2 pb-safe-ios">
+            <div className="max-w-lg mx-auto px-4 pt-5 pb-3 pb-safe-ios">
               {!isComplete ? (
                 <button 
                   onClick={onBack}
-                  className="w-full min-h-[50px] text-base font-bold px-4 bg-gradient-to-r from-slate-900/70 via-slate-800/70 to-slate-900/70 hover:from-slate-800/80 hover:via-slate-700/80 hover:to-slate-800/80 border-2 border-amber-500/40 hover:border-amber-500/60 text-amber-100 backdrop-blur-sm rounded-xl transition-all duration-300 active:scale-[0.97] shadow-lg"
+                  className="w-full min-h-[52px] text-base font-bold px-4 bg-gradient-to-r from-slate-900/70 via-slate-800/70 to-slate-900/70 hover:from-slate-800/80 hover:via-slate-700/80 hover:to-slate-800/80 border-2 border-amber-500/40 hover:border-amber-500/60 text-amber-100 backdrop-blur-sm rounded-xl transition-all duration-300 active:scale-[0.97] shadow-lg"
                 >
                   ← {t('common.back') || 'Retour'}
                 </button>
               ) : (
                 <button 
                   onClick={onBack}
-                  className="w-full min-h-[50px] text-base font-bold px-4 bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 shadow-[0_0_25px_rgba(212,175,55,0.3)] text-amber-100 backdrop-blur-sm rounded-xl border-2 border-amber-500/50 hover:border-amber-400/70 transition-all duration-300 active:scale-[0.97]"
+                  className="w-full min-h-[52px] text-base font-bold px-4 bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 shadow-[0_0_25px_rgba(212,175,55,0.3)] text-amber-100 backdrop-blur-sm rounded-xl border-2 border-amber-500/50 hover:border-amber-400/70 transition-all duration-300 active:scale-[0.97]"
                 >
                   {t('oracle.backToOracles') || 'Retour aux oracles'} →
                 </button>
@@ -326,14 +293,6 @@ export default function WheelPage({
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
           }
-          @keyframes bounce-slow {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-          }
-          @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-          }
           .animate-twinkle {
             animation: twinkle ease-in-out infinite;
           }
@@ -343,14 +302,10 @@ export default function WheelPage({
           .animate-fade-in {
             animation: fade-in 0.4s ease-out;
           }
-          .animate-bounce-slow {
-            animation: bounce-slow 2s ease-in-out infinite;
-          }
-          .animate-shimmer {
-            animation: shimmer 2s ease-in-out infinite;
-          }
+
+          /* Safe area pour iOS */
           .pb-safe-ios {
-            padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+            padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
           }
         `}</style>
       </div>

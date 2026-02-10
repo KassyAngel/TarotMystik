@@ -222,7 +222,7 @@ export default function CrossSpreadGame({
         ))}
       </div>
 
-      {/* Container principal avec padding safe */}
+      {/* Container principal avec padding safe CORRIGÉ */}
       <div className="w-full pt-safe-top pb-safe-banner px-4 relative z-10">
 
         {/* Header - TOUJOURS VISIBLE */}
@@ -353,9 +353,9 @@ export default function CrossSpreadGame({
       })()}
 
       <style>{`
-        /* Safe padding pour navbar + bannière */
+        /* ✅ PADDING TOP AUGMENTÉ - TITRE BIEN VISIBLE */
         .pt-safe-top {
-          padding-top: max(90px, env(safe-area-inset-top, 0px) + 90px);
+          padding-top: max(80px, env(safe-area-inset-top, 0px) + 80px);
         }
 
         .pb-safe-banner {
@@ -364,7 +364,7 @@ export default function CrossSpreadGame({
 
         @media (min-width: 640px) {
           .pt-safe-top {
-            padding-top: max(105px, env(safe-area-inset-top, 0px) + 105px);
+            padding-top: max(90px, env(safe-area-inset-top, 0px) + 90px);
           }
 
           .pb-safe-banner {
