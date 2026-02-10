@@ -1,5 +1,5 @@
 // client/src/pages/WheelPage.tsx
-// 🎡 Page Roue - VERSION ESPACEMENT MINIMAL
+// 🎡 Page Roue - VERSION AVEC THÈME BLEU NUIT HARMONISÉ
 
 import { useState, useEffect } from 'react';
 import Wheel from '@/components/Wheel';
@@ -119,17 +119,18 @@ export default function WheelPage({
     }
   };
 
-  // ÉCRAN DE CHARGEMENT
+  // ✨ ÉCRAN DE CHARGEMENT - THÈME BLEU NUIT HARMONISÉ
   if (isLoadingAd) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#0a0e1a] via-[#1a1540] to-[#0a0e1a] z-50">
+        {/* Background avec étoiles - thème bleu nuit */}
         <div className="absolute inset-0 opacity-30">
           {[...Array(50)].map((_, i) => (
             <div
               key={i}
               className="absolute rounded-full animate-pulse"
               style={{
-                backgroundColor: ['#8b5cf6', '#67e8f9', '#d4af37'][i % 3],
+                backgroundColor: ['#67e8f9', '#60a5fa', '#d4af37'][i % 3], // Cyan, bleu, doré
                 width: Math.random() * 3 + 1 + 'px',
                 height: Math.random() * 3 + 1 + 'px',
                 top: Math.random() * 100 + '%',
@@ -142,35 +143,42 @@ export default function WheelPage({
         </div>
 
         <div className="text-center relative z-10 max-w-md px-6">
+          {/* Icône cadeau avec halo doré/cyan */}
           <div className="relative w-32 h-32 mx-auto mb-8">
-            <div className="absolute inset-0 bg-purple-400/40 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute inset-0 bg-cyan-400/40 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute inset-0 bg-amber-400/30 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-8xl">🎁</div>
             </div>
           </div>
 
-          <p className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-purple-200 to-purple-300 text-3xl font-bold font-serif mb-4 animate-pulse">
+          {/* Titre - gradient cyan/bleu au lieu de violet */}
+          <p className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-200 to-cyan-300 text-3xl font-bold font-serif mb-4 animate-pulse">
             {t('oracle.wheel.loadingAd') || 'Chargement...'}
           </p>
-          <p className="text-purple-200/70 text-lg">
+
+          {/* Sous-titre - couleur cyan/bleue */}
+          <p className="text-cyan-200/70 text-lg">
             {t('oracle.wheel.pleaseWait') || 'Un instant'}
           </p>
 
+          {/* Message pub longue - bordure cyan/ambre */}
           {showLongAdMessage && (
-            <div className="mt-8 p-6 bg-purple-500/20 border-2 border-purple-400/60 rounded-2xl backdrop-blur-lg animate-fade-in">
-              <p className="text-purple-200 text-xl font-semibold mb-3">
+            <div className="mt-8 p-6 bg-blue-900/20 border-2 border-cyan-400/60 rounded-2xl backdrop-blur-lg animate-fade-in">
+              <p className="text-cyan-200 text-xl font-semibold mb-3">
                 {t('oracle.wheel.adLongWarning') || 'Publicité en cours...'}
               </p>
-              <p className="text-purple-200/70 text-base">
+              <p className="text-cyan-200/70 text-base">
                 {t('oracle.wheel.pleaseWaitUntilEnd') || 'Merci de patienter'}
               </p>
             </div>
           )}
 
+          {/* Points de chargement - cyan/bleu */}
           <div className="flex justify-center gap-4 mt-8">
-            <span className="w-4 h-4 bg-purple-400 rounded-full animate-bounce"></span>
-            <span className="w-4 h-4 bg-purple-300 rounded-full animate-bounce" style={{animationDelay: '0.15s'}}></span>
-            <span className="w-4 h-4 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.3s'}}></span>
+            <span className="w-4 h-4 bg-cyan-400 rounded-full animate-bounce"></span>
+            <span className="w-4 h-4 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.15s'}}></span>
+            <span className="w-4 h-4 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.3s'}}></span>
           </div>
         </div>
       </div>
