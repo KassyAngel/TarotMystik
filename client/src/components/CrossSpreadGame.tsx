@@ -1,3 +1,6 @@
+// client/src/pages/CrossSpreadGame.tsx
+// 🎴 TIRAGE EN CROIX - VERSION ANDROID ULTRA-FIXÉE (Alignement parfait)
+
 import { useState, useEffect } from 'react';
 import FlipCard from '@/components/FlipCard';
 import MysticalButton from '@/components/MysticalButton';
@@ -208,10 +211,10 @@ export default function CrossSpreadGame({
         ))}
       </div>
 
-      {/* Container principal avec padding safe CORRIGÉ */}
+      {/* Container principal */}
       <div className="w-full pt-safe-top pb-safe-banner px-4 relative z-10">
 
-        {/* Header - TOUJOURS VISIBLE */}
+        {/* Header */}
         <div className="text-center pb-3">
           <h2 className="text-[#e8d4b8] text-xl sm:text-2xl md:text-3xl font-serif mb-2 drop-shadow-[0_3px_10px_rgba(0,0,0,0.9)]">
             {t('crossSpread.title')}
@@ -222,73 +225,265 @@ export default function CrossSpreadGame({
           </p>
         </div>
 
-        {/* 🔧 FIX ANDROID: Grille en croix avec alignement forcé */}
+        {/* 🔧 FIX ANDROID ULTRA-ROBUSTE : Grille en table pour alignement PARFAIT */}
         <div className="flex items-center justify-center py-4">
-          <div className="cross-spread-wrapper w-full flex items-center justify-center">
-            <div className="cross-spread-container">
-              {Array.from({ length: totalCards }).map((_, index) => {
-                const actualIndex = randomCards[index];
-                const cardData = oracle.cards[actualIndex];
-                const isFlipped = flippedCards[index];
-                const canFlip = index === currentCardIndex && !isComplete;
+          <div className="cross-spread-table">
 
-                return (
-                  <div 
-                    key={index}
-                    className={`cross-card-wrapper cross-card-${index}`}
-                  >
-                    {/* Label de position au-dessus */}
-                    <div className="text-center mb-1 sm:mb-2">
-                      <p className={`text-xs sm:text-sm font-serif tracking-wide transition-all duration-300 ${
-                        canFlip 
-                          ? 'text-[#ff6692] font-bold animate-pulse-gentle' 
-                          : isFlipped 
-                          ? 'text-[#c9a87f]/70' 
-                          : 'text-[#c9a87f]/40'
+            {/* LIGNE 1 : Avenir (index 3) */}
+            <div className="cross-row">
+              <div className="cross-cell cross-empty"></div>
+              <div className="cross-cell cross-center">
+                {(() => {
+                  const index = 3; // Avenir
+                  const actualIndex = randomCards[index];
+                  const cardData = oracle.cards[actualIndex];
+                  const isFlipped = flippedCards[index];
+                  const canFlip = index === currentCardIndex && !isComplete;
+
+                  return (
+                    <div className="cross-card-content">
+                      <div className="text-center mb-1 sm:mb-2">
+                        <p className={`text-xs sm:text-sm font-serif tracking-wide transition-all duration-300 ${
+                          canFlip 
+                            ? 'text-[#ff6692] font-bold animate-pulse-gentle' 
+                            : isFlipped 
+                            ? 'text-[#c9a87f]/70' 
+                            : 'text-[#c9a87f]/40'
+                        }`}>
+                          {positions[index].label}
+                        </p>
+                      </div>
+
+                      <div className={`card-container relative transition-all duration-300 ${
+                        canFlip ? 'opacity-100 scale-105' : isFlipped ? 'opacity-100' : 'opacity-40 scale-95'
                       }`}>
-                        {positions[index].label}
-                      </p>
+                        <FlipCard
+                          card={cardData}
+                          position={positions[index].label}
+                          oracleType={oracleType}
+                          isFlipped={isFlipped}
+                          onFlip={() => handleCardFlip(index)}
+                          hidePosition={true}
+                        />
+
+                        {canFlip && !isFlipped && (
+                          <>
+                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 animate-bounce-gentle">
+                              <div className="text-[#ff6692] text-2xl drop-shadow-[0_0_10px_rgba(255,102,146,0.8)]">↓</div>
+                            </div>
+                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
+                              <div className="w-3 h-3 bg-[#ff6692] rounded-full animate-pulse-strong shadow-[0_0_15px_rgba(255,102,146,1)]"></div>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
-
-                    {/* Carte */}
-                    <div className={`card-container relative transition-all duration-300 ${
-                      canFlip ? 'opacity-100 scale-105' : isFlipped ? 'opacity-100' : 'opacity-40 scale-95'
-                    }`}>
-                      <FlipCard
-                        card={cardData}
-                        position={positions[index].label}
-                        oracleType={oracleType}
-                        isFlipped={isFlipped}
-                        onFlip={() => handleCardFlip(index)}
-                        hidePosition={true}
-                      />
-
-                      {/* INDICATEUR VISUEL - Flèche clignotante */}
-                      {canFlip && !isFlipped && (
-                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 animate-bounce-gentle">
-                          <div className="text-[#ff6692] text-2xl drop-shadow-[0_0_10px_rgba(255,102,146,0.8)]">
-                            ↓
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Point lumineux */}
-                      {canFlip && !isFlipped && (
-                        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
-                          <div className="w-3 h-3 bg-[#ff6692] rounded-full animate-pulse-strong shadow-[0_0_15px_rgba(255,102,146,1)]"></div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })()}
+              </div>
+              <div className="cross-cell cross-empty"></div>
             </div>
+
+            {/* LIGNE 2 : Obstacle (1), Présent (0), Synthèse (4) */}
+            <div className="cross-row">
+              {/* Obstacle */}
+              <div className="cross-cell cross-left">
+                {(() => {
+                  const index = 1;
+                  const actualIndex = randomCards[index];
+                  const cardData = oracle.cards[actualIndex];
+                  const isFlipped = flippedCards[index];
+                  const canFlip = index === currentCardIndex && !isComplete;
+
+                  return (
+                    <div className="cross-card-content">
+                      <div className="text-center mb-1 sm:mb-2">
+                        <p className={`text-xs sm:text-sm font-serif tracking-wide transition-all duration-300 ${
+                          canFlip ? 'text-[#ff6692] font-bold animate-pulse-gentle' : isFlipped ? 'text-[#c9a87f]/70' : 'text-[#c9a87f]/40'
+                        }`}>
+                          {positions[index].label}
+                        </p>
+                      </div>
+
+                      <div className={`card-container relative transition-all duration-300 ${
+                        canFlip ? 'opacity-100 scale-105' : isFlipped ? 'opacity-100' : 'opacity-40 scale-95'
+                      }`}>
+                        <FlipCard
+                          card={cardData}
+                          position={positions[index].label}
+                          oracleType={oracleType}
+                          isFlipped={isFlipped}
+                          onFlip={() => handleCardFlip(index)}
+                          hidePosition={true}
+                        />
+
+                        {canFlip && !isFlipped && (
+                          <>
+                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 animate-bounce-gentle">
+                              <div className="text-[#ff6692] text-2xl drop-shadow-[0_0_10px_rgba(255,102,146,0.8)]">↓</div>
+                            </div>
+                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
+                              <div className="w-3 h-3 bg-[#ff6692] rounded-full animate-pulse-strong shadow-[0_0_15px_rgba(255,102,146,1)]"></div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Présent */}
+              <div className="cross-cell cross-center">
+                {(() => {
+                  const index = 0;
+                  const actualIndex = randomCards[index];
+                  const cardData = oracle.cards[actualIndex];
+                  const isFlipped = flippedCards[index];
+                  const canFlip = index === currentCardIndex && !isComplete;
+
+                  return (
+                    <div className="cross-card-content">
+                      <div className="text-center mb-1 sm:mb-2">
+                        <p className={`text-xs sm:text-sm font-serif tracking-wide transition-all duration-300 ${
+                          canFlip ? 'text-[#ff6692] font-bold animate-pulse-gentle' : isFlipped ? 'text-[#c9a87f]/70' : 'text-[#c9a87f]/40'
+                        }`}>
+                          {positions[index].label}
+                        </p>
+                      </div>
+
+                      <div className={`card-container relative transition-all duration-300 ${
+                        canFlip ? 'opacity-100 scale-105' : isFlipped ? 'opacity-100' : 'opacity-40 scale-95'
+                      }`}>
+                        <FlipCard
+                          card={cardData}
+                          position={positions[index].label}
+                          oracleType={oracleType}
+                          isFlipped={isFlipped}
+                          onFlip={() => handleCardFlip(index)}
+                          hidePosition={true}
+                        />
+
+                        {canFlip && !isFlipped && (
+                          <>
+                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 animate-bounce-gentle">
+                              <div className="text-[#ff6692] text-2xl drop-shadow-[0_0_10px_rgba(255,102,146,0.8)]">↓</div>
+                            </div>
+                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
+                              <div className="w-3 h-3 bg-[#ff6692] rounded-full animate-pulse-strong shadow-[0_0_15px_rgba(255,102,146,1)]"></div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Synthèse */}
+              <div className="cross-cell cross-right">
+                {(() => {
+                  const index = 4;
+                  const actualIndex = randomCards[index];
+                  const cardData = oracle.cards[actualIndex];
+                  const isFlipped = flippedCards[index];
+                  const canFlip = index === currentCardIndex && !isComplete;
+
+                  return (
+                    <div className="cross-card-content">
+                      <div className="text-center mb-1 sm:mb-2">
+                        <p className={`text-xs sm:text-sm font-serif tracking-wide transition-all duration-300 ${
+                          canFlip ? 'text-[#ff6692] font-bold animate-pulse-gentle' : isFlipped ? 'text-[#c9a87f]/70' : 'text-[#c9a87f]/40'
+                        }`}>
+                          {positions[index].label}
+                        </p>
+                      </div>
+
+                      <div className={`card-container relative transition-all duration-300 ${
+                        canFlip ? 'opacity-100 scale-105' : isFlipped ? 'opacity-100' : 'opacity-40 scale-95'
+                      }`}>
+                        <FlipCard
+                          card={cardData}
+                          position={positions[index].label}
+                          oracleType={oracleType}
+                          isFlipped={isFlipped}
+                          onFlip={() => handleCardFlip(index)}
+                          hidePosition={true}
+                        />
+
+                        {canFlip && !isFlipped && (
+                          <>
+                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 animate-bounce-gentle">
+                              <div className="text-[#ff6692] text-2xl drop-shadow-[0_0_10px_rgba(255,102,146,0.8)]">↓</div>
+                            </div>
+                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
+                              <div className="w-3 h-3 bg-[#ff6692] rounded-full animate-pulse-strong shadow-[0_0_15px_rgba(255,102,146,1)]"></div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* LIGNE 3 : Passé (index 2) */}
+            <div className="cross-row">
+              <div className="cross-cell cross-empty"></div>
+              <div className="cross-cell cross-center">
+                {(() => {
+                  const index = 2;
+                  const actualIndex = randomCards[index];
+                  const cardData = oracle.cards[actualIndex];
+                  const isFlipped = flippedCards[index];
+                  const canFlip = index === currentCardIndex && !isComplete;
+
+                  return (
+                    <div className="cross-card-content">
+                      <div className="text-center mb-1 sm:mb-2">
+                        <p className={`text-xs sm:text-sm font-serif tracking-wide transition-all duration-300 ${
+                          canFlip ? 'text-[#ff6692] font-bold animate-pulse-gentle' : isFlipped ? 'text-[#c9a87f]/70' : 'text-[#c9a87f]/40'
+                        }`}>
+                          {positions[index].label}
+                        </p>
+                      </div>
+
+                      <div className={`card-container relative transition-all duration-300 ${
+                        canFlip ? 'opacity-100 scale-105' : isFlipped ? 'opacity-100' : 'opacity-40 scale-95'
+                      }`}>
+                        <FlipCard
+                          card={cardData}
+                          position={positions[index].label}
+                          oracleType={oracleType}
+                          isFlipped={isFlipped}
+                          onFlip={() => handleCardFlip(index)}
+                          hidePosition={true}
+                        />
+
+                        {canFlip && !isFlipped && (
+                          <>
+                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 animate-bounce-gentle">
+                              <div className="text-[#ff6692] text-2xl drop-shadow-[0_0_10px_rgba(255,102,146,0.8)]">↓</div>
+                            </div>
+                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
+                              <div className="w-3 h-3 bg-[#ff6692] rounded-full animate-pulse-strong shadow-[0_0_15px_rgba(255,102,146,1)]"></div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+              <div className="cross-cell cross-empty"></div>
+            </div>
+
           </div>
         </div>
 
         {/* Progression et boutons */}
         <div className="text-center space-y-4 pt-2">
-          {/* Indicateur de progression */}
           <div className="flex items-center justify-center gap-2.5 mt-2">
             {Array.from({ length: totalCards }).map((_, i) => (
               <div 
@@ -304,7 +499,6 @@ export default function CrossSpreadGame({
             ))}
           </div>
 
-          {/* Boutons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <MysticalButton 
               variant="secondary" 
@@ -317,7 +511,7 @@ export default function CrossSpreadGame({
         </div>
       </div>
 
-      {/* MODALE DE RÉVÉLATION */}
+      {/* MODALE */}
       {showModal && currentRevealedCard !== null && (() => {
         const actualCardIndex = randomCards[currentRevealedCard];
         const originalCard = oracle.cards[actualCardIndex];
@@ -339,7 +533,7 @@ export default function CrossSpreadGame({
       })()}
 
       <style>{`
-        /* ✅ PADDING TOP AUGMENTÉ - TITRE BIEN VISIBLE */
+        /* ✅ PADDING TOP */
         .pt-safe-top {
           padding-top: max(80px, env(safe-area-inset-top, 0px) + 80px);
         }
@@ -358,82 +552,76 @@ export default function CrossSpreadGame({
           }
         }
 
-        /* Container wrapper - empêche tout débordement */
-        .cross-spread-wrapper {
-          max-width: 100%;
-          overflow: hidden;
-        }
-
-        /* 🔧 FIX ANDROID: Container de la croix avec alignement vertical forcé */
-        .cross-spread-container {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 70px));
-          grid-template-rows: repeat(3, minmax(0, 1fr));
-          gap: 0.5rem;
-          justify-content: center;
-          align-items: center; /* ← CRITICAL: Force l'alignement vertical */
-          width: fit-content;
+        /* 🔧 FIX ANDROID : LAYOUT EN TABLE pour alignement PARFAIT */
+        .cross-spread-table {
+          display: table;
+          border-collapse: separate;
+          border-spacing: 0.5rem;
           margin: 0 auto;
-          min-height: 360px; /* Hauteur minimale pour stabiliser */
         }
 
         @media (min-width: 375px) {
-          .cross-spread-container {
-            grid-template-columns: repeat(3, minmax(0, 75px));
-            gap: 0.6rem;
-            min-height: 380px;
+          .cross-spread-table {
+            border-spacing: 0.6rem;
           }
         }
 
         @media (min-width: 400px) {
-          .cross-spread-container {
-            grid-template-columns: repeat(3, minmax(0, 80px));
-            gap: 0.75rem;
-            min-height: 400px;
+          .cross-spread-table {
+            border-spacing: 0.75rem;
           }
         }
 
         @media (min-width: 640px) {
-          .cross-spread-container {
-            grid-template-columns: repeat(3, minmax(0, 100px));
-            gap: 1rem;
-            min-height: 500px;
+          .cross-spread-table {
+            border-spacing: 1rem;
           }
         }
 
-        @media (min-height: 800px) {
-          .cross-spread-container {
-            grid-template-columns: repeat(3, minmax(0, 85px));
-            gap: 0.75rem;
-            min-height: 420px;
+        /* Lignes de la table */
+        .cross-row {
+          display: table-row;
+        }
+
+        /* Cellules de la table - ALIGNEMENT VERTICAL FORCÉ */
+        .cross-cell {
+          display: table-cell;
+          vertical-align: middle; /* ← CRITICAL pour Android */
+          text-align: center;
+        }
+
+        /* Cellules vides (espaces) */
+        .cross-empty {
+          width: 70px;
+        }
+
+        @media (min-width: 375px) {
+          .cross-empty {
+            width: 75px;
           }
         }
 
-        @media (min-height: 800px) and (min-width: 400px) {
-          .cross-spread-container {
-            grid-template-columns: repeat(3, minmax(0, 95px));
-            gap: 1rem;
-            min-height: 480px;
+        @media (min-width: 400px) {
+          .cross-empty {
+            width: 80px;
           }
         }
 
-        /* 🔧 FIX ANDROID: Positionnement des cartes avec alignement forcé */
-        .cross-card-wrapper {
+        @media (min-width: 640px) {
+          .cross-empty {
+            width: 100px;
+          }
+        }
+
+        /* Contenu de la cellule */
+        .cross-card-content {
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center; /* ← CRITICAL: Centre verticalement */
-          width: 100%;
-          height: 100%; /* ← CRITICAL: Prend toute la hauteur de la cellule */
+          justify-content: center;
         }
 
-        .cross-card-0 { grid-column: 2; grid-row: 2; } /* Centre - Présent */
-        .cross-card-1 { grid-column: 1; grid-row: 2; } /* Gauche - Obstacle */
-        .cross-card-2 { grid-column: 2; grid-row: 3; } /* Bas - Passé */
-        .cross-card-3 { grid-column: 2; grid-row: 1; } /* Haut - Avenir */
-        .cross-card-4 { grid-column: 3; grid-row: 2; } /* Droite - Synthèse */
-
-        /* Taille des cartes - RESPONSIVE */
+        /* Taille des cartes */
         .card-container {
           width: 70px;
           height: 105px;
@@ -460,20 +648,6 @@ export default function CrossSpreadGame({
           }
         }
 
-        @media (min-height: 800px) {
-          .card-container {
-            width: 85px;
-            height: 127px;
-          }
-        }
-
-        @media (min-height: 800px) and (min-width: 400px) {
-          .card-container {
-            width: 95px;
-            height: 142px;
-          }
-        }
-
         /* Animations */
         @keyframes pulse-romantic {
           0%, 100% { opacity: 0.5; }
@@ -486,10 +660,6 @@ export default function CrossSpreadGame({
         @keyframes twinkle-elegant {
           0%, 100% { opacity: 0.2; }
           50% { opacity: 0.9; }
-        }
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
         }
         @keyframes bounce-gentle {
           0%, 100% { transform: translateY(0); }
@@ -512,9 +682,6 @@ export default function CrossSpreadGame({
         .animate-twinkle-elegant {
           animation: twinkle-elegant 3s ease-in-out infinite;
         }
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out;
-        }
         .animate-bounce-gentle {
           animation: bounce-gentle 1.5s ease-in-out infinite;
         }
@@ -525,13 +692,13 @@ export default function CrossSpreadGame({
           animation: pulse-strong 1s ease-in-out infinite;
         }
 
-        /* 🔧 ANDROID: GPU acceleration */
+        /* GPU acceleration */
         * {
           -webkit-tap-highlight-color: transparent;
         }
 
-        .cross-spread-container,
-        .cross-card-wrapper,
+        .cross-spread-table,
+        .cross-card-content,
         .card-container {
           -webkit-backface-visibility: hidden;
           backface-visibility: hidden;
