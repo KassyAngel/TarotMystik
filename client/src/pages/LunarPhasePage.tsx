@@ -1,5 +1,7 @@
 // client/src/pages/LunarPhasePage.tsx
-import { useState } from 'react';
+// 🔧 VERSION OPTIMISÉE ANDROID - Pas de flash de transition
+
+import { useState, useEffect } from 'react';
 import { UserSession } from '@shared/schema';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSound } from '@/hooks/useSound';
@@ -18,6 +20,9 @@ export default function LunarPhasePage({
   const { t } = useLanguage();
   const [selectedPhase, setSelectedPhase] = useState('');
   const playFlipSound = useSound('Flip-card.wav');
+
+  // 🔧 FIX ANDROID: État pour empêcher le flash
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const phases = [
     {
@@ -57,12 +62,26 @@ export default function LunarPhasePage({
   const handlePhaseClick = (phaseId: string) => {
     playFlipSound();
     setSelectedPhase(phaseId);
-    // ✅ Navigation immédiate sans délai
-    onPhaseSelect(phaseId);
+
+    // 🔧 FIX ANDROID: Marquer comme en navigation pour cacher le contenu
+    setIsNavigating(true);
+
+    // Navigation avec délai minimal pour fluidité
+    requestAnimationFrame(() => {
+      onPhaseSelect(phaseId);
+    });
   };
 
   return (
-    <div className="min-h-screen flex flex-col p-4 pt-20 sm:pt-24 pb-24 bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a] relative overflow-hidden">
+    <div 
+      className={`min-h-screen flex flex-col p-4 pt-20 sm:pt-24 pb-24 bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a] relative overflow-hidden transition-opacity duration-300 ${
+        isNavigating ? 'opacity-0' : 'opacity-100'
+      }`}
+      style={{
+        willChange: 'opacity',
+        transform: 'translateZ(0)',
+      }}
+    >
 
       {/* Étoiles */}
       <div className="absolute inset-0 pointer-events-none">
@@ -112,12 +131,18 @@ export default function LunarPhasePage({
             <button
               key={phase.id}
               onClick={() => handlePhaseClick(phase.id)}
+              disabled={isNavigating}
               className={`relative p-6 sm:p-8 rounded-2xl bg-gradient-to-br ${phase.color} 
                 border-2 border-slate-500/30 hover:border-slate-400/60
                 ${phase.glow}
                 hover:scale-105 transform transition-all duration-300
                 ${selectedPhase === phase.id ? 'scale-105 border-slate-300/70' : ''}
+                ${isNavigating ? 'pointer-events-none opacity-50' : ''}
                 group overflow-hidden`}
+              style={{
+                willChange: 'transform',
+                transform: 'translateZ(0)',
+              }}
             >
               {/* Effet de brillance */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -149,7 +174,8 @@ export default function LunarPhasePage({
       <div className="text-center pt-6 relative z-10">
         <button
           onClick={onBack}
-          className="px-6 py-3 bg-slate-800/60 border-2 border-slate-600/40 text-slate-200 rounded-xl hover:bg-slate-700/60 hover:border-slate-500/60 transition-all duration-300 backdrop-blur-sm"
+          disabled={isNavigating}
+          className="px-6 py-3 bg-slate-800/60 border-2 border-slate-600/40 text-slate-200 rounded-xl hover:bg-slate-700/60 hover:border-slate-500/60 transition-all duration-300 backdrop-blur-sm disabled:opacity-50 disabled:pointer-events-none"
         >
           ← {t('common.back') || 'Retour'}
         </button>
@@ -157,8 +183,8 @@ export default function LunarPhasePage({
 
       <style>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
+          0%, 100% { transform: translateY(0) translateZ(0); }
+          50% { transform: translateY(-10px) translateZ(0); }
         }
         @keyframes twinkle {
           0%, 100% { opacity: 0.3; }
@@ -169,6 +195,18 @@ export default function LunarPhasePage({
         }
         .animate-twinkle {
           animation: twinkle ease-in-out infinite;
+        }
+
+        /* 🔧 ANDROID: GPU acceleration */
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        [class*="animate-"] {
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          -webkit-perspective: 1000;
+          perspective: 1000;
         }
       `}</style>
     </div>

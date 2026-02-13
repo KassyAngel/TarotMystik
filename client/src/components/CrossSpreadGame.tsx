@@ -48,7 +48,6 @@ export default function CrossSpreadGame({
 
   const totalCards = 5;
 
-  // Positions du tirage en croix
   const positions = [
     { key: 'present', label: t('crossSpread.positions.present') },
     { key: 'obstacle', label: t('crossSpread.positions.obstacle') },
@@ -57,7 +56,6 @@ export default function CrossSpreadGame({
     { key: 'synthesis', label: t('crossSpread.positions.synthesis') }
   ];
 
-  // Fonction pour normaliser le nom d'une carte
   const normalizeCardName = (name: string): string => {
     return name
       .trim()
@@ -67,24 +65,20 @@ export default function CrossSpreadGame({
       .replace(/[\u0300-\u036f]/g, '');
   };
 
-  // Fonction pour obtenir le nom traduit d'une carte
   const getTranslatedCardName = (card: OracleCard): string => {
     if (!card?.name) return '';
     const normalizedName = normalizeCardName(card.name);
     const translatedName = t(`cards.${oracleType}.${normalizedName}.name`);
 
-    // Si la traduction existe (différente de la clé), la retourner
     if (translatedName !== `cards.${oracleType}.${normalizedName}.name`) {
       return translatedName;
     }
 
-    // Sinon, retourner le nom original
     return card.name;
   };
 
   useEffect(() => {
     const initGame = async () => {
-      // 📊 Vérifier et afficher la pub AVANT le tirage (seulement une fois par session)
       if (!adShownForSession && shouldShowAdBeforeReading) {
         console.log('🎯 [CROSS_SPREAD] Vérification pub avant tirage...');
         await shouldShowAdBeforeReading(oracleType);
@@ -112,7 +106,6 @@ export default function CrossSpreadGame({
     newFlippedCards[index] = true;
     setFlippedCards(newFlippedCards);
 
-    // Afficher la modale avec la carte révélée
     setTimeout(() => {
       setCurrentRevealedCard(index);
       setShowModal(true);
@@ -123,16 +116,13 @@ export default function CrossSpreadGame({
     setShowModal(false);
     setCurrentRevealedCard(null);
 
-    // Si c'est la dernière carte
     if (currentCardIndex === totalCards - 1) {
       setTimeout(() => {
         setIsComplete(true);
-        // Lancer automatiquement l'interprétation après 1.5s
         setTimeout(() => {
           playReveal();
           saveTirageToHistory(oracleType, randomCards);
 
-          // 📊 Sauvegarder le tirage
           if (onSaveReading) {
             onSaveReading({
               type: 'crossSpread',
@@ -142,7 +132,6 @@ export default function CrossSpreadGame({
             }).catch(error => console.error('❌ Erreur sauvegarde:', error));
           }
 
-          // 📊 Notifier le parent qu'un tirage est terminé
           if (onReadingComplete) {
             console.log(`✅ [CROSS_SPREAD] Tirage ${oracleType} terminé, incrémentation compteur`);
             onReadingComplete(oracleType);
@@ -152,7 +141,6 @@ export default function CrossSpreadGame({
         }, 1500);
       }, 300);
     } else {
-      // Passer à la carte suivante
       setTimeout(() => {
         setCurrentCardIndex(currentCardIndex + 1);
       }, 300);
@@ -163,7 +151,6 @@ export default function CrossSpreadGame({
     playReveal();
     saveTirageToHistory(oracleType, randomCards);
 
-    // 📊 Sauvegarder le tirage
     if (onSaveReading) {
       try {
         await onSaveReading({
@@ -177,7 +164,6 @@ export default function CrossSpreadGame({
       }
     }
 
-    // 📊 Notifier le parent qu'un tirage est terminé
     if (onReadingComplete) {
       console.log(`✅ [CROSS_SPREAD] Tirage ${oracleType} terminé, incrémentation compteur`);
       onReadingComplete(oracleType);
@@ -236,7 +222,7 @@ export default function CrossSpreadGame({
           </p>
         </div>
 
-        {/* Grille en croix */}
+        {/* 🔧 FIX ANDROID: Grille en croix avec alignement forcé */}
         <div className="flex items-center justify-center py-4">
           <div className="cross-spread-wrapper w-full flex items-center justify-center">
             <div className="cross-spread-container">
@@ -378,22 +364,24 @@ export default function CrossSpreadGame({
           overflow: hidden;
         }
 
-        /* Container de la croix - ALIGNEMENT START POUR CARTES */
+        /* 🔧 FIX ANDROID: Container de la croix avec alignement vertical forcé */
         .cross-spread-container {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 70px));
-          grid-template-rows: repeat(3, auto);
+          grid-template-rows: repeat(3, minmax(0, 1fr));
           gap: 0.5rem;
           justify-content: center;
-          align-items: start;
+          align-items: center; /* ← CRITICAL: Force l'alignement vertical */
           width: fit-content;
           margin: 0 auto;
+          min-height: 360px; /* Hauteur minimale pour stabiliser */
         }
 
         @media (min-width: 375px) {
           .cross-spread-container {
             grid-template-columns: repeat(3, minmax(0, 75px));
             gap: 0.6rem;
+            min-height: 380px;
           }
         }
 
@@ -401,6 +389,7 @@ export default function CrossSpreadGame({
           .cross-spread-container {
             grid-template-columns: repeat(3, minmax(0, 80px));
             gap: 0.75rem;
+            min-height: 400px;
           }
         }
 
@@ -408,6 +397,7 @@ export default function CrossSpreadGame({
           .cross-spread-container {
             grid-template-columns: repeat(3, minmax(0, 100px));
             gap: 1rem;
+            min-height: 500px;
           }
         }
 
@@ -415,6 +405,7 @@ export default function CrossSpreadGame({
           .cross-spread-container {
             grid-template-columns: repeat(3, minmax(0, 85px));
             gap: 0.75rem;
+            min-height: 420px;
           }
         }
 
@@ -422,16 +413,18 @@ export default function CrossSpreadGame({
           .cross-spread-container {
             grid-template-columns: repeat(3, minmax(0, 95px));
             gap: 1rem;
+            min-height: 480px;
           }
         }
 
-        /* Positionnement des cartes */
+        /* 🔧 FIX ANDROID: Positionnement des cartes avec alignement forcé */
         .cross-card-wrapper {
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: flex-start;
+          justify-content: center; /* ← CRITICAL: Centre verticalement */
           width: 100%;
+          height: 100%; /* ← CRITICAL: Prend toute la hauteur de la cellule */
         }
 
         .cross-card-0 { grid-column: 2; grid-row: 2; } /* Centre - Présent */
@@ -530,6 +523,21 @@ export default function CrossSpreadGame({
         }
         .animate-pulse-strong {
           animation: pulse-strong 1s ease-in-out infinite;
+        }
+
+        /* 🔧 ANDROID: GPU acceleration */
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        .cross-spread-container,
+        .cross-card-wrapper,
+        .card-container {
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          -webkit-perspective: 1000;
+          perspective: 1000;
+          transform: translateZ(0);
         }
       `}</style>
     </div>

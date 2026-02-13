@@ -198,7 +198,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "interpretation.angels.future":
       "Vers ton avenir radieux, {cardName} déploie ses ailes protectrices : {cardMeaning}. Les portes du paradis s'ouvrent devant toi, révélant un chemin pavé de miracles et de synchronicités.",
     "interpretation.angels.message":
-      "Transmission angélique : {genderText} {name}, ton essence de {zodiacSign} vibre en harmonie avec ces fréquences divines. Laisse ton cœur s'ouvrir à ces messages d'amour pur et reste réceptif{genderSuffix} aux signes que tes guides t'envoient !",
+      "Transmission angélique : {genderText} {name}, ton essence de {zodiacSign} vibre en harmonie avec ces fréquences divines. Laisse ton cœur s'ouvrir à ces messages d'amour pur et reste réceptif aux signes que tes guides t'envoient !",
     "interpretation.runes.greeting":
       "Salut {name} ! Les anciennes runes scandinaves révèlent les secrets de ton destin de guerrier{genderSuffix}.",
     "interpretation.runes.past":
@@ -519,7 +519,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "cards.loveOracle.lemessage.meaning.energy2.var2": "Des événements extérieurs ou des conseils d’ami peuvent influencer ce que tu recevras ou quand tu le recevras.",
         "cards.loveOracle.lemessage.meaning.energy2.var3": "Il est possible que tu reçoives un message inattendu, révélateur, ou même un déclencheur pour avancer dans ta relation.",  
         // Le Message — Évolution possible (ce qui peut arriver bientôt)
-        "cards.loveOracle.lemessage.meaning.energy3.var1": "Si tu es patient{genderSuffix} et attentif{genderSuffix}, ce message pourrait t’apporter des nouvelles importantes ou une clarification.",
+        "cards.loveOracle.lemessage.meaning.energy3.var1": "Si tu es patient{genderSuffix} et attentif, ce message pourrait t’apporter des nouvelles importantes ou une clarification.",
         "cards.loveOracle.lemessage.meaning.energy3.var2": "Ce message pourrait te surprendre, provoquer des émotions fortes, et te guider dans tes prochains choix amoureux.",
         "cards.loveOracle.lemessage.meaning.energy3.var3": "Même si le message n’est pas exactement ce que tu espérais, il pourrait te permettre d’avancer et de mieux comprendre la situation.",
         // Le Désir — Énergie dominante (ce que tu ressens)
@@ -537,14 +537,14 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         // Le Cœur Ouvert — Énergie dominante (ce que tu ressens)
         "cards.loveOracle.lecoeurouvert.meaning.energy1.var1": "Ton cœur est prêt à s’ouvrir et à accueillir quelqu’un de nouveau, sans peur ni retenue.",
         "cards.loveOracle.lecoeurouvert.meaning.energy1.var2": "Tu ressens un désir profond de partage et de complicité, et tu n’as plus envie de te protéger.",
-        "cards.loveOracle.lecoeurouvert.meaning.energy1.var3": "Tu es sensible et réceptif{genderSuffix} aux émotions des autres, et ton cœur s’ouvre facilement à l’amour.",
+        "cards.loveOracle.lecoeurouvert.meaning.energy1.var3": "Tu es sensible et réceptif aux émotions des autres, et ton cœur s’ouvre facilement à l’amour.",
         // Le Cœur Ouvert — Influence extérieure (ce qui agit autour de toi)
         "cards.loveOracle.lecoeurouvert.meaning.energy2.var1": "Une personne proche de toi t’encourage à t’ouvrir et à montrer tes sentiments, même si cela te fait peur.",
         "cards.loveOracle.lecoeurouvert.meaning.energy2.var2": "Des événements autour de toi poussent à la rencontre et à la connexion, ce qui peut t’amener à tomber amoureux{genderSuffix} rapidement.",
         "cards.loveOracle.lecoeurouvert.meaning.energy2.var3": "Attention, certaines personnes pourraient profiter de ta sensibilité et de ton ouverture, alors garde un minimum de prudence.",
         // Le Cœur Ouvert — Évolution possible (ce qui peut arriver bientôt)
         "cards.loveOracle.lecoeurouvert.meaning.energy3.var1": "Si tu restes ouvert{genderSuffix} et sincère, une rencontre importante pourrait bouleverser ta vie amoureuse.",
-        "cards.loveOracle.lecoeurouvert.meaning.energy3.var2": "Ton ouverture pourrait être récompensée par des moments intenses de complicité, mais aussi par des blessures si tu n’es pas attentif{genderSuffix}.",
+        "cards.loveOracle.lecoeurouvert.meaning.energy3.var2": "Ton ouverture pourrait être récompensée par des moments intenses de complicité, mais aussi par des blessures si tu n’es pas attentif.",
         "cards.loveOracle.lecoeurouvert.meaning.energy3.var3": "En laissant ton cœur guider tes choix, tu pourrais vivre une histoire forte, mais n’oublie pas de poser tes limites.",
         // Le Cœur Fermé — Énergie dominante (ce que tu ressens)
         "cards.loveOracle.lecoeurferme.meaning.energy1.var1": "Ton cœur est fermé et tu as du mal à faire confiance aux autres, même à ceux que tu aimes.",
@@ -637,9 +637,9 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         // La Chance — Influence extérieure (ce qui agit autour de toi)
         "cards.loveOracle.lachance.meaning.energy2.var1": "Des rencontres ou des événements fortuits peuvent jouer en ta faveur et te rapprocher de quelqu’un de spécial.",
         "cards.loveOracle.lachance.meaning.energy2.var2": "Ton entourage peut t’apporter des opportunités ou te mettre en contact avec des personnes qui correspondent à tes désirs.",
-        "cards.loveOracle.lachance.meaning.energy2.var3": "Il se peut que la chance se manifeste de manière inattendue, mais il faudra rester attentif{genderSuffix} pour ne pas la laisser passer.",
+        "cards.loveOracle.lachance.meaning.energy2.var3": "Il se peut que la chance se manifeste de manière inattendue, mais il faudra rester attentif pour ne pas la laisser passer.",
         // La Chance — Évolution possible (ce qui peut arriver bientôt)
-        "cards.loveOracle.lachance.meaning.energy3.var1": "Si tu restes ouvert{genderSuffix} et attentif{genderSuffix}, une rencontre heureuse ou un événement positif pourrait transformer ta vie amoureuse.",
+        "cards.loveOracle.lachance.meaning.energy3.var1": "Si tu restes ouvert{genderSuffix} et attentif, une rencontre heureuse ou un événement positif pourrait transformer ta vie amoureuse.",
         "cards.loveOracle.lachance.meaning.energy3.var2": "La chance pourrait te surprendre et t’apporter une situation idéale, mais il faudra saisir l’occasion quand elle se présente.",
         "cards.loveOracle.lachance.meaning.energy3.var3": "Même si tout ne se passe pas parfaitement, cette période promet des surprises et des moments heureux qui peuvent te rapprocher de l’amour que tu souhaites.",
         // Le Destin — Énergie dominante (ce que tu ressens)
@@ -652,7 +652,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "cards.loveOracle.ledestin.meaning.energy2.var3": "Attention, certaines situations peuvent sembler être des détours, mais elles font partie du chemin que le destin a prévu pour toi.",
         // Le Destin — Évolution possible (ce qui peut arriver bientôt)
         "cards.loveOracle.ledestin.meaning.energy3.var1": "Si tu acceptes de suivre le courant et de faire confiance au destin, une rencontre ou un événement important pourrait bouleverser ta vie amoureuse.",
-        "cards.loveOracle.ledestin.meaning.energy3.var2": "Le destin pourrait t’apporter une opportunité unique, mais il faudra rester attentif{genderSuffix} et saisir le moment quand il se présente.",
+        "cards.loveOracle.ledestin.meaning.energy3.var2": "Le destin pourrait t’apporter une opportunité unique, mais il faudra rester attentif et saisir le moment quand il se présente.",
         "cards.loveOracle.ledestin.meaning.energy3.var3": "Même si le chemin semble compliqué, le destin travaille pour toi et pourrait te conduire vers une relation significative et profonde.",
         // Le Silence — Énergie dominante (ce que tu ressens)
         "cards.loveOracle.lesilence.meaning.energy1.var1": "Tu ressens un vide ou une distance dans la communication, et le silence te pèse dans tes relations amoureuses.",
@@ -684,7 +684,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "cards.loveOracle.lecadeau.meaning.energy1.var3": "Tu es excité{genderSuffix} à l’idée de découvrir ce que la vie amoureuse peut t’offrir, même si tu ne sais pas encore à quoi t’attendre.",
         // Le Cadeau — Influence extérieure (ce qui agit autour de toi)
         "cards.loveOracle.lecadeau.meaning.energy2.var1": "Des personnes autour de toi pourraient t’offrir des occasions ou des opportunités qui enrichissent ton cœur et ta vie sentimentale.",
-        "cards.loveOracle.lecadeau.meaning.energy2.var2": "Un événement inattendu pourrait t’apporter quelque chose de précieux dans ta vie amoureuse, mais il faudra être attentif{genderSuffix} pour le remarquer.",
+        "cards.loveOracle.lecadeau.meaning.energy2.var2": "Un événement inattendu pourrait t’apporter quelque chose de précieux dans ta vie amoureuse, mais il faudra être attentif pour le remarquer.",
         "cards.loveOracle.lecadeau.meaning.energy2.var3": "Des surprises, qu’elles soient positives ou un peu décevantes, peuvent influencer tes choix et tes émotions dans les jours à venir.",
         // Le Cadeau — Évolution possible (ce qui peut arriver bientôt)
         "cards.loveOracle.lecadeau.meaning.energy3.var1": "Si tu acceptes ce que la vie t’apporte avec gratitude, tu pourrais recevoir un cadeau émotionnel qui illumine ton cœur.",
@@ -807,7 +807,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "crossSpread.cards.lerendezvous.pour.variation2": "Tu vas avoir une belle occasion de te rapprocher de quelqu’un. Ose faire le premier pas.",
         "crossSpread.cards.lerendezvous.pour.variation3": "Une connexion inattendue peut changer ton histoire amoureuse. Fais preuve d’audace.",
         "crossSpread.cards.lerendezvous.contre.variation1": "Ne laisse pas la peur ou l’hésitation te faire rater une opportunité importante.",
-        "crossSpread.cards.lerendezvous.contre.variation2": "Un rendez-vous manqué pourrait créer des regrets. Reste présent{genderSuffix} et attentif{genderSuffix}.",
+        "crossSpread.cards.lerendezvous.contre.variation2": "Un rendez-vous manqué pourrait créer des regrets. Reste présent{genderSuffix} et attentif.",
         "crossSpread.cards.lerendezvous.contre.variation3": "Ton manque de confiance pourrait t’empêcher de saisir cette chance.",
         "crossSpread.cards.lerendezvous.synthese.variation1": "L’amour frappe à ta porte. Ouvre ton cœur et accueille ce qui arrive.",
         "crossSpread.cards.lerendezvous.synthese.variation2": "C’est le bon moment pour agir. Une rencontre importante t’attend si tu t’ouvres.",
@@ -831,7 +831,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "crossSpread.cards.ledesir.contre.variation3": "Le désir peut te pousser vers une situation compliquée. Garde la tête froide.",
         "crossSpread.cards.ledesir.synthese.variation1": "Le désir joue un rôle clé dans ta situation. Tout avance grâce à cette attraction.",
         "crossSpread.cards.ledesir.synthese.variation2": "L’alchimie est puissante, mais tu dois garder l’équilibre entre passion et raison.",
-        "crossSpread.cards.ledesir.synthese.variation3": "Cette énergie intense peut ouvrir un nouveau chemin, à condition que tu restes ouvert{genderSuffix} et attentif{genderSuffix} aux signes.",
+        "crossSpread.cards.ledesir.synthese.variation3": "Cette énergie intense peut ouvrir un nouveau chemin, à condition que tu restes ouvert{genderSuffix} et attentif aux signes.",
         //le cœur ouvert
         "crossSpread.cards.lecoeurouvert.pour.variation1": "Tu es prêt{genderSuffix} à aimer avec sincérité. Cette ouverture attire du positif.",
         "crossSpread.cards.lecoeurouvert.pour.variation2": "Ta vulnérabilité crée un lien authentique avec l’autre personne.",
@@ -916,7 +916,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "crossSpread.cards.lachance.pour.variation1": "Une belle opportunité sentimentale se présente. Saisis-la.",
         "crossSpread.cards.lachance.pour.variation2": "Le destin est de ton côté. Quelque chose de positif arrive.",
         "crossSpread.cards.lachance.pour.variation3": "Tu attires la bonne énergie. Une chance t’est donnée.",
-        "crossSpread.cards.lachance.contre.variation1": "La chance passe vite : ne reste pas passif{genderSuffix}.",
+        "crossSpread.cards.lachance.contre.variation1": "La chance passe vite : ne reste pas passif.",
         "crossSpread.cards.lachance.contre.variation2": "Tu pourrais douter et laisser une occasion filer.",
         "crossSpread.cards.lachance.contre.variation3": "L’attente excessive peut te faire manquer l’opportunité.",
         "crossSpread.cards.lachance.synthese.variation1": "Profite du courant positif. Il t’ouvre une voie nouvelle.",

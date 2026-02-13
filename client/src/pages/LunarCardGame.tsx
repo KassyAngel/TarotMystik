@@ -1,5 +1,5 @@
 // client/src/pages/LunarCardGame.tsx
-// ✅ VERSION PROFESSIONNELLE - Traductions + Largeur contrôlée + LOADING CORRIGÉ
+// ✅ VERSION OPTIMISÉE ANDROID - Fix flash + Loading fluide
 
 import { useState, useEffect } from 'react';
 import TarotCard from '@/components/TarotCard';
@@ -38,6 +38,9 @@ export default function LunarCardGame({
   } | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // 🔧 FIX ANDROID: État pour empêcher le flash
+  const [isFullyLoaded, setIsFullyLoaded] = useState(false);
 
   const playFlip = useSound('Flip-card.wav');
   const playReveal = useSound('Bouton-reveal.wav');
@@ -84,6 +87,9 @@ export default function LunarCardGame({
     const initGame = async () => {
       console.log('🎯 [LUNAR GAME] Initialisation des cartes');
 
+      // 🔧 FIX ANDROID: Délai minimal pour éviter le flash
+      await new Promise(resolve => setTimeout(resolve, 50));
+
       const cardsForPhase = lunarOracle.cards
         .map((card, index) => ({ card, index }))
         .filter(({ card }) => card.phase === selectedPhase);
@@ -96,7 +102,14 @@ export default function LunarCardGame({
 
       setPhaseCards(selectedIndices);
       setIsInitialized(true);
-      setTimeout(() => setIsVisible(true), 100);
+
+      // 🔧 FIX ANDROID: Double requestAnimationFrame pour garantir le rendu
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsFullyLoaded(true);
+          setTimeout(() => setIsVisible(true), 100);
+        });
+      });
 
       console.log('✅ [LUNAR GAME] Cartes générées');
     };
@@ -155,51 +168,131 @@ export default function LunarCardGame({
     }, 100);
   };
 
-  if (!isInitialized) {
+  // 🔧 FIX ANDROID: Loading optimisé avec animation fluide
+  if (!isInitialized || !isFullyLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a]">
+      <div 
+        className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a]"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 9999,
+        }}
+      >
         <div className="text-center relative">
-          {/* Cercle de chargement - DIMENSIONS AGRANDIES */}
+          {/* Cercle de chargement - ANIMATION OPTIMISÉE ANDROID */}
           <div className="relative w-48 h-48 sm:w-56 sm:h-56 mx-auto mb-8">
-            {/* Cercle externe animé */}
-            <div className="absolute inset-0 rounded-full border-4 border-purple-500/20"></div>
+            {/* Cercle externe statique */}
+            <div className="absolute inset-0 rounded-full border-4 border-purple-500/10"></div>
+
+            {/* Cercle animé avec GPU acceleration */}
             <div 
-              className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 border-r-purple-500"
-              style={{ animation: 'spin 1.5s linear infinite' }}
+              className="absolute inset-0 rounded-full border-4 border-transparent"
+              style={{ 
+                borderTopColor: phaseInfo.accentColor,
+                borderRightColor: phaseInfo.accentColor,
+                animation: 'spin-smooth 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+                willChange: 'transform',
+                transform: 'translateZ(0)',
+              }}
             ></div>
 
-            {/* Lune au centre - TAILLE AUGMENTÉE */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-8xl sm:text-9xl animate-pulse-gentle">{phaseInfo.emoji}</div>
+            {/* Cercle interne pulsant */}
+            <div 
+              className="absolute inset-4 rounded-full border-2 border-purple-400/20"
+              style={{
+                animation: 'pulse-ring 2s ease-in-out infinite',
+                willChange: 'opacity, transform',
+              }}
+            ></div>
+
+            {/* Lune au centre */}
+            <div 
+              className="absolute inset-0 flex items-center justify-center"
+              style={{
+                animation: 'float-smooth 3s ease-in-out infinite',
+                willChange: 'transform',
+              }}
+            >
+              <div 
+                className="text-8xl sm:text-9xl"
+                style={{
+                  filter: 'drop-shadow(0 4px 20px rgba(139, 92, 246, 0.5))',
+                  animation: 'glow-pulse 2s ease-in-out infinite',
+                }}
+              >
+                {phaseInfo.emoji}
+              </div>
             </div>
           </div>
 
           {/* Texte de chargement */}
-          <p className="text-slate-300 text-lg mb-2 font-light">
-            {t('lunar.loading.connecting') || 'Connexion avec les énergies lunaires...'}
-          </p>
+          <div 
+            className="space-y-4"
+            style={{
+              animation: 'fade-in-up 0.6s ease-out',
+            }}
+          >
+            <p className="text-slate-300 text-lg mb-2 font-light">
+              {t('lunar.loading.connecting') || 'Connexion avec les énergies lunaires...'}
+            </p>
 
-          {/* Points de chargement animés */}
-          <div className="flex justify-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0s' }}></div>
-            <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-            <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+            {/* Points de chargement animés */}
+            <div className="flex justify-center gap-2">
+              <div 
+                className="w-2 h-2 rounded-full bg-purple-400"
+                style={{ 
+                  animation: 'bounce-smooth 1.4s ease-in-out infinite',
+                  animationDelay: '0s',
+                  willChange: 'transform',
+                }}
+              ></div>
+              <div 
+                className="w-2 h-2 rounded-full bg-purple-400"
+                style={{ 
+                  animation: 'bounce-smooth 1.4s ease-in-out infinite',
+                  animationDelay: '0.2s',
+                  willChange: 'transform',
+                }}
+              ></div>
+              <div 
+                className="w-2 h-2 rounded-full bg-purple-400"
+                style={{ 
+                  animation: 'bounce-smooth 1.4s ease-in-out infinite',
+                  animationDelay: '0.4s',
+                  willChange: 'transform',
+                }}
+              ></div>
+            </div>
+
+            {/* Message subliminal */}
+            <p 
+              className="text-slate-500 text-sm mt-6 italic font-light"
+              style={{
+                animation: 'fade-pulse 3s ease-in-out infinite',
+              }}
+            >
+              {t('lunar.loading.stars') || 'Les astres alignent votre destinée...'}
+            </p>
           </div>
-
-          {/* Message subliminal */}
-          <p className="text-slate-500 text-sm mt-6 italic font-light">
-            {t('lunar.loading.stars') || 'Les astres alignent votre destinée...'}
-          </p>
         </div>
       </div>
     );
   }
 
+  // 🔧 FIX ANDROID: Contenu principal avec transition fluide
   return (
     <>
-      <div className={`min-h-screen w-full max-w-full overflow-x-hidden flex flex-col bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a] relative transition-opacity duration-700 ${
-        isVisible ? 'opacity-100' : 'opacity-0'
-      }`}>
+      <div 
+        className={`min-h-screen w-full max-w-full overflow-x-hidden flex flex-col bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a] relative ${
+          isVisible ? 'opacity-100' : 'opacity-0'
+        }`}
+        style={{
+          transition: 'opacity 700ms ease-out',
+          willChange: 'opacity',
+          transform: 'translateZ(0)',
+        }}
+      >
 
         {/* Étoiles d'ambiance */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -288,7 +381,7 @@ export default function LunarCardGame({
                   {t('lunar.cardGame.singleCard') || 'Une seule carte révélera le message de la lune'}
                 </p>
 
-                {/* Badge indicateur - AVEC CLÉ DE TRADUCTION */}
+                {/* Badge indicateur */}
                 <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-slate-600/20">
                   <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-700/40 rounded-full border border-slate-600/30">
                     <div className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></div>
@@ -305,7 +398,7 @@ export default function LunarCardGame({
           <div className="flex-1 flex items-center justify-center w-full px-4 py-8">
             <div className="relative w-full max-w-lg">
 
-              {/* Cercle de fond élégant - DIMENSIONS CONTRÔLÉES */}
+              {/* Cercle de fond élégant */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] sm:w-80 sm:h-80">
                 <div 
                   className="absolute inset-0 rounded-full border border-slate-600/10"
@@ -321,7 +414,7 @@ export default function LunarCardGame({
                 ></div>
               </div>
 
-              {/* Pattern de rayons subtils - HAUTEUR CONTRÔLÉE */}
+              {/* Pattern de rayons subtils */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-5">
                 {[...Array(12)].map((_, i) => (
                   <div
@@ -332,19 +425,18 @@ export default function LunarCardGame({
                 ))}
               </div>
 
-              {/* CARTES EN ARC ÉLÉGANT - LARGEUR CONTRÔLÉE */}
+              {/* CARTES EN ARC ÉLÉGANT */}
               <div className="relative flex justify-center items-center gap-2 sm:gap-4 perspective-1000 w-full">
                 {phaseCards.map((actualIndex, localIndex) => {
                   const cardData = lunarOracle.cards[actualIndex];
                   const isFlipped = flippedCard === localIndex;
                   const canClick = flippedCard === null;
 
-                  // Calcul de position en arc plus doux
                   const totalCards = phaseCards.length;
                   const centerIndex = (totalCards - 1) / 2;
                   const offsetFromCenter = localIndex - centerIndex;
-                  const rotationAngle = offsetFromCenter * 8; // Rotation douce
-                  const translateY = Math.abs(offsetFromCenter) * -10; // Légère élévation
+                  const rotationAngle = offsetFromCenter * 8;
+                  const translateY = Math.abs(offsetFromCenter) * -10;
 
                   return (
                     <div 
@@ -352,7 +444,8 @@ export default function LunarCardGame({
                       className="relative transition-all duration-500 ease-out"
                       style={{
                         transform: `rotateZ(${rotationAngle}deg) translateY(${translateY}px) ${isFlipped ? 'scale(1.05)' : 'scale(1)'}`,
-                        zIndex: isFlipped ? 30 : 20 - Math.abs(offsetFromCenter)
+                        zIndex: isFlipped ? 30 : 20 - Math.abs(offsetFromCenter),
+                        willChange: 'transform',
                       }}
                     >
                       {/* Halo de sélection */}
@@ -366,7 +459,7 @@ export default function LunarCardGame({
                         ></div>
                       )}
 
-                      {/* Carte - TAILLE CONTRÔLÉE */}
+                      {/* Carte */}
                       <div className={`group relative ${canClick ? 'cursor-pointer' : ''}`}>
                         <div className="w-20 sm:w-24 transition-transform duration-300 hover:scale-105">
                           <TarotCard
@@ -435,38 +528,90 @@ export default function LunarCardGame({
       )}
 
       <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        /* 🔧 ANDROID: Animations optimisées avec GPU acceleration */
+        @keyframes spin-smooth {
+          from { transform: rotate(0deg) translateZ(0); }
+          to { transform: rotate(360deg) translateZ(0); }
         }
+
+        @keyframes pulse-ring {
+          0%, 100% { 
+            opacity: 0.2; 
+            transform: scale(1) translateZ(0); 
+          }
+          50% { 
+            opacity: 0.5; 
+            transform: scale(1.05) translateZ(0); 
+          }
+        }
+
+        @keyframes float-smooth {
+          0%, 100% { transform: translateY(0) translateZ(0); }
+          50% { transform: translateY(-8px) translateZ(0); }
+        }
+
+        @keyframes glow-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+
+        @keyframes bounce-smooth {
+          0%, 100% { 
+            transform: translateY(0) translateZ(0); 
+            opacity: 1;
+          }
+          50% { 
+            transform: translateY(-10px) translateZ(0); 
+            opacity: 0.7;
+          }
+        }
+
+        @keyframes fade-pulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+
+        @keyframes fade-in-up {
+          from { 
+            opacity: 0; 
+            transform: translateY(20px) translateZ(0); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0) translateZ(0); 
+          }
+        }
+
         @keyframes twinkle {
           0%, 100% { opacity: 0.2; }
           50% { opacity: 0.8; }
         }
+
         @keyframes float-gentle {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-8px); }
         }
+
         @keyframes pulse-gentle {
           0%, 100% { opacity: 0.6; }
           50% { opacity: 0.8; }
         }
+
         @keyframes pulse-glow {
           0%, 100% { opacity: 0.3; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(1.1); }
         }
+
         @keyframes pulse-card {
           0%, 100% { opacity: 0; }
           50% { opacity: 0.4; }
         }
-        @keyframes fade-pulse {
-          0%, 100% { opacity: 0.6; }
-          50% { opacity: 1; }
-        }
+
         @keyframes rotate-slow {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+
         @keyframes rotate-slow-reverse {
           from { transform: rotate(360deg); }
           to { transform: rotate(0deg); }
@@ -478,14 +623,23 @@ export default function LunarCardGame({
         .animate-fade-pulse {
           animation: fade-pulse 3s ease-in-out infinite;
         }
-        .animate-pulse-gentle {
-          animation: pulse-gentle 2s ease-in-out infinite;
-        }
         .perspective-1000 {
           perspective: 1000px;
         }
         .bg-gradient-radial {
           background: radial-gradient(circle, var(--tw-gradient-stops));
+        }
+
+        /* 🔧 ANDROID: Force GPU acceleration sur tous les éléments animés */
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        [class*="animate-"] {
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          -webkit-perspective: 1000;
+          perspective: 1000;
         }
       `}</style>
     </>

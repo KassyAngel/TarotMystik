@@ -18,7 +18,7 @@ export const loveOracleVariations: Record<string, CardVariations> = {
     ],
     contre: [
       "Attention à ne pas laisser passer une opportunité par peur ou hésitation.",
-      "Un rendez-vous manqué pourrait créer des regrets. Soyez présent{genderSuffix} et attentif{genderSuffix}.",
+      "Un rendez-vous manqué pourrait créer des regrets. Soyez présent{genderSuffix} et attentif.",
       "La timidité ou le manque de confiance pourrait vous empêcher de saisir cette chance."
     ],
     synthese: [

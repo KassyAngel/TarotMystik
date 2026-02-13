@@ -1,7 +1,7 @@
 // client/src/pages/WizardPage.tsx
-// 🧙‍♂️ Azraël le Magicien - VERSION FINALE
+// 🧙‍♂️ Azraël le Magicien - VERSION CORRIGÉE (Fix clic multiple)
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import MysticalButton from '@/components/MysticalButton';
 import MysticalInput from '@/components/MysticalInput';
 import WizardAnimation from '@/components/WizardAnimation';
@@ -46,6 +46,7 @@ function WizardPage({
   const [question, setQuestion] = useState('');
   const [phase, setPhase] = useState<Phase>('home');
   const [currentAnswer, setCurrentAnswer] = useState<{ key: string; icon: string; color: string } | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false); // ✅ AJOUT pour éviter les clics multiples
   const { t } = useLanguage();
 
   const saveReading = async (answerKey: string) => {
@@ -63,39 +64,59 @@ function WizardPage({
     }
   };
 
-  const handleGoToQuestion = () => {
+  // ✅ FIX : Utilisation de useCallback pour éviter les re-renders
+  const handleGoToQuestion = useCallback(() => {
+    if (isProcessing) return;
+    console.log('🎯 [WIZARD] Navigation vers question');
     setPhase('question');
-  };
+  }, [isProcessing]);
 
-  const handleAskQuestion = async () => {
-    if (!question.trim()) return;
-
-    if (shouldShowAdBeforeReading) {
-      console.log('🎯 [WIZARD] Vérification pub avant consultation...');
-      await shouldShowAdBeforeReading('wizard');
+  // ✅ FIX : Ajout de protection contre les clics multiples
+  const handleAskQuestion = useCallback(async () => {
+    if (!question.trim() || isProcessing) {
+      console.log('⚠️ [WIZARD] Clic ignoré (déjà en traitement ou question vide)');
+      return;
     }
 
-    setPhase('channeling');
-    setCurrentAnswer(null);
+    setIsProcessing(true); // ✅ Bloquer les clics suivants
+    console.log('🎯 [WIZARD] Début de la consultation');
 
-    setTimeout(() => {
-      const randomAnswer = wizardAnswers[getSecureRandomInt(0, wizardAnswers.length - 1)];
-      setCurrentAnswer(randomAnswer);
-      setPhase('answer');
-      saveReading(randomAnswer.key);
-
-      if (onReadingComplete) {
-        console.log('✅ [WIZARD] Consultation terminée');
-        onReadingComplete('wizard');
+    try {
+      if (shouldShowAdBeforeReading) {
+        console.log('📢 [WIZARD] Vérification pub avant consultation...');
+        await shouldShowAdBeforeReading('wizard');
       }
-    }, 7000);
-  };
 
-  const handleNewQuestion = () => {
+      setPhase('channeling');
+      setCurrentAnswer(null);
+
+      setTimeout(() => {
+        const randomAnswer = wizardAnswers[getSecureRandomInt(0, wizardAnswers.length - 1)];
+        setCurrentAnswer(randomAnswer);
+        setPhase('answer');
+        saveReading(randomAnswer.key);
+
+        if (onReadingComplete) {
+          console.log('✅ [WIZARD] Consultation terminée');
+          onReadingComplete('wizard');
+        }
+
+        setIsProcessing(false); // ✅ Débloquer après la réponse
+      }, 7000);
+    } catch (error) {
+      console.error('❌ [WIZARD] Erreur:', error);
+      setIsProcessing(false); // ✅ Débloquer en cas d'erreur
+    }
+  }, [question, isProcessing, shouldShowAdBeforeReading, onReadingComplete]);
+
+  const handleNewQuestion = useCallback(() => {
+    if (isProcessing) return;
+    console.log('🔄 [WIZARD] Nouvelle question');
     setQuestion('');
     setCurrentAnswer(null);
     setPhase('home');
-  };
+    setIsProcessing(false);
+  }, [isProcessing]);
 
   return (
     <div className="wizard-page fixed inset-0 flex flex-col overflow-hidden bg-[#030610]">
@@ -159,12 +180,15 @@ function WizardPage({
               <div className="flex-shrink-0 space-y-3 pb-4">
                 <MysticalButton
                   onClick={handleGoToQuestion}
+                  disabled={isProcessing}
                   className="w-full text-base sm:text-lg py-4
                              bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600 
                              hover:from-indigo-500 hover:via-purple-400 hover:to-indigo-500
                              shadow-[0_0_30px_rgba(129,140,248,0.5)]
                              border-2 border-indigo-300/50
-                             transition-all duration-300"
+                             disabled:opacity-50 disabled:cursor-not-allowed
+                             transition-all duration-300
+                             active:scale-95"
                 >
                   <span className="flex items-center justify-center gap-2">
                     <span className="text-xl">🔮</span>
@@ -175,8 +199,11 @@ function WizardPage({
 
                 <button
                   onClick={onBack}
+                  disabled={isProcessing}
                   className="w-full text-indigo-100 hover:text-indigo-50 
-                             text-sm font-semibold py-2 transition-all duration-300"
+                             text-sm font-semibold py-2 
+                             disabled:opacity-50 disabled:cursor-not-allowed
+                             transition-all duration-300"
                 >
                   {t('wizard.backButton')}
                 </button>
@@ -236,26 +263,32 @@ function WizardPage({
 
                     <MysticalButton
                       onClick={handleAskQuestion}
-                      disabled={!question.trim()}
+                      disabled={!question.trim() || isProcessing}
                       className="w-full text-lg py-4
                                  bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600 
                                  hover:from-indigo-500 hover:via-purple-400 hover:to-indigo-500
                                  disabled:opacity-40 disabled:cursor-not-allowed
                                  shadow-[0_0_35px_rgba(129,140,248,0.5)]
                                  border-2 border-indigo-300/60
-                                 transition-all duration-300"
+                                 transition-all duration-300
+                                 active:scale-95"
                     >
                       <span className="flex items-center justify-center gap-3">
                         <span className="text-xl">🔮</span>
-                        <span className="font-bold tracking-wide">{t('wizard.consultAction')}</span>
+                        <span className="font-bold tracking-wide">
+                          {isProcessing ? t('wizard.processing') || 'Traitement...' : t('wizard.consultAction')}
+                        </span>
                         <span className="text-xl">✨</span>
                       </span>
                     </MysticalButton>
 
                     <button
-                      onClick={() => setPhase('home')}
+                      onClick={() => !isProcessing && setPhase('home')}
+                      disabled={isProcessing}
                       className="w-full text-indigo-100 hover:text-indigo-50 
-                                 text-sm font-semibold py-2 transition-all duration-300"
+                                 text-sm font-semibold py-2 
+                                 disabled:opacity-50 disabled:cursor-not-allowed
+                                 transition-all duration-300"
                     >
                       {t('wizard.backButton')}
                     </button>
@@ -327,12 +360,15 @@ function WizardPage({
                 <div className="space-y-2">
                   <MysticalButton
                     onClick={handleNewQuestion}
+                    disabled={isProcessing}
                     className="w-full text-base py-4
                                bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600 
                                hover:from-indigo-500 hover:via-purple-400 hover:to-indigo-500
                                shadow-[0_0_30px_rgba(129,140,248,0.5)]
                                border-2 border-indigo-300/50
-                               transition-all duration-300"
+                               disabled:opacity-50 disabled:cursor-not-allowed
+                               transition-all duration-300
+                               active:scale-95"
                   >
                     <span className="flex items-center justify-center gap-2">
                       <span className="text-lg">✨</span>
@@ -343,8 +379,11 @@ function WizardPage({
 
                   <button
                     onClick={onBack}
+                    disabled={isProcessing}
                     className="w-full text-indigo-100 hover:text-indigo-50 
-                               text-sm font-semibold py-2 transition-all duration-300"
+                               text-sm font-semibold py-2 
+                               disabled:opacity-50 disabled:cursor-not-allowed
+                               transition-all duration-300"
                   >
                     {t('wizard.backHome')}
                   </button>

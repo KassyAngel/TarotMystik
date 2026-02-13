@@ -1269,21 +1269,14 @@ h1, h2, h3 {
        SCROLLBAR PERSONNALISÉE
        ============================================ */
     ::-webkit-scrollbar {
-      width: 8px;
+      width: 0px;
+      height: 0px;
     }
 
-    ::-webkit-scrollbar-track {
-      background: rgba(10, 20, 32, 0.5);
+    * {
+      scrollbar-width: none;
     }
-
-    ::-webkit-scrollbar-thumb {
-      background: linear-gradient(180deg, #c9a87f 0%, #ff6692 100%);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: linear-gradient(180deg, #e8d4b8 0%, #ff8aab 100%);
-    }
+  
 
     /* ============================================
        CLASSES UTILITAIRES ROMANTIQUES

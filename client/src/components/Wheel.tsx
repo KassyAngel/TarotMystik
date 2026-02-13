@@ -1,7 +1,7 @@
 // client/src/components/Wheel.tsx
-// 🎡 Roue de la Destinée - VERSION AVEC ESPACEMENT BOUTON INTÉGRÉ
+// 🎡 Roue de la Destinée - VERSION OPTIMISÉE ANDROID
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { showInterstitialAd } from '@/admobService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { wheelSegments } from '@/data/wheelData';
@@ -14,7 +14,7 @@ interface WheelProps {
 }
 
 const NAVBAR_TOP = 60;
-const BAR_BOTTOM = 160; // ✅ Augmenté pour laisser place au bouton externe
+const BAR_BOTTOM = 160;
 
 export default function Wheel({ onComplete, variation, onReset, isPremium = false }: WheelProps) {
   const { t } = useLanguage();
@@ -25,6 +25,22 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
   const [interpretation, setInterpretation] = useState<{ title: string; message: string } | null>(null);
   const [isLoadingAd, setIsLoadingAd] = useState(false);
   const [spinCount, setSpinCount] = useState(0);
+
+  // 🔧 FIX ANDROID: État pour forcer le re-render propre
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // 🔧 FIX ANDROID: Gérer les transitions proprement
+  useEffect(() => {
+    if (hasSpun || !hasSpun) {
+      setIsTransitioning(true);
+      // Utiliser requestAnimationFrame pour un timing optimal sur Android
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsTransitioning(false);
+        });
+      });
+    }
+  }, [hasSpun]);
 
   async function spinWheel() {
     if (isSpinning || isLoadingAd) return;
@@ -80,10 +96,15 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
 
   const segmentAngle = 360 / wheelSegments.length;
 
-  // Tailles optimisées avec transitions fluides
+  // 🔧 FIX ANDROID: Tailles avec transitions conditionnelles
   const wheelSize = hasSpun
     ? `min(calc(100vh - ${NAVBAR_TOP + BAR_BOTTOM + 400}px), 300px, 72vw)`
     : `min(calc(100vh - ${NAVBAR_TOP + BAR_BOTTOM + 160}px), 400px, 82vw)`;
+
+  // 🔧 FIX ANDROID: Désactiver la transition pendant le changement d'état
+  const transitionStyle = isTransitioning 
+    ? 'none' 
+    : 'all 800ms ease-in-out';
 
   return (
     <div
@@ -96,7 +117,13 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
     >
 
       {/* ── TITRE ── */}
-      <div className="text-center pt-3 pb-1.5 px-4 flex-shrink-0 w-full">
+      <div 
+        className="text-center pt-3 pb-1.5 px-4 flex-shrink-0 w-full"
+        style={{
+          transition: transitionStyle,
+          opacity: isTransitioning ? 0 : 1,
+        }}
+      >
         <h3 className="text-2xl sm:text-3xl font-bold text-amber-100 font-serif drop-shadow-[0_2px_10px_rgba(212,175,55,0.6)]">
           {t('oracle.wheel.title') || 'Roue de la Destinée'}
         </h3>
@@ -109,7 +136,16 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
 
       {/* ── ROUE ── */}
       <div className="flex-1 flex items-center justify-center px-2 min-h-0">
-        <div className="relative transition-all duration-800 ease-in-out" style={{ width: wheelSize, height: wheelSize }}>
+        <div 
+          className="relative" 
+          style={{ 
+            width: wheelSize, 
+            height: wheelSize,
+            transition: transitionStyle,
+            willChange: 'width, height',
+            transform: 'translateZ(0)', // Force GPU acceleration
+          }}
+        >
 
           {/* Cadre doré aux coins */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none z-30" viewBox="0 0 100 100">
@@ -159,7 +195,8 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
               className="relative w-full h-full transition-transform ease-out"
               style={{
                 transform: `rotate(${rotation}deg)`,
-                transitionDuration: isSpinning ? '6000ms' : '0ms'
+                transitionDuration: isSpinning ? '6000ms' : '0ms',
+                willChange: 'transform',
               }}
             >
               {/* Triple bordure dorée */}
@@ -279,7 +316,13 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
 
       {/* ── INTERPRÉTATION ── */}
       {hasSpun && interpretation && (
-        <div className="px-4 mt-2 flex justify-center flex-shrink-0 w-full">
+        <div 
+          className="px-4 mt-2 flex justify-center flex-shrink-0 w-full"
+          style={{
+            transition: transitionStyle,
+            opacity: isTransitioning ? 0 : 1,
+          }}
+        >
           <div className="w-full max-w-md p-3 bg-gradient-to-br from-slate-900/95 via-blue-950/95 to-slate-900/95 rounded-lg border-2 border-amber-600/50 shadow-[0_4px_15px_rgba(212,175,55,0.25)] backdrop-blur-sm">
 
             <div className="flex items-center justify-center gap-1.5 mb-2">
@@ -305,8 +348,14 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
         </div>
       )}
 
-      {/* ── BOUTON INTÉGRÉ (dans le composant Wheel) ── */}
-      <div className="px-4 pt-3 pb-4 flex-shrink-0 w-full flex justify-center">
+      {/* ── BOUTON INTÉGRÉ ── */}
+      <div 
+        className="px-4 pt-3 pb-4 flex-shrink-0 w-full flex justify-center"
+        style={{
+          transition: transitionStyle,
+          opacity: isTransitioning ? 0 : 1,
+        }}
+      >
         <div className="w-full max-w-md">
 
           {!hasSpun && !isSpinning && !isLoadingAd && (
@@ -329,7 +378,17 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
           )}
 
           {hasSpun && (
-            <button onClick={() => { setHasSpun(false); setInterpretation(null); setResult(null); if (onReset) onReset(); }}
+            <button 
+              onClick={() => { 
+                // 🔧 FIX ANDROID: Reset avec transition propre
+                setIsTransitioning(true);
+                setHasSpun(false); 
+                setInterpretation(null); 
+                setResult(null); 
+                if (onReset) onReset();
+                // Attendre la fin de la transition avant de rendre à nouveau
+                setTimeout(() => setIsTransitioning(false), 50);
+              }}
               className="w-full text-base sm:text-lg font-bold min-h-[52px] bg-gradient-to-r from-amber-600/90 via-amber-500/90 to-amber-600/90
                          hover:from-amber-600 hover:via-amber-500 hover:to-amber-600
                          border-2 border-amber-500/70 hover:border-amber-500/90
@@ -365,7 +424,18 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
         .animate-spin-slow    { animation: spin-slow 25s linear infinite; }
         .animate-pulse-slow   { animation: pulse-slow 6s ease-in-out infinite; }
         .animate-pulse-medium { animation: pulse-medium 4s ease-in-out infinite; }
-        .duration-800 { transition-duration: 800ms; }
+
+        /* 🔧 ANDROID FIX: Optimisation des performances */
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        .wheel-container-full * {
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          -webkit-perspective: 1000;
+          perspective: 1000;
+        }
       `}</style>
     </div>
   );
