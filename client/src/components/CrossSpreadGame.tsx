@@ -621,6 +621,22 @@ export default function CrossSpreadGame({
           justify-content: center;
         }
 
+        /* ✅ FIX CRITIQUE : Hauteur FIXE pour les labels = alignement garanti */
+        .cross-card-content > div:first-child {
+          min-height: 28px;
+          max-height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        @media (min-width: 640px) {
+          .cross-card-content > div:first-child {
+            min-height: 32px;
+            max-height: 32px;
+          }
+        }
+
         /* Taille des cartes */
         .card-container {
           width: 70px;

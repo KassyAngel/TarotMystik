@@ -1,9 +1,14 @@
+// client/src/pages/OracleSelection.tsx
+// ✅ CORRECTION: Pub interstitielle à CHAQUE clic sur la roue
+
 import OracleCard from '@/components/OracleCard';
 import MysticalButton from '@/components/MysticalButton';
+import AdLoadingScreen from '@/components/AdLoadingScreen';
 import { UserSession } from '@shared/schema';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSound } from '@/hooks/useSound';
 import { useState } from 'react';
+import { showInterstitialAd } from '@/admobService';
 import wizardImage from '/Image/wizard.jpg';
 import roueMystikImage from '/Image/RoueMystik.jpg';
 import loveOracleImage from '/Image/Tarotamour-icone.jpg';
@@ -15,9 +20,9 @@ interface OracleSelectionProps {
   onOracleSelect: (oracleType: string) => void;
   onBack: () => void;
   onHome: () => void;
+  isPremium?: boolean;
 }
 
-// ✅ Définition du type Oracle
 interface Oracle {
   id: string;
   title: string;
@@ -43,9 +48,12 @@ interface Oracle {
 export default function OracleSelection({
   onOracleSelect,
   onBack,
-  onHome
+  onHome,
+  isPremium = false
 }: OracleSelectionProps) {
   const [selectedOracle, setSelectedOracle] = useState('');
+  const [isLoadingAd, setIsLoadingAd] = useState(false);
+  const [showLongAdMessage, setShowLongAdMessage] = useState(false);
   const { t } = useLanguage();
   const playFlipSound = useSound('Flip-card.wav');
 
@@ -123,6 +131,7 @@ export default function OracleSelection({
     }
   ];
 
+  // ✅ FIX: Gérer le clic sur un oracle normal
   const handleOracleClick = (oracleId: string) => {
     playFlipSound();
     setSelectedOracle(oracleId);
@@ -131,18 +140,73 @@ export default function OracleSelection({
     }, 500);
   };
 
+  // ✅ FIX: Gérer le clic sur la ROUE avec pub interstitielle
+  const handleWheelClick = async () => {
+    playFlipSound();
+    setSelectedOracle('wheel');
+
+    // Si Premium, pas de pub
+    if (isPremium) {
+      console.log('👑 [WHEEL] Premium → Pas de pub');
+      setTimeout(() => onOracleSelect('wheel'), 500);
+      return;
+    }
+
+    // Afficher la pub interstitielle AVANT de naviguer
+    console.log('📺 [WHEEL] Affichage pub interstitielle...');
+
+    let messageTimeoutId: NodeJS.Timeout | null = null;
+
+    try {
+      const adPromise = showInterstitialAd('wheel_entry');
+
+      const loadingTimeoutId = setTimeout(() => {
+        console.log('⏳ [WHEEL] Affichage loading screen');
+        setIsLoadingAd(true);
+
+        messageTimeoutId = setTimeout(() => {
+          console.log('💬 [WHEEL] Message pub longue');
+          setShowLongAdMessage(true);
+        }, 45000);
+      }, 500);
+
+      await adPromise;
+
+      clearTimeout(loadingTimeoutId);
+      if (messageTimeoutId) clearTimeout(messageTimeoutId);
+
+      setIsLoadingAd(false);
+      setShowLongAdMessage(false);
+
+      console.log('✅ [WHEEL] Pub terminée → Navigation');
+      setTimeout(() => onOracleSelect('wheel'), 300);
+
+    } catch (error) {
+      console.error('❌ [WHEEL] Erreur pub:', error);
+      if (messageTimeoutId) clearTimeout(messageTimeoutId);
+      setIsLoadingAd(false);
+      setShowLongAdMessage(false);
+
+      // Continuer même en cas d'erreur
+      setTimeout(() => onOracleSelect('wheel'), 300);
+    }
+  };
+
+  // ✅ Afficher le loading screen si pub en cours
+  if (isLoadingAd) {
+    return <AdLoadingScreen showLongMessage={showLongAdMessage} adType="interstitial" />;
+  }
+
   return (
     <div className="main-content w-full min-h-screen flex flex-col p-3 sm:p-4 pt-14 sm:pt-16 pb-4">
-      {/* Header mystique compact */}
+      {/* Header */}
       <div className="text-center mb-4 sm:mb-6">
         <div className="flex justify-center mb-3">
           <div className="relative w-12 h-12 sm:w-16 sm:h-16">
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-400/30 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute inset-2 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-3xl sm:text-4xl text-cyan-100 drop-shadow-[0_0_24px_rgba(103,232,249,0.9)] filter brightness-110">
-                ✦
-              </span>
+              <span className="text-3xl sm:text-4xl text-cyan-100 drop-shadow-[0_0_24px_rgba(103,232,249,0.9)] filter brightness-110">✦</span>
             </div>
           </div>
         </div>
@@ -165,11 +229,11 @@ export default function OracleSelection({
         </div>
       </div>
 
-      {/* Conteneur des oracles */}
+      {/* Oracles */}
       <div className="flex-1 flex items-center justify-center px-2">
         <div className="w-full max-w-5xl space-y-3 sm:space-y-4">
 
-          {/* Grid 2x2 pour les 4 premiers oracles - PADDING TOP AUGMENTÉ */}
+          {/* Grid 2x2 */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-3">
             {oracles.map((oracle) => (
               <div
@@ -182,11 +246,8 @@ export default function OracleSelection({
                   ${selectedOracle === oracle.id ? 'scale-[1.03]' : 'hover:scale-[1.03]'}
                   backdrop-blur-xl
                   before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-500 hover:before:opacity-100 before:rounded-3xl`}
-                style={{ 
-                  overflow: 'visible'
-                }}
+                style={{ overflow: 'visible' }}
               >
-                {/* Badge si présent - CORRIGÉ AVEC OVERFLOW VISIBLE */}
                 {oracle.badge && (
                   <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 max-w-[90%]">
                     <div className={`bg-gradient-to-r ${oracle.badgeColor} text-white px-3 sm:px-3.5 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wide shadow-lg border border-purple-300/40 whitespace-nowrap`}>
@@ -195,19 +256,13 @@ export default function OracleSelection({
                   </div>
                 )}
 
-                {/* Wrapper interne avec overflow hidden pour les effets */}
                 <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
-                  {/* Effet de brillance animé */}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
-
-                  {/* Particules flottantes subtiles */}
                   <div className="absolute top-2 right-2 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
                   <div className="absolute bottom-3 left-3 w-1 h-1 bg-white/30 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
                 </div>
 
-                {/* Contenu */}
                 <div className="relative flex flex-col items-center text-center">
-                  {/* Icône OU Image */}
                   <div className="relative w-14 h-14 sm:w-16 sm:h-16 mb-3 group-hover:scale-110 transition-transform duration-500">
                     <div className={`absolute inset-0 ${oracle.iconGlow} rounded-full blur-2xl animate-pulse`}></div>
                     <div className={`absolute inset-0 ${oracle.iconBg} rounded-full border-2 ${oracle.iconBorder} flex items-center justify-center shadow-inner overflow-hidden`}>
@@ -228,12 +283,10 @@ export default function OracleSelection({
                     </div>
                   </div>
 
-                  {/* Titre */}
                   <h3 className={`font-bold text-sm sm:text-base lg:text-lg mb-1.5 tracking-wide ${oracle.titleColor} drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]`}>
                     {oracle.title}
                   </h3>
 
-                  {/* Description */}
                   <p className={`${oracle.descColor} text-xs sm:text-sm font-light leading-snug`}>
                     {oracle.description}
                   </p>
@@ -242,7 +295,7 @@ export default function OracleSelection({
             ))}
           </div>
 
-          {/* Roue de la Destinée - CARTE HORIZONTALE */}
+          {/* Roue - Carte horizontale */}
           <div className="relative">
             <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
               <div className="bg-gradient-to-r from-amber-400/90 via-yellow-300/90 to-amber-400/90 text-slate-900 px-4 py-1 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-widest shadow-lg border border-amber-200/40">
@@ -251,7 +304,7 @@ export default function OracleSelection({
             </div>
 
             <div
-              onClick={() => handleOracleClick('wheel')}
+              onClick={handleWheelClick}
               className={`relative cursor-pointer group rounded-3xl p-5 sm:p-6 
                 bg-gradient-to-br from-slate-900/40 via-blue-900/30 to-slate-900/40
                 border-2 border-amber-400/60 hover:border-amber-300/80
