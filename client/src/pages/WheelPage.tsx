@@ -1,8 +1,9 @@
 // client/src/pages/WheelPage.tsx
-// 🎡 Page Roue - VERSION BOUTONS BIEN ESPACÉS
+// 🎡 Page Roue - VERSION FINALE (Pub à chaque fois + nouveau loading)
 
 import { useState, useEffect } from 'react';
 import Wheel from '@/components/Wheel';
+import AdLoadingScreen from '@/components/AdLoadingScreen';
 import { UserSession } from '@shared/schema';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { showRewardedAd, showInterstitialAd } from '@/admobService';
@@ -39,8 +40,22 @@ export default function WheelPage({
   const [showLongAdMessage, setShowLongAdMessage] = useState(false);
   const [variation, setVariation] = useState<string | null>(null);
   const [wheelUnlocked, setWheelUnlocked] = useState(isPremium);
+  // ✅ FIX : Tracker si la pub a déjà été montrée pour CETTE session
+  const [adShownThisSession, setAdShownThisSession] = useState(false);
+
+  // ✅ FIX : Reset adShownThisSession quand le composant monte (navigation vers la roue)
+  useEffect(() => {
+    console.log('🎡 [WHEEL] Montage du composant - Reset de la session pub');
+    setAdShownThisSession(false);
+  }, []); // Seulement au montage
 
   useEffect(() => {
+    // ✅ FIX : Si la pub a déjà été montrée cette session, ne pas la re-déclencher
+    if (adShownThisSession) {
+      console.log('✅ [WHEEL] Pub déjà montrée cette session, skip');
+      return;
+    }
+
     const unlockWheel = async () => {
       if (isPremium) {
         console.log('👑 [WHEEL] Premium actif → Déblocage instantané');
@@ -81,6 +96,7 @@ export default function WheelPage({
 
           setIsLoadingAd(false);
           setShowLongAdMessage(false);
+          setAdShownThisSession(true); // ✅ Marquer la pub comme montrée
 
           console.log(`🎁 [WHEEL] Résultat: ${rewardGranted ? '✅ DÉBLOQUÉ' : '❌ BLOQUÉ'}`);
 
@@ -106,6 +122,7 @@ export default function WheelPage({
         try {
           await showInterstitialAd(`wheel_${nextCount}`);
           console.log('✅ [WHEEL] Pub interstitielle affichée');
+          setAdShownThisSession(true); // ✅ Marquer la pub comme montrée
         } catch (error) {
           console.error('❌ [WHEEL] Erreur pub interstitielle:', error);
         }
@@ -118,7 +135,7 @@ export default function WheelPage({
     };
 
     unlockWheel();
-  }, [isPremium, wheelCounter, t, onBack]);
+  }, [isPremium, wheelCounter, t, onBack, adShownThisSession]); // ✅ Ajouter adShownThisSession en dépendance
 
   const handleComplete = (result: { category: string; interpretation: string }) => {
     setIsComplete(true);
@@ -129,62 +146,9 @@ export default function WheelPage({
     }
   };
 
-  // ÉCRAN DE CHARGEMENT
+  // ✅ NOUVEAU LOADING SCREEN ÉLÉGANT
   if (isLoadingAd) {
-    return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#0a0e1a] via-[#1a1540] to-[#0a0e1a] z-50">
-        <div className="absolute inset-0 opacity-30">
-          {[...Array(50)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full animate-pulse"
-              style={{
-                backgroundColor: ['#8b5cf6', '#67e8f9', '#d4af37'][i % 3],
-                width: Math.random() * 3 + 1 + 'px',
-                height: Math.random() * 3 + 1 + 'px',
-                top: Math.random() * 100 + '%',
-                left: Math.random() * 100 + '%',
-                animationDelay: Math.random() * 2 + 's',
-                animationDuration: Math.random() * 3 + 2 + 's'
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="text-center relative z-10 max-w-md px-6">
-          <div className="relative w-32 h-32 mx-auto mb-8">
-            <div className="absolute inset-0 bg-purple-400/40 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-8xl">🎁</div>
-            </div>
-          </div>
-
-          <p className="text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-purple-200 to-purple-300 text-3xl font-bold font-serif mb-4 animate-pulse">
-            {t('oracle.wheel.loadingAd') || 'Chargement...'}
-          </p>
-          <p className="text-purple-200/70 text-lg">
-            {t('oracle.wheel.pleaseWait') || 'Un instant'}
-          </p>
-
-          {showLongAdMessage && (
-            <div className="mt-8 p-6 bg-purple-500/20 border-2 border-purple-400/60 rounded-2xl backdrop-blur-lg animate-fade-in">
-              <p className="text-purple-200 text-xl font-semibold mb-3">
-                {t('oracle.wheel.adLongWarning') || 'Publicité en cours...'}
-              </p>
-              <p className="text-purple-200/70 text-base">
-                {t('oracle.wheel.pleaseWaitUntilEnd') || 'Merci de patienter'}
-              </p>
-            </div>
-          )}
-
-          <div className="flex justify-center gap-4 mt-8">
-            <span className="w-4 h-4 bg-purple-400 rounded-full animate-bounce"></span>
-            <span className="w-4 h-4 bg-purple-300 rounded-full animate-bounce" style={{animationDelay: '0.15s'}}></span>
-            <span className="w-4 h-4 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.3s'}}></span>
-          </div>
-        </div>
-      </div>
-    );
+    return <AdLoadingScreen showLongMessage={showLongAdMessage} adType="rewarded" />;
   }
 
   // ÉCRAN PRINCIPAL
@@ -229,7 +193,7 @@ export default function WheelPage({
           ))}
         </div>
 
-        {/* Container principal - La roue avec son propre bouton intégré */}
+        {/* Container principal */}
         <div className="flex-1 flex flex-col min-h-0">
           <Wheel 
             onComplete={handleComplete}
@@ -243,11 +207,11 @@ export default function WheelPage({
           />
         </div>
 
-        {/* ✅ BOUTON DE NAVIGATION EXTERNE - BIEN SÉPARÉ (20px de marge) */}
+        {/* BOUTON DE NAVIGATION - BIEN ESPACÉ */}
         <div 
           className="fixed left-0 right-0 pointer-events-none"
           style={{
-            bottom: '60px', // Au-dessus de la bannière pub
+            bottom: '60px',
             zIndex: 50
           }}
         >
@@ -289,21 +253,13 @@ export default function WheelPage({
               transform: translate(-250px, 250px);
             }
           }
-          @keyframes fade-in {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
           .animate-twinkle {
             animation: twinkle ease-in-out infinite;
           }
           .animate-shooting-star {
             animation: shooting-star ease-out infinite;
           }
-          .animate-fade-in {
-            animation: fade-in 0.4s ease-out;
-          }
 
-          /* Safe area pour iOS */
           .pb-safe-ios {
             padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
           }

@@ -1,5 +1,5 @@
 // client/src/pages/WizardPage.tsx
-// 🧙‍♂️ Azraël le Magicien - VERSION CORRIGÉE (Fix clic multiple)
+// 🧙‍♂️ Azraël le Magicien - VERSION FINALE (Fix clic bouton)
 
 import { useState, useCallback } from 'react';
 import MysticalButton from '@/components/MysticalButton';
@@ -46,7 +46,7 @@ function WizardPage({
   const [question, setQuestion] = useState('');
   const [phase, setPhase] = useState<Phase>('home');
   const [currentAnswer, setCurrentAnswer] = useState<{ key: string; icon: string; color: string } | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false); // ✅ AJOUT pour éviter les clics multiples
+  const [isProcessing, setIsProcessing] = useState(false);
   const { t } = useLanguage();
 
   const saveReading = async (answerKey: string) => {
@@ -64,21 +64,20 @@ function WizardPage({
     }
   };
 
-  // ✅ FIX : Utilisation de useCallback pour éviter les re-renders
-  const handleGoToQuestion = useCallback(() => {
-    if (isProcessing) return;
+  // ✅ FIX : Callback simple sans dépendance complexe
+  const handleGoToQuestion = () => {
     console.log('🎯 [WIZARD] Navigation vers question');
     setPhase('question');
-  }, [isProcessing]);
+  };
 
-  // ✅ FIX : Ajout de protection contre les clics multiples
-  const handleAskQuestion = useCallback(async () => {
+  // ✅ FIX : Gestion propre du processing
+  const handleAskQuestion = async () => {
     if (!question.trim() || isProcessing) {
       console.log('⚠️ [WIZARD] Clic ignoré (déjà en traitement ou question vide)');
       return;
     }
 
-    setIsProcessing(true); // ✅ Bloquer les clics suivants
+    setIsProcessing(true);
     console.log('🎯 [WIZARD] Début de la consultation');
 
     try {
@@ -101,22 +100,22 @@ function WizardPage({
           onReadingComplete('wizard');
         }
 
-        setIsProcessing(false); // ✅ Débloquer après la réponse
+        setIsProcessing(false);
       }, 7000);
     } catch (error) {
       console.error('❌ [WIZARD] Erreur:', error);
-      setIsProcessing(false); // ✅ Débloquer en cas d'erreur
+      setIsProcessing(false);
     }
-  }, [question, isProcessing, shouldShowAdBeforeReading, onReadingComplete]);
+  };
 
-  const handleNewQuestion = useCallback(() => {
+  const handleNewQuestion = () => {
     if (isProcessing) return;
     console.log('🔄 [WIZARD] Nouvelle question');
     setQuestion('');
     setCurrentAnswer(null);
     setPhase('home');
     setIsProcessing(false);
-  }, [isProcessing]);
+  };
 
   return (
     <div className="wizard-page fixed inset-0 flex flex-col overflow-hidden bg-[#030610]">
