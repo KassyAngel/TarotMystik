@@ -1584,8 +1584,9 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "oracle.wheel.variations.silver": "Roue Argentée",
     "oracle.wheel.variations.cosmic": "Roue Cosmique",
     "oracle.wheel.destinyRevealed": "Votre destin est révélé",
-     
-    
+    "common.pleaseWait.french": "Merci de patienter",
+    "oracle.wheel.watchAdToUnlock.french": "Regardez la pub pour débloquer",
+              
     // Interprétations Wheel de la destinée
             "oracle.wheel.love.title.1": "💖 L'Amour te sourit",
           "oracle.wheel.love.message.1": [
@@ -3360,6 +3361,8 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "oracle.wheel.variations.silver": "Silver Wheel",
     "oracle.wheel.variations.cosmic": "Cosmic Wheel",
     "oracle.wheel.destinyRevealed": "Your destiny is revealed",
+    "common.pleaseWait.english": "Please wait",
+    "oracle.wheel.watchAdToUnlock.english": "Watch the ad to unlock",
 
     // Destiny Wheel Interpretations
     "oracle.wheel.love.title.1": "💖 Love Smiles At You",
@@ -5109,6 +5112,8 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "oracle.wheel.variations.silver": "Rueda Plateada",
     "oracle.wheel.variations.cosmic": "Rueda Cósmica", 
     "oracle.wheel.destinyRevealed": "Tu destino es revelado",
+    "common.pleaseWait.spanish": "Por favor, espere",
+    "oracle.wheel.watchAdToUnlock.spanish": "Mira el anuncio para desbloquear",
 
     "oracle.wheel.love.title.1": "💖 El Amor te sonríe",
     "oracle.wheel.love.message.1": [
@@ -6857,6 +6862,8 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "oracle.wheel.variations.silver": "Silbernes Rad",
     "oracle.wheel.variations.cosmic": "Kosmisches Rad", 
     "oracle.wheel.destinyRevealed": "Dein Schicksal ist enthüllt",
+    "common.pleaseWait.german": "Bitte warten",
+    "oracle.wheel.watchAdToUnlock.german": "Werbung ansehen, um freizuschalten",
 
     "oracle.wheel.love.title.1": "💖 Die Liebe lächelt dir zu",
     "oracle.wheel.love.message.1": [
@@ -8607,6 +8614,8 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "oracle.wheel.variations.silver": "Ruota Argentata",
     "oracle.wheel.variations.cosmic": "Ruota Cosmica",
     "oracle.wheel.destinyRevealed": "Il tuo destino è rivelato",
+    "common.pleaseWait.italian": "Attendere prego",
+    "oracle.wheel.watchAdToUnlock.italian": "Guarda l'annuncio per sbloccare",
 
         "oracle.wheel.love.title.1": "💖 L'Amore ti sorride",
         "oracle.wheel.love.message.1": [
