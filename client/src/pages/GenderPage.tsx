@@ -19,7 +19,8 @@ export default function GenderPage({ onNext, onBack }: GenderPageProps) {
       icon: '♂',
       gradient: 'from-indigo-500 via-purple-600 to-violet-600',
       border: 'border-indigo-400/60',
-      glow: 'rgba(99, 102, 241, 0.6)'
+      glow: 'rgba(99, 102, 241, 0.6)',
+      shadowColor: 'rgba(99, 102, 241, 0.6)'
     },
     { 
       value: 'femme', 
@@ -27,7 +28,8 @@ export default function GenderPage({ onNext, onBack }: GenderPageProps) {
       icon: '♀',
       gradient: 'from-pink-500 via-rose-500 to-pink-600',
       border: 'border-pink-400/60',
-      glow: 'rgba(236, 72, 153, 0.7)'
+      glow: 'rgba(236, 72, 153, 0.7)',
+      shadowColor: 'rgba(236, 72, 153, 0.7)'
     },
     { 
       value: 'autre', 
@@ -35,7 +37,8 @@ export default function GenderPage({ onNext, onBack }: GenderPageProps) {
       icon: '⚥',
       gradient: 'from-purple-500 via-violet-500 to-purple-600',
       border: 'border-purple-400/60',
-      glow: 'rgba(147, 51, 234, 0.6)'
+      glow: 'rgba(147, 51, 234, 0.6)',
+      shadowColor: 'rgba(147, 51, 234, 0.6)'
     }
   ];
 
@@ -99,11 +102,11 @@ export default function GenderPage({ onNext, onBack }: GenderPageProps) {
           <div className="w-8 h-px bg-gradient-to-l from-transparent via-pink-400/60 to-purple-400/50"></div>
         </div>
 
-        {/* Sélecteur de genre avec couleurs thème app */}
+        {/* Sélecteur de genre avec couleurs thème app - ✅ STYLES INLINE */}
         <div className="w-full max-w-sm mx-auto space-y-3">
           {genderOptions.map((option) => (
             <div key={option.value} className="relative group">
-              {/* Glow animé */}
+              {/* ✅ Glow animé - STYLE INLINE au lieu de template literal CSS */}
               <div 
                 className={`absolute -inset-1 rounded-2xl blur-xl transition-all duration-500 ${
                   selectedGender === option.value 
@@ -120,9 +123,12 @@ export default function GenderPage({ onNext, onBack }: GenderPageProps) {
                 onClick={() => setSelectedGender(option.value)}
                 className={`relative w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300 backdrop-blur-xl overflow-hidden ${
                   selectedGender === option.value
-                    ? `bg-gradient-to-r ${option.gradient}/30 ${option.border} scale-[1.03] shadow-[0_10px_45px_${option.glow}]`
+                    ? `bg-gradient-to-r ${option.gradient}/30 ${option.border} scale-[1.03]`
                     : 'bg-violet-900/40 border-purple-500/40 hover:border-pink-400/60 hover:bg-violet-800/50 hover:scale-[1.01]'
                 }`}
+                style={selectedGender === option.value ? {
+                  boxShadow: `0 10px 45px ${option.shadowColor}`
+                } : undefined}
               >
                 {/* Reflet supérieur */}
                 <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
@@ -132,12 +138,17 @@ export default function GenderPage({ onNext, onBack }: GenderPageProps) {
                   <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
                 )}
 
-                {/* Cercle avec icône - couleurs thème */}
-                <div className={`relative w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-                  selectedGender === option.value 
-                    ? `bg-gradient-to-br ${option.gradient} border-white/60 shadow-[0_0_30px_${option.glow}]` 
-                    : 'bg-violet-800/60 border-purple-400/50 group-hover:border-pink-400/70'
-                }`}>
+                {/* ✅ Cercle avec icône - STYLE INLINE */}
+                <div 
+                  className={`relative w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                    selectedGender === option.value 
+                      ? `bg-gradient-to-br ${option.gradient} border-white/60` 
+                      : 'bg-violet-800/60 border-purple-400/50 group-hover:border-pink-400/70'
+                  }`}
+                  style={selectedGender === option.value ? {
+                    boxShadow: `0 0 30px ${option.shadowColor}`
+                  } : undefined}
+                >
                   <span className={`text-4xl transition-all duration-300 ${
                     selectedGender === option.value 
                       ? 'text-white scale-110 drop-shadow-[0_0_15px_rgba(255,255,255,1)]' 
@@ -154,10 +165,15 @@ export default function GenderPage({ onNext, onBack }: GenderPageProps) {
                   {option.label}
                 </span>
 
-                {/* Checkmark animé */}
+                {/* ✅ Checkmark animé - STYLE INLINE */}
                 {selectedGender === option.value && (
                   <div className="flex items-center gap-2 animate-scale-in">
-                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${option.gradient} flex items-center justify-center shadow-[0_0_25px_${option.glow}]`}>
+                    <div 
+                      className={`w-8 h-8 rounded-full bg-gradient-to-br ${option.gradient} flex items-center justify-center`}
+                      style={{
+                        boxShadow: `0 0 25px ${option.shadowColor}`
+                      }}
+                    >
                       <span className="text-white text-lg font-bold">✓</span>
                     </div>
                   </div>
