@@ -20,8 +20,8 @@ android {
         applicationId "com.tarotmystik.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1         // ✅ Incrémente de 1
-versionName "1.0.1"    // ✅ Optionnel mais recommandé
+        versionCode 2         // ✅ Incrémente de 1
+versionName "1.0.2"    // ✅ Optionnel mais recommandé
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'

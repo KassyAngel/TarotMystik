@@ -1,5 +1,5 @@
 // client/src/pages/WizardPage.tsx
-// 🧙‍♂️ Azraël le Magicien - VERSION FINALE (Fix clic bouton)
+// 🧙‍♂️ Azraël le Magicien - ✅ FIX : Page HOME scrollable
 
 import { useState, useCallback } from 'react';
 import MysticalButton from '@/components/MysticalButton';
@@ -64,13 +64,11 @@ function WizardPage({
     }
   };
 
-  // ✅ FIX : Callback simple sans dépendance complexe
   const handleGoToQuestion = () => {
     console.log('🎯 [WIZARD] Navigation vers question');
     setPhase('question');
   };
 
-  // ✅ FIX : Gestion propre du processing
   const handleAskQuestion = async () => {
     if (!question.trim() || isProcessing) {
       console.log('⚠️ [WIZARD] Clic ignoré (déjà en traitement ou question vide)');
@@ -149,7 +147,7 @@ function WizardPage({
         </div>
       </div>
 
-      {/* HEADER - BIEN VISIBLE EN HAUT */}
+      {/* HEADER - FIXE EN HAUT */}
       <div className="flex-shrink-0 text-center px-4 pt-20 pb-4 relative z-10">
         <h1 className="text-2xl sm:text-3xl font-serif font-bold
                        bg-gradient-to-r from-indigo-100 via-purple-50 to-indigo-100 bg-clip-text text-transparent
@@ -165,18 +163,18 @@ function WizardPage({
         </p>
       </div>
 
-      {/* CONTENU - SCROLLABLE SEULEMENT POUR ANSWER */}
-      <div className={`flex-1 px-4 pb-6 relative z-10 ${phase === 'answer' ? 'overflow-y-auto' : 'overflow-hidden'}`}>
-        <div className="max-w-3xl mx-auto w-full h-full">
+      {/* CONTENU - ✅ SCROLLABLE POUR TOUTES LES PHASES */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 relative z-10">
+        <div className="max-w-3xl mx-auto w-full min-h-full pb-safe-banner">
 
-          {/* HOME */}
+          {/* HOME - ✅ SCROLLABLE */}
           {phase === 'home' && (
-            <div className="flex flex-col h-full">
-              <div className="flex-1 flex items-center justify-center">
+            <div className="flex flex-col min-h-full">
+              <div className="flex-1 flex items-center justify-center py-6">
                 <WizardAnimation isChanneling={false} />
               </div>
 
-              <div className="flex-shrink-0 space-y-3 pb-4">
+              <div className="flex-shrink-0 space-y-3 pb-6">
                 <MysticalButton
                   onClick={handleGoToQuestion}
                   disabled={isProcessing}
@@ -200,9 +198,9 @@ function WizardPage({
                   onClick={onBack}
                   disabled={isProcessing}
                   className="w-full text-indigo-100 hover:text-indigo-50 
-                             text-sm font-semibold py-2 
+                             text-sm font-semibold py-3
                              disabled:opacity-50 disabled:cursor-not-allowed
-                             transition-all duration-300"
+                             transition-all duration-300 min-h-[44px]"
                 >
                   {t('wizard.backButton')}
                 </button>
@@ -212,8 +210,8 @@ function WizardPage({
 
           {/* QUESTION */}
           {phase === 'question' && (
-            <div className="h-full flex items-center">
-              <div className="w-full space-y-6 max-w-xl mx-auto">
+            <div className="py-6">
+              <div className="space-y-6 max-w-xl mx-auto">
 
                 <div className="text-center space-y-2">
                   <div className="flex items-center justify-center gap-3">
@@ -285,9 +283,9 @@ function WizardPage({
                       onClick={() => !isProcessing && setPhase('home')}
                       disabled={isProcessing}
                       className="w-full text-indigo-100 hover:text-indigo-50 
-                                 text-sm font-semibold py-2 
+                                 text-sm font-semibold py-3
                                  disabled:opacity-50 disabled:cursor-not-allowed
-                                 transition-all duration-300"
+                                 transition-all duration-300 min-h-[44px]"
                     >
                       {t('wizard.backButton')}
                     </button>
@@ -299,12 +297,12 @@ function WizardPage({
 
           {/* CHANNELING */}
           {phase === 'channeling' && (
-            <div className="h-full flex flex-col">
-              <div className="flex-1 flex items-center justify-center">
+            <div className="flex flex-col min-h-full">
+              <div className="flex-1 flex items-center justify-center py-6">
                 <WizardAnimation isChanneling={true} />
               </div>
 
-              <div className="flex-shrink-0 pb-4">
+              <div className="flex-shrink-0 pb-6">
                 <div className="bg-gradient-to-br from-[#0a1420]/95 via-[#0d1b2e]/95 to-[#0a1420]/95
                                 border-2 border-indigo-500/60 rounded-xl px-6 py-4 
                                 shadow-[0_0_40px_rgba(129,140,248,0.5)] backdrop-blur-sm">
@@ -320,7 +318,7 @@ function WizardPage({
             </div>
           )}
 
-          {/* ANSWER - SEULE PAGE SCROLLABLE */}
+          {/* ANSWER - SCROLLABLE */}
           {phase === 'answer' && currentAnswer && (
             <div className="py-6">
               <div className="space-y-4">
@@ -380,9 +378,9 @@ function WizardPage({
                     onClick={onBack}
                     disabled={isProcessing}
                     className="w-full text-indigo-100 hover:text-indigo-50 
-                               text-sm font-semibold py-2 
+                               text-sm font-semibold py-3
                                disabled:opacity-50 disabled:cursor-not-allowed
-                               transition-all duration-300"
+                               transition-all duration-300 min-h-[44px]"
                   >
                     {t('wizard.backHome')}
                   </button>
@@ -400,6 +398,19 @@ function WizardPage({
           )}
         </div>
       </div>
+
+      <style>{`
+        /* ✅ PADDING BOTTOM POUR LA BANNIÈRE */
+        .pb-safe-banner {
+          padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+        }
+
+        @media (min-width: 640px) {
+          .pb-safe-banner {
+            padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+          }
+        }
+      `}</style>
     </div>
   );
 }

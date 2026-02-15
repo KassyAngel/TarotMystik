@@ -45,6 +45,9 @@ interface OracleMystiqueAppProps {
   onWheelComplete?: () => void;
 }
 
+// ✅ VARIABLE D'ENVIRONNEMENT pour activer/désactiver le bouton reset
+const IS_DEV_MODE = import.meta.env.DEV; // true en développement, false en production
+
 export default function OracleMystiqueApp({ 
   onSaveReading, 
   onStepChange,
@@ -197,6 +200,23 @@ export default function OracleMystiqueApp({
   return (
     <div className="min-h-screen flex flex-col">
       {shouldShowStarsBackground && <StarsBackground />}
+
+      {/* 🔧 BOUTON DE RESET DEV - Visible UNIQUEMENT en mode développement */}
+      {IS_DEV_MODE && (
+        <button 
+          onClick={() => {
+            console.log('🔄 Reset de l\'application...');
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.reload();
+          }}
+          className="fixed bottom-4 left-4 z-[9999] bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg font-bold text-sm transition-all hover:scale-105 active:scale-95"
+          style={{ zIndex: 99999 }}
+          title="Effacer toutes les données et recommencer"
+        >
+          🔄 RESET APP
+        </button>
+      )}
 
       <main className="flex-grow flex flex-col justify-center items-center max-w-6xl mx-auto p-5">
         {currentStep === 'responsiveTest' && <ResponsiveTest />}

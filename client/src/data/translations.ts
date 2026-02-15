@@ -16,6 +16,15 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "disclaimer.accept": "J'ai compris",
     "disclaimer.legal": "Cette application est conforme au RGPD",
 
+   //Avis pLaystore
+        "rating.title": "Vous aimez TarotMystik ?",
+          "rating.subtitle": "Votre avis compte énormément pour nous ! Prenez un instant pour noter l'application.",
+          "rating.thanksGood": "Merci ! Votre avis nous aide beaucoup 🌟",
+          "rating.feedback": "Merci pour votre retour. Comment pouvons-nous améliorer l'expérience ?",
+          "rating.rate": "Noter l'application",
+          "rating.later": "Plus tard",
+          "rating.never": "Ne plus me demander",
+
     // No-repeat system
     "system.antirepeat.loading": "Les cartes se mélangent...",
     "system.antirepeat.active": "Système anti-répétition actif",
@@ -177,6 +186,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "revelation.backToSelection": "Retour à la sélection",
     "interpretation.advice.title": "Ton conseil personnel",
     "revelation.subtitle.revealed": "Contemplez vos cartes révélées",
+    "revelation.summary.subtitle": "Les énergies principales de votre tirage",
 
     // Interpretation Templates
     "interpretation.gender.femme": "Ma chère",
@@ -1802,6 +1812,15 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
       "disclaimer.accept": "I Understand",
       "disclaimer.legal": "This app is compliant with GDPR.",
 
+    //Avis Playstore
+     "rating.title": "Enjoying TarotMystik?",
+      "rating.subtitle": "Your feedback means the world to us! Take a moment to rate the app.",
+      "rating.thanksGood": "Thank you! Your review helps us a lot 🌟",
+      "rating.feedback": "Thank you for your feedback. How can we improve your experience?",
+      "rating.rate": "Rate the app",
+      "rating.later": "Maybe later",
+      "rating.never": "Don't ask again",
+
     // No-repeat system
     "system.antirepeat.loading": "Cards are shuffling...",
     "system.antirepeat.active": "Anti-repeat system active",
@@ -1960,6 +1979,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "revelation.backToSelection": "Back to Selection",
     "interpretation.advice.title": "Your personal advice",
     "revelation.subtitle.revealed": "Contemplate your revealed cards",
+    "revelation.summary.subtitle": "The main energies of your reading",
 
     // Interpretation Templates
     "interpretation.gender.femme": "My dear",
@@ -3584,6 +3604,15 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
       "disclaimer.accept": "Entendido",
       "disclaimer.legal": "Esta aplicación cumple con el RGPD.",
 
+    //Avis Playstore
+    "rating.title": "¿Te gusta TarotMystik?",
+      "rating.subtitle": "¡Tu opinión es muy importante para nosotros! Tómate un momento para calificar la app.",
+      "rating.thanksGood": "¡Gracias! Tu opinión nos ayuda mucho 🌟",
+      "rating.feedback": "Gracias por tu comentario. ¿Cómo podemos mejorar tu experiencia?",
+      "rating.rate": "Calificar la app",
+      "rating.later": "Más tarde",
+      "rating.never": "No volver a preguntar",
+
     // No-repeat system
     "system.antirepeat.loading": "Las cartas se están mezclando...",
     "system.antirepeat.active": "Sistema anti-repetición activo",
@@ -3740,6 +3769,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "revelation.backToSelection": "Volver a la selección",
     "interpretation.advice.title": "Tu consejo personal",
     "revelation.subtitle.revealed": "Contempla tus cartas reveladas",
+    "revelation.summary.subtitle": "Las energías principales de tu tirada",
 
     // Interpretation Templates
     "interpretation.gender.femme": "Mi querida",
@@ -5330,6 +5360,15 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
       "disclaimer.accept": "Verstanden",
       "disclaimer.legal": "Diese App entspricht der DSGVO.",
 
+    //Avis Playstore
+    "rating.title": "Gefällt Ihnen TarotMystik?",
+      "rating.subtitle": "Ihr Feedback ist uns sehr wichtig! Nehmen Sie sich einen Moment Zeit, um die App zu bewerten.",
+      "rating.thanksGood": "Vielen Dank! Ihre Bewertung hilft uns sehr 🌟",
+      "rating.feedback": "Danke für Ihr Feedback. Wie können wir Ihre Erfahrung verbessern?",
+      "rating.rate": "App bewerten",
+      "rating.later": "Später",
+      "rating.never": "Nicht mehr fragen",
+
     // No-repeat system
     "system.antirepeat.loading": "Die Karten werden gemischt...",
     "system.antirepeat.active": "Anti-Wiederholungs-System aktiv",
@@ -5490,6 +5529,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "revelation.backToSelection": "Zurück zur Auswahl",
     "interpretation.advice.title": "Dein persönlicher Rat",
     "revelation.subtitle.revealed": "Betrachte deine aufgedeckten Karten",
+    "revelation.summary.subtitle": "Die Hauptenergien deiner Legung",
 
     // Interpretation Templates
     "interpretation.gender.femme": "Meine Liebe",
@@ -7080,6 +7120,15 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
       "disclaimer.accept": "Ho capito",
       "disclaimer.legal": "Questa app è conforme al GDPR.",
 
+    //Avis Playstore
+    "rating.title": "Ti piace TarotMystik?",
+      "rating.subtitle": "Il tuo parere è molto importante per noi! Prenditi un momento per valutare l'app.",
+      "rating.thanksGood": "Grazie! La tua recensione ci aiuta molto 🌟",
+      "rating.feedback": "Grazie per il tuo feedback. Come possiamo migliorare la tua esperienza?",
+      "rating.rate": "Valuta l'app",
+      "rating.later": "Più tardi",
+      "rating.never": "Non chiedermelo più",
+
     // No-repeat system
     "system.antirepeat.loading": "Le carte si stanno mescolando...",
     "system.antirepeat.active": "Sistema anti-ripetizione attivo",
@@ -7239,6 +7288,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "revelation.backToSelection": "Torna alla selezione",
     "interpretation.advice.title": "Il tuo consiglio personale",
     "revelation.subtitle.revealed": "Contempla le tue carte rivelate",
+    "revelation.summary.subtitle": "Le energie principali della tua lettura",
 
     // Interpretation Templates
     "interpretation.gender.femme": "Mia cara",

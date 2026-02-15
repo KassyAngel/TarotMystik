@@ -1,8 +1,11 @@
+// src/App.tsx
+
 import { useState, useEffect } from "react";
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentCancelPage from './pages/PaymentCancelPage';
 import PremiumModal from './components/PremiumModal';
 import NotificationPermissionModal from './components/NotificationPermissionModal';
+import RatingModal from './components/RatingModal'; // ✅ AJOUTÉ
 import TopBar from './components/TopBar';
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
@@ -15,6 +18,7 @@ import OracleMystiqueApp from "@/pages/OracleMystiqueApp";
 import NotFound from "@/pages/not-found";
 import { initialize as initializeAdMob, showBanner, hideBanner, showInterstitialAd, preloadInterstitial } from './admobService';
 import { initializeRevenueCat } from './services/revenueCatService';
+import { useRatingPrompt } from './hooks/useRatingPrompt'; // ✅ AJOUTÉ
 
 type AppStep =
   | 'landing' | 'name' | 'date' | 'gender'
@@ -76,6 +80,13 @@ function App() {
     loveCalculator: 0,
     cardDrawing: 0,
     wheel: 0
+  });
+
+  // ✅ AJOUT : Hook pour gérer la popup d'évaluation
+  const { showRating, handleRate, handleClose } = useRatingPrompt({
+    minUsageCount: 2,      // Afficher après 2 utilisations
+    postponeDays: 3,       // Re-proposer après 3 jours si "Plus tard"
+    daysAfterInstall: 2    // Attendre 2 jours après l'installation
   });
 
   useEffect(() => {
@@ -367,6 +378,13 @@ function App() {
                   }}
                 />
               )}
+
+              {/* ✅ AJOUT : Modal d'évaluation */}
+              <RatingModal
+                isOpen={showRating}
+                onClose={handleClose}
+                onRate={handleRate}
+              />
 
               <Toaster />
 
