@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import MysticalButton from '@/components/MysticalButton';
 import { OracleData, OracleCard, UserSession } from '@shared/schema';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -94,7 +94,8 @@ export default function CrossSpreadInterpretation({
     return variationKey.replace(/\{genderSuffix\}/g, genderSuffix);
   };
 
-  const generateInterpretations = (): PositionInterpretation[] => {
+  // ✅ FIX: Use useMemo to generate interpretations ONCE and keep them stable
+  const interpretations = useMemo<PositionInterpretation[]>(() => {
     return selectedCards.map((card, index) => {
       const normalizedName = normalizeCardName(card.name);
 
@@ -107,9 +108,8 @@ export default function CrossSpreadInterpretation({
         synthese: getRandomVariation(normalizedName, 'synthese')
       };
     });
-  };
-
-  const interpretations = generateInterpretations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCardIndices.join(',')]); // Only regenerate if card indices change
 
   return (
     <div className="min-h-screen flex flex-col justify-between p-4 sm:p-6 pt-safe-top pb-safe-banner bg-gradient-to-br from-[#0a1e1a] via-[#1a1540] to-[#0a0e1a] relative overflow-hidden">

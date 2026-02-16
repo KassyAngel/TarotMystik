@@ -1,11 +1,10 @@
 // client/src/pages/LoveCalculatorPage.tsx
-// 📦 Calculatrice d'amour avec variation quotidienne
+// 📦 Calculatrice d'amour avec variation quotidienne RÉELLE
 
 import { useState } from 'react';
 import { UserSession } from '@shared/schema';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { 
-  calculateLovePercentage, 
   getLoveResult, 
   getRandomMessage, 
   getRandomAdvice 
@@ -18,8 +17,35 @@ interface LoveCalculatorPageProps {
   onSaveReading?: (reading: any) => Promise<void>;
   onReadingComplete?: (oracleType: string) => void;
   isPremium?: boolean;
-  shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>; // ✅ AJOUTÉ
+  shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>;
 }
+
+// ✅ NOUVELLE FONCTION: Calcule le % avec variation QUOTIDIENNE
+const calculateLovePercentageWithDate = (name1: string, name2: string): number => {
+  // Normaliser les noms
+  const n1 = name1.toLowerCase().trim();
+  const n2 = name2.toLowerCase().trim();
+
+  // Obtenir la date du jour (YYYY-MM-DD)
+  const today = new Date();
+  const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  // Créer une seed unique basée sur les noms + la date
+  const combinedString = `${n1}${n2}${dateString}`;
+
+  // Hash simple mais efficace
+  let hash = 0;
+  for (let i = 0; i < combinedString.length; i++) {
+    const char = combinedString.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+
+  // Convertir en pourcentage (0-100)
+  const percentage = Math.abs(hash % 101);
+
+  return percentage;
+};
 
 export function LoveCalculatorPage({ 
   user, 
@@ -27,7 +53,7 @@ export function LoveCalculatorPage({
   onSaveReading,
   onReadingComplete,
   isPremium = false,
-  shouldShowAdBeforeReading // ✅ AJOUTÉ
+  shouldShowAdBeforeReading
 }: LoveCalculatorPageProps) {
   const { t } = useLanguage();
 
@@ -57,7 +83,8 @@ export function LoveCalculatorPage({
     setShowDetails(false);
 
     setTimeout(() => {
-      const lovePercent = calculateLovePercentage(name1, name2);
+      // ✅ UTILISATION DE LA NOUVELLE FONCTION AVEC DATE
+      const lovePercent = calculateLovePercentageWithDate(name1, name2);
       const loveResult = getLoveResult(lovePercent);
 
       const messageKey = getRandomMessage(loveResult);
@@ -416,7 +443,7 @@ export function LoveCalculatorPage({
                             translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
 
                           <span className="relative z-10 flex items-center justify-center gap-2">
-                            <span className="text-lg sm:text-xl group-hover:scale-110 transition-transform duration-300"></span>
+                            <span className="text-lg sm:text-xl group-hover:scale-110 transition-transform duration-300">✨</span>
                             <span className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">{t('loveCalculator.newCalculation')}</span>
                           </span>
                         </button>
