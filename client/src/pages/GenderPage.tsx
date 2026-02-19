@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import ProgressBar from '@/components/ProgressBar';
-import MysticalButton from '@/components/MysticalButton';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface GenderPageProps {
@@ -13,216 +12,249 @@ export default function GenderPage({ onNext, onBack }: GenderPageProps) {
   const { t } = useLanguage();
 
   const genderOptions = [
-    { 
-      value: 'homme', 
-      label: t('gender.male'), 
-      icon: '♂',
-      gradient: 'from-indigo-500 via-purple-600 to-violet-600',
-      border: 'border-indigo-400/60',
-      glow: 'rgba(99, 102, 241, 0.6)',
-      shadowColor: 'rgba(99, 102, 241, 0.6)'
-    },
-    { 
-      value: 'femme', 
-      label: t('gender.female'), 
-      icon: '♀',
-      gradient: 'from-pink-500 via-rose-500 to-pink-600',
-      border: 'border-pink-400/60',
-      glow: 'rgba(236, 72, 153, 0.7)',
-      shadowColor: 'rgba(236, 72, 153, 0.7)'
-    },
-    { 
-      value: 'autre', 
-      label: t('gender.other'), 
-      icon: '⚥',
-      gradient: 'from-purple-500 via-violet-500 to-purple-600',
-      border: 'border-purple-400/60',
-      glow: 'rgba(147, 51, 234, 0.6)',
-      shadowColor: 'rgba(147, 51, 234, 0.6)'
-    }
+    { value: 'homme', label: t('gender.male'),   glyph: '♂' },
+    { value: 'femme', label: t('gender.female'), glyph: '♀' },
+    { value: 'autre', label: t('gender.other'),  glyph: '⊕' },
   ];
 
   useEffect(() => {
     if (selectedGender) {
-      console.log('Gender submitted:', selectedGender);
-      setTimeout(() => {
-        onNext(selectedGender);
-      }, 500);
+      const timer = setTimeout(() => onNext(selectedGender), 420);
+      return () => clearTimeout(timer);
     }
   }, [selectedGender, onNext]);
 
   return (
-    <div className="intro-page active flex flex-col min-h-screen text-center px-6 relative overflow-hidden text-white pt-16 sm:pt-20 bg-gradient-to-b from-[#0a0e1a] via-[#1a1540] to-[#0a0e1a]">
-
-      {/* Particules */}
-      <div className="absolute inset-0 -z-10">
-        {[...Array(50)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              backgroundColor: i % 3 === 0 ? '#d4af37' : i % 3 === 1 ? '#ff6692' : '#a78bfa',
-              width: Math.random() > 0.7 ? '3px' : '2px',
-              height: Math.random() > 0.7 ? '3px' : '2px',
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              opacity: Math.random() * 0.6 + 0.2,
-              animation: `twinkle ${2 + Math.random() * 3}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 2}s`
-            }}
-          />
-        ))}
+    <div className="gp-root">
+      {/* Fond */}
+      <div className="gp-bg" aria-hidden>
+        <div className="gp-orb gp-orb-1" />
+        <div className="gp-orb gp-orb-2" />
+        <div className="gp-grain" />
       </div>
 
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[450px] h-[450px] rounded-full bg-gradient-to-br from-pink-500/15 via-purple-500/15 to-transparent blur-3xl -z-10"></div>
-
-      <div className="mb-4">
+      {/* Progress */}
+      <div className="gp-progress">
         <ProgressBar progress={100} />
       </div>
 
-      <div className="flex-1 flex flex-col justify-center z-10 max-w-md mx-auto w-full space-y-6 sm:space-y-7 py-4">
+      {/* Contenu */}
+      <div className="gp-content">
 
-        {/* Titre SANS émoticon */}
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-violet-300 bg-clip-text text-transparent drop-shadow-[0_4px_30px_rgba(236,72,153,0.6)]">
-          {t('gender.title') || 'Genre'}
-        </h1>
-
-        {/* Sous-titre */}
-        <p className="text-purple-100/80 text-sm sm:text-base font-light leading-relaxed max-w-sm mx-auto px-4">
-          {t('gender.subtitle') || 'Indiquez votre genre afin de personnaliser votre expérience'}
-        </p>
-
-        {/* Ligne décorative */}
-        <div className="flex items-center justify-center gap-2">
-          <div className="w-8 h-px bg-gradient-to-r from-transparent via-pink-400/60 to-purple-400/50"></div>
-          <div className="relative">
-            <div className="absolute inset-0 bg-amber-400/40 blur-md rounded-full"></div>
-            <span className="relative text-amber-300 text-lg">✦</span>
+        <div className="gp-header">
+          <h1 className="gp-title">{t('gender.title')}</h1>
+          <p className="gp-subtitle">{t('gender.subtitle')}</p>
+          <div className="gp-rule">
+            <span className="gp-rule-line" />
+            <span className="gp-rule-gem" />
+            <span className="gp-rule-line" />
           </div>
-          <div className="w-8 h-px bg-gradient-to-l from-transparent via-pink-400/60 to-purple-400/50"></div>
         </div>
 
-        {/* Sélecteur de genre avec couleurs thème app - ✅ STYLES INLINE */}
-        <div className="w-full max-w-sm mx-auto space-y-3">
-          {genderOptions.map((option) => (
-            <div key={option.value} className="relative group">
-              {/* ✅ Glow animé - STYLE INLINE au lieu de template literal CSS */}
-              <div 
-                className={`absolute -inset-1 rounded-2xl blur-xl transition-all duration-500 ${
-                  selectedGender === option.value 
-                    ? 'opacity-100 animate-pulse-gentle' 
-                    : 'opacity-0 group-hover:opacity-60'
-                }`}
-                style={{
-                  background: `radial-gradient(circle, ${option.glow}, transparent)`
-                }}
-              ></div>
-
-              <button
-                type="button"
-                onClick={() => setSelectedGender(option.value)}
-                className={`relative w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300 backdrop-blur-xl overflow-hidden ${
-                  selectedGender === option.value
-                    ? `bg-gradient-to-r ${option.gradient}/30 ${option.border} scale-[1.03]`
-                    : 'bg-violet-900/40 border-purple-500/40 hover:border-pink-400/60 hover:bg-violet-800/50 hover:scale-[1.01]'
-                }`}
-                style={selectedGender === option.value ? {
-                  boxShadow: `0 10px 45px ${option.shadowColor}`
-                } : undefined}
-              >
-                {/* Reflet supérieur */}
-                <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
-
-                {/* Shimmer effect */}
-                {selectedGender === option.value && (
-                  <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                )}
-
-                {/* ✅ Cercle avec icône - STYLE INLINE */}
-                <div 
-                  className={`relative w-16 h-16 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-                    selectedGender === option.value 
-                      ? `bg-gradient-to-br ${option.gradient} border-white/60` 
-                      : 'bg-violet-800/60 border-purple-400/50 group-hover:border-pink-400/70'
-                  }`}
-                  style={selectedGender === option.value ? {
-                    boxShadow: `0 0 30px ${option.shadowColor}`
-                  } : undefined}
-                >
-                  <span className={`text-4xl transition-all duration-300 ${
-                    selectedGender === option.value 
-                      ? 'text-white scale-110 drop-shadow-[0_0_15px_rgba(255,255,255,1)]' 
-                      : 'text-purple-200 group-hover:scale-110'
-                  }`}>
-                    {option.icon}
-                  </span>
-                </div>
-
-                {/* Label */}
-                <span className={`flex-1 text-left text-lg sm:text-xl font-semibold transition-colors ${
-                  selectedGender === option.value ? 'text-white' : 'text-purple-200 group-hover:text-pink-200'
-                }`}>
-                  {option.label}
-                </span>
-
-                {/* ✅ Checkmark animé - STYLE INLINE */}
-                {selectedGender === option.value && (
-                  <div className="flex items-center gap-2 animate-scale-in">
-                    <div 
-                      className={`w-8 h-8 rounded-full bg-gradient-to-br ${option.gradient} flex items-center justify-center`}
-                      style={{
-                        boxShadow: `0 0 25px ${option.shadowColor}`
-                      }}
-                    >
-                      <span className="text-white text-lg font-bold">✓</span>
-                    </div>
-                  </div>
-                )}
-              </button>
-            </div>
+        {/* Options */}
+        <div className="gp-options">
+          {genderOptions.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setSelectedGender(opt.value)}
+              className={`gp-option ${selectedGender === opt.value ? 'gp-option-selected' : ''}`}
+              data-testid={`gender-${opt.value}`}
+            >
+              <span className="gp-glyph">{opt.glyph}</span>
+              <span className="gp-option-label">{opt.label}</span>
+              {selectedGender === opt.value && (
+                <span className="gp-check" aria-hidden>✓</span>
+              )}
+              {selectedGender === opt.value && (
+                <span className="gp-shimmer" aria-hidden />
+              )}
+            </button>
           ))}
         </div>
 
-        {/* Bouton retour */}
-        <div className="flex justify-center pt-2">
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/20 to-violet-600/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-            <button
-              onClick={onBack}
-              data-testid="button-back"
-              className="relative px-6 py-3 text-sm sm:text-base rounded-full font-medium tracking-wide bg-violet-900/50 hover:bg-violet-800/60 text-purple-200 border-2 border-purple-500/40 hover:border-pink-500/60 backdrop-blur-sm transition-all duration-300"
-            >
-              <span className="flex items-center justify-center gap-2">
-                <span className="text-pink-300">←</span>
-                <span>{t('gender.back') || 'Retour'}</span>
-              </span>
-            </button>
-          </div>
-        </div>
+        {/* Retour */}
+        <button onClick={onBack} className="gp-btn-back" data-testid="button-back">
+          ← {t('gender.back') || t('common.back')}
+        </button>
       </div>
 
-      <div className="pb-2"></div>
-
       <style>{`
-        @keyframes pulse-gentle {
-          0%, 100% { opacity: 0.8; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.08); }
+        .gp-root {
+          position: relative;
+          min-height: 100svh;
+          display: flex; flex-direction: column; align-items: center;
+          background: #080808;
+          overflow: hidden;
+          font-family: 'Cormorant Garamond', 'Georgia', serif;
         }
-        @keyframes scale-in {
-          from { opacity: 0; transform: scale(0); }
-          to { opacity: 1; transform: scale(1); }
+
+        .gp-bg { position: absolute; inset: 0; pointer-events: none; }
+
+        .gp-orb { position: absolute; border-radius: 50%; filter: blur(80px); }
+        .gp-orb-1 {
+          width: 460px; height: 460px; top: -100px; left: 50%; transform: translateX(-50%);
+          background: radial-gradient(ellipse, rgba(180,140,30,0.10) 0%, transparent 65%);
+          animation: gp-drift 14s ease-in-out infinite alternate;
         }
-        @keyframes shimmer {
-          from { transform: translateX(-100%); }
-          to { transform: translateX(200%); }
+        .gp-orb-2 {
+          width: 320px; height: 320px; bottom: -40px; right: -60px;
+          background: radial-gradient(ellipse, rgba(140,100,20,0.07) 0%, transparent 65%);
+          animation: gp-drift 10s ease-in-out infinite alternate-reverse;
         }
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.2; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.3); }
+
+        .gp-grain {
+          position: absolute; inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+          opacity: 0.45;
         }
-        .animate-pulse-gentle { animation: pulse-gentle 2.5s ease-in-out infinite; }
-        .animate-scale-in { animation: scale-in 0.4s ease-out; }
-        .animate-shimmer { animation: shimmer 2s ease-in-out infinite; }
+
+        .gp-progress { width: 100%; padding: 32px 20px 0; position: relative; z-index: 10; }
+
+        .gp-content {
+          position: relative; z-index: 10;
+          flex: 1; display: flex; flex-direction: column;
+          justify-content: center; align-items: center;
+          gap: 32px;
+          padding: 0 24px 60px;
+          width: 100%; max-width: 360px;
+          text-align: center;
+        }
+
+        /* HEADER */
+        .gp-header { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .gp-title {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: clamp(1.9rem, 7vw, 2.5rem);
+          font-weight: 700; margin: 0;
+          background: linear-gradient(150deg, #f5e6a0 0%, #d4af37 42%, #f0dc80 70%, #b8922c 100%);
+          -webkit-background-clip: text; background-clip: text; color: transparent;
+          letter-spacing: 0.01em;
+          animation: gp-glow 5s ease-in-out infinite alternate;
+        }
+        .gp-subtitle {
+          font-size: clamp(0.88rem, 3.3vw, 1rem);
+          font-weight: 300; line-height: 1.78; color: rgba(235,225,200,0.82);
+          margin: 0; max-width: 265px; letter-spacing: 0.02em;
+        }
+        .gp-rule { display: flex; align-items: center; gap: 10px; width: 130px; margin-top: 4px; }
+        .gp-rule-line {
+          flex: 1; height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.55), transparent);
+        }
+        .gp-rule-gem {
+          width: 5px; height: 5px; background: #d4af37; transform: rotate(45deg);
+          box-shadow: 0 0 10px rgba(212,175,55,0.95); flex-shrink: 0;
+        }
+
+        /* OPTIONS */
+        .gp-options { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+
+        .gp-option {
+          position: relative;
+          display: flex; align-items: center; gap: 16px;
+          padding: 16px 20px;
+          background: rgba(12,10,4,0.75);
+          border: 1px solid rgba(212,175,55,0.18);
+          border-radius: 2px;
+          cursor: pointer; outline: none;
+          text-align: left;
+          transition: border-color 0.3s, background 0.3s, transform 0.2s;
+          overflow: hidden;
+        }
+        .gp-option:hover {
+          border-color: rgba(212,175,55,0.50);
+          background: rgba(20,16,4,0.85);
+          transform: translateX(3px);
+        }
+        .gp-option-selected {
+          border-color: rgba(212,175,55,0.58);
+          background: rgba(212,175,55,0.05);
+          transform: translateX(4px);
+        }
+
+        /* Glyph */
+        .gp-glyph {
+          display: flex; align-items: center; justify-content: center;
+          width: 44px; height: 44px; flex-shrink: 0;
+          border: 1px solid rgba(212,175,55,0.25);
+          border-radius: 50%;
+          font-size: 1.3rem;
+          color: rgba(212,175,55,0.65);
+          background: rgba(10,8,2,0.90);
+          transition: border-color 0.3s, color 0.3s, box-shadow 0.3s;
+          font-family: 'Georgia', serif;
+        }
+        .gp-option:hover .gp-glyph {
+          border-color: rgba(212,175,55,0.50);
+          color: rgba(212,175,55,0.90);
+        }
+        .gp-option-selected .gp-glyph {
+          border-color: rgba(212,175,55,0.65);
+          color: #d4af37;
+          box-shadow: 0 0 16px rgba(212,175,55,0.22);
+        }
+
+        /* Label */
+        .gp-option-label {
+          flex: 1;
+          font-size: 1rem; font-weight: 400;
+          letter-spacing: 0.05em;
+          color: rgba(235,225,200,0.78);
+          transition: color 0.3s;
+          font-family: 'Cormorant Garamond', Georgia, serif;
+        }
+        .gp-option:hover .gp-option-label { color: rgba(245,238,215,0.95); }
+        .gp-option-selected .gp-option-label { color: #f0ebe0; }
+
+        /* Coche */
+        .gp-check {
+          font-size: 0.85rem;
+          color: rgba(212,175,55,0.92);
+          flex-shrink: 0;
+          animation: gp-checkin 0.3s ease;
+        }
+
+        /* Shimmer sélection */
+        .gp-shimmer {
+          position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.07), transparent);
+          transform: skewX(-18deg);
+          animation: gp-shimmer-anim 0.6s ease forwards;
+        }
+
+        /* RETOUR */
+        .gp-btn-back {
+          padding: 13px 22px;
+          background: transparent;
+          border: 1px solid rgba(212,175,55,0.20);
+          border-radius: 2px;
+          color: rgba(210,195,165,0.62);
+          font-size: 0.82rem; letter-spacing: 0.06em;
+          cursor: pointer; transition: border-color 0.3s, color 0.3s; outline: none;
+          font-family: 'Cormorant Garamond', Georgia, serif;
+        }
+        .gp-btn-back:hover {
+          border-color: rgba(212,175,55,0.50);
+          color: rgba(235,225,200,0.90);
+        }
+
+        @keyframes gp-drift {
+          0%   { transform: translateX(-50%) translateY(0) scale(1); }
+          100% { transform: translateX(-50%) translateY(-18px) scale(1.07); }
+        }
+        @keyframes gp-checkin {
+          from { opacity: 0; transform: scale(0.5); }
+          to   { opacity: 1; transform: scale(1); }
+        }
+        @keyframes gp-shimmer-anim {
+          from { left: -100%; }
+          to   { left: 160%; }
+        }
+        @keyframes gp-glow {
+          0%   { filter: drop-shadow(0 0 14px rgba(212,175,55,0.15)); }
+          100% { filter: drop-shadow(0 0 38px rgba(212,175,55,0.48)); }
+        }
       `}</style>
     </div>
   );

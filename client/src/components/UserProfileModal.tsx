@@ -13,17 +13,12 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
   const { t } = useLanguage();
   const [showEditModal, setShowEditModal] = useState(false);
 
-  // Fermer avec Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !showEditModal) {
-        onClose();
-      }
+      if (e.key === 'Escape' && !showEditModal) onClose();
     };
-
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
-      // Empêcher le scroll du body
       document.body.style.overflow = 'hidden';
       return () => {
         document.removeEventListener('keydown', handleEscape);
@@ -34,23 +29,14 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
 
   if (!isOpen || !user) return null;
 
-  // Formater la date de naissance
   const formatBirthDate = (dateStr: string) => {
     if (!dateStr) return '';
     try {
       const date = new Date(dateStr);
-      return date.toLocaleDateString('fr-FR', { 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-      });
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return dateStr;
-    }
+      return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch { return dateStr; }
   };
 
-  // Traduire le genre
   const getGenderLabel = (gender: string) => {
     if (!gender) return '';
     const genderMap: Record<string, string> = {
@@ -61,105 +47,95 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
     return genderMap[gender] || gender;
   };
 
-  // Convertir le nom du signe en clé de traduction
   const getZodiacKey = (signName: string) => {
     if (!signName) return 'aries';
-
     const zodiacMap: Record<string, string> = {
-      'Aries': 'aries',
-      'Taurus': 'taurus',
-      'Gemini': 'gemini',
-      'Cancer': 'cancer',
-      'Leo': 'leo',
-      'Virgo': 'virgo',
-      'Libra': 'libra',
-      'Scorpio': 'scorpio',
-      'Sagittarius': 'sagittarius',
-      'Capricorn': 'capricorn',
-      'Aquarius': 'aquarius',
-      'Pisces': 'pisces',
-      'Bélier': 'aries',
-      'Taureau': 'taurus',
-      'Gémeaux': 'gemini',
-      'Lion': 'leo',
-      'Vierge': 'virgo',
-      'Balance': 'libra',
-      'Scorpion': 'scorpio',
-      'Sagittaire': 'sagittarius',
-      'Capricorne': 'capricorn',
-      'Verseau': 'aquarius',
-      'Poissons': 'pisces'
+      'Aries': 'aries', 'Taurus': 'taurus', 'Gemini': 'gemini', 'Cancer': 'cancer',
+      'Leo': 'leo', 'Virgo': 'virgo', 'Libra': 'libra', 'Scorpio': 'scorpio',
+      'Sagittarius': 'sagittarius', 'Capricorn': 'capricorn', 'Aquarius': 'aquarius', 'Pisces': 'pisces',
+      'Bélier': 'aries', 'Taureau': 'taurus', 'Gémeaux': 'gemini', 'Lion': 'leo',
+      'Vierge': 'virgo', 'Balance': 'libra', 'Scorpion': 'scorpio', 'Sagittaire': 'sagittarius',
+      'Capricorne': 'capricorn', 'Verseau': 'aquarius', 'Poissons': 'pisces'
     };
-
     return zodiacMap[signName] || signName.toLowerCase();
   };
 
-  // Formater les dates du signe astrologique
   const getZodiacDates = () => {
     if (!user.zodiacSign) return '';
-
     try {
-      if (typeof user.zodiacSign.dates === 'string') {
-        return user.zodiacSign.dates;
-      }
-
+      if (typeof user.zodiacSign.dates === 'string') return user.zodiacSign.dates;
       if (user.zodiacSign.dates && typeof user.zodiacSign.dates === 'object') {
         const dates = user.zodiacSign.dates as any;
-        if (dates.start && dates.end) {
-          return `${dates.start.day}/${dates.start.month} - ${dates.end.day}/${dates.end.month}`;
-        }
+        if (dates.start && dates.end) return `${dates.start.day}/${dates.start.month} - ${dates.end.day}/${dates.end.month}`;
       }
-    } catch (error) {
-      console.error('Error formatting zodiac dates:', error);
-    }
-
+    } catch { }
     return '';
   };
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.target === e.currentTarget && !showEditModal) {
-      onClose();
-    }
-  };
-
-  const handleEditClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowEditModal(true);
+    if (e.target === e.currentTarget && !showEditModal) onClose();
   };
 
   return (
     <>
-      <div 
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ background: 'rgba(0,0,0,0.80)', backdropFilter: 'blur(6px)' }}
         onClick={handleOverlayClick}
       >
-        <div className="bg-gradient-to-br from-purple-900 via-indigo-900 to-purple-900 rounded-2xl shadow-2xl max-w-md w-full border-2 border-purple-500/30 animate-scale-in">
+        <div
+          className="relative max-w-md w-full rounded-2xl shadow-2xl overflow-hidden"
+          style={{
+            background: 'linear-gradient(160deg, #100e06 0%, #0e0c04 60%, #130f06 100%)',
+            border: '1px solid rgba(212,175,55,0.35)',
+            boxShadow: '0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(212,175,55,0.08)',
+          }}
+        >
+          {/* Lueur dorée en haut */}
+          <div
+            className="absolute top-0 left-0 right-0 h-40 pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.12) 0%, transparent 70%)' }}
+          />
 
-          {/* Header avec symbole zodiacal */}
-          <div className="relative p-6 text-center border-b border-purple-500/30">
+          {/* Header */}
+          <div
+            className="relative p-6 text-center"
+            style={{ borderBottom: '1px solid rgba(212,175,55,0.18)' }}
+          >
+            {/* Bouton fermer */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-lg hover:bg-purple-700/50 transition-colors z-10"
+              className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors z-10"
+              style={{ color: 'rgba(212,175,55,0.6)' }}
               aria-label={t('common.close') || 'Fermer'}
             >
-              <svg className="w-5 h-5 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-5xl shadow-lg">
+            {/* Avatar zodiacal */}
+            <div
+              className="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center text-5xl shadow-lg"
+              style={{
+                background: 'linear-gradient(135deg, #d4af37 0%, #aa8a2e 100%)',
+                boxShadow: '0 0 30px rgba(212,175,55,0.35)',
+              }}
+            >
               {user.zodiacSign?.symbol || '✨'}
             </div>
 
-            <h2 className="text-2xl font-bold text-yellow-300 mb-1 font-serif">
+            <h2
+              className="text-2xl font-bold font-serif mb-1"
+              style={{ color: '#d4af37', textShadow: '0 0 20px rgba(212,175,55,0.4)' }}
+            >
               {user.name || 'Utilisateur'}
             </h2>
 
             {user.zodiacSign && (
-              <p className="text-purple-200 text-sm">
+              <p className="text-sm" style={{ color: 'rgba(212,175,55,0.65)' }}>
                 {t(`zodiac.signs.${getZodiacKey(user.zodiacSign.name)}`)}
                 {getZodiacDates() && ` • ${getZodiacDates()}`}
               </p>
@@ -167,16 +143,23 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
           </div>
 
           {/* Informations */}
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-3">
 
             {/* Date de naissance */}
             {user.birthDate && (
-              <div className="bg-purple-800/30 rounded-lg p-4 border border-purple-500/20">
+              <div
+                className="rounded-xl p-4"
+                style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)' }}
+              >
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">🎂</span>
+                  <span className="text-xl">🎂</span>
                   <div className="flex-1">
-                    <div className="text-purple-300 text-xs">{t('profile.birthdate') || 'Date de naissance'}</div>
-                    <div className="text-purple-100 font-semibold">{formatBirthDate(user.birthDate)}</div>
+                    <div className="text-xs mb-0.5" style={{ color: 'rgba(212,175,55,0.55)' }}>
+                      {t('profile.birthdate') || 'Date de naissance'}
+                    </div>
+                    <div className="font-semibold" style={{ color: '#f0e4b0' }}>
+                      {formatBirthDate(user.birthDate)}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -184,31 +167,43 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
 
             {/* Genre */}
             {user.gender && (
-              <div className="bg-purple-800/30 rounded-lg p-4 border border-purple-500/20">
+              <div
+                className="rounded-xl p-4"
+                style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)' }}
+              >
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">
+                  <span className="text-xl">
                     {user.gender === 'homme' ? '♂' : user.gender === 'femme' ? '♀' : '⚥'}
                   </span>
                   <div className="flex-1">
-                    <div className="text-purple-300 text-xs">{t('profile.gender') || 'Genre'}</div>
-                    <div className="text-purple-100 font-semibold">{getGenderLabel(user.gender)}</div>
+                    <div className="text-xs mb-0.5" style={{ color: 'rgba(212,175,55,0.55)' }}>
+                      {t('profile.gender') || 'Genre'}
+                    </div>
+                    <div className="font-semibold" style={{ color: '#f0e4b0' }}>
+                      {getGenderLabel(user.gender)}
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Signe astrologique détaillé */}
+            {/* Signe astrologique */}
             {user.zodiacSign && (
-              <div className="bg-purple-800/30 rounded-lg p-4 border border-purple-500/20">
+              <div
+                className="rounded-xl p-4"
+                style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)' }}
+              >
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{user.zodiacSign.symbol}</span>
+                  <span className="text-xl">{user.zodiacSign.symbol}</span>
                   <div className="flex-1">
-                    <div className="text-purple-300 text-xs">{t('profile.zodiac') || 'Signe astrologique'}</div>
-                    <div className="text-purple-100 font-semibold">
+                    <div className="text-xs mb-0.5" style={{ color: 'rgba(212,175,55,0.55)' }}>
+                      {t('profile.zodiac') || 'Signe astrologique'}
+                    </div>
+                    <div className="font-semibold" style={{ color: '#f0e4b0' }}>
                       {t(`zodiac.signs.${getZodiacKey(user.zodiacSign.name)}`)}
                     </div>
                     {getZodiacDates() && (
-                      <div className="text-purple-400 text-xs mt-1">
+                      <div className="text-xs mt-0.5" style={{ color: 'rgba(212,175,55,0.45)' }}>
                         {getZodiacDates()}
                       </div>
                     )}
@@ -219,21 +214,32 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
           </div>
 
           {/* Bouton modifier */}
-          <div className="p-6 pt-0">
+          <div className="px-6 pb-6">
             <button
               onClick={() => setShowEditModal(true)}
-              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+              className="w-full font-semibold py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98]"
+              style={{
+                background: 'linear-gradient(135deg, rgba(212,175,55,0.18) 0%, rgba(180,140,30,0.22) 100%)',
+                border: '1px solid rgba(212,175,55,0.45)',
+                color: '#d4af37',
+                boxShadow: '0 4px 20px rgba(212,175,55,0.12)',
+              }}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              {t('profile.edit') || 'Modifier'}
+              {t('profile.edit') || 'Modifier mon profil'}
             </button>
           </div>
+
+          {/* Ligne décorative bas */}
+          <div
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 h-px"
+            style={{ width: '50%', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }}
+          />
         </div>
       </div>
 
-      {/* Modal de modification */}
       {showEditModal && (
         <EditProfileModal
           isOpen={showEditModal}

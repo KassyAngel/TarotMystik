@@ -1,7 +1,4 @@
-import { useState, useEffect } from 'react';
-import MysticalButton from '@/components/MysticalButton';
 import LanguageSelector from '@/components/LanguageSelector';
-import DisclaimerModal from '@/components/DisclaimerModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface LandingPageProps {
@@ -9,165 +6,271 @@ interface LandingPageProps {
 }
 
 export default function LandingPage({ onEnter }: LandingPageProps) {
-  const { t, isLanguageLoaded } = useLanguage();
-  const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [disclaimerChecked, setDisclaimerChecked] = useState(false);
-
-  useEffect(() => {
-    const disclaimerAccepted = localStorage.getItem('disclaimerAccepted');
-    if (!disclaimerAccepted) {
-      if (isLanguageLoaded) {
-        setTimeout(() => setShowDisclaimer(true), 300);
-      }
-    } else {
-      setDisclaimerChecked(true);
-    }
-  }, [isLanguageLoaded]);
-
-  const handleDisclaimerAccept = () => {
-    setShowDisclaimer(false);
-    setDisclaimerChecked(true);
-  };
+  const { t } = useLanguage();
 
   return (
-    <div className="landing-page min-h-screen flex flex-col justify-between items-center text-center p-4 sm:p-6 relative overflow-hidden bg-gradient-to-b from-[#0a0e1a] via-[#1a1540] to-[#0a0e1a]">
-
-      {showDisclaimer && <DisclaimerModal onAccept={handleDisclaimerAccept} />}
-
-      {!showDisclaimer && (
-        <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-20">
-          <LanguageSelector />
-        </div>
-      )}
-
-      {/* Effets de fond */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-600/15 rounded-full blur-[120px] animate-pulse-slow"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-pink-500/12 rounded-full blur-[120px] animate-pulse-slower"></div>
-
-        {/* Particules dorées */}
-        {[...Array(40)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full animate-float-particle"
-            style={{
-              backgroundColor: i % 3 === 0 ? '#d4af37' : i % 3 === 1 ? '#ff6692' : '#a78bfa',
-              width: Math.random() > 0.7 ? '4px' : '2px',
-              height: Math.random() > 0.7 ? '4px' : '2px',
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              opacity: Math.random() * 0.6 + 0.3,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${8 + Math.random() * 4}s`
-            }}
-          />
-        ))}
+    <div className="lp-root">
+      {/* Langue */}
+      <div className="lp-lang">
+        <LanguageSelector />
       </div>
 
-      {/* Contenu principal - ADAPTÉ POUR ANDROID */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center items-center w-full max-w-4xl px-3 sm:px-4">
+      {/* Fond — noir pur + orbs or ambré */}
+      <div className="lp-bg" aria-hidden>
+        <div className="lp-orb lp-orb-1" />
+        <div className="lp-orb lp-orb-2" />
+        <div className="lp-orb lp-orb-3" />
+        <div className="lp-grain" />
+        <div className="lp-stars" />
+      </div>
 
-        {/* Titre responsive */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-serif mb-6 sm:mb-8 md:mb-10 leading-tight tracking-wide px-2">
-          <span className="bg-gradient-to-r from-pink-300 via-purple-300 to-amber-200 bg-clip-text text-transparent animate-gradient-shift drop-shadow-[0_4px_40px_rgba(236,72,153,0.5)]">
-            {t('landing.title')}
-          </span>
-        </h1>
+      {/* Contenu */}
+      <div className="lp-content">
 
-        {/* Sous-titre responsive et adapté aux longs textes */}
-        <p className="text-purple-100/90 text-sm sm:text-base md:text-lg lg:text-xl mb-8 sm:mb-10 md:mb-12 leading-relaxed max-w-3xl mx-auto font-light px-3">
-          {t('landing.subtitle')}
-        </p>
-
-        {/* Séparateur */}
-        <div className="flex items-center gap-3 sm:gap-4 mb-8 sm:mb-10 md:mb-12">
-          <div className="h-px w-12 sm:w-16 md:w-24 bg-gradient-to-r from-transparent via-pink-400/60 to-purple-400/50"></div>
-          <div className="relative">
-            <div className="absolute inset-0 bg-amber-400/40 blur-xl rounded-full animate-pulse"></div>
-            <span className="relative text-amber-300 text-2xl sm:text-3xl">✦</span>
-          </div>
-          <div className="h-px w-12 sm:w-16 md:w-24 bg-gradient-to-l from-transparent via-pink-400/60 to-purple-400/50"></div>
+        <div className="lp-rule" aria-hidden>
+          <span className="lp-rule-line" />
+          <span className="lp-rule-gem" />
+          <span className="lp-rule-line" />
         </div>
 
-        {/* Bouton ENTRER - responsive et adapté aux longs textes */}
-        <div className="relative group w-full max-w-md px-2">
-          <div className="absolute -inset-6 sm:-inset-8 bg-gradient-to-r from-pink-600/0 via-purple-500/40 to-violet-600/0 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-700 animate-pulse-gentle"></div>
+        <h1 className="lp-title">{t('landing.title')}</h1>
 
-          <div className="absolute -inset-4 sm:-inset-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            <div className="absolute inset-0 border border-pink-400/30 rounded-full animate-spin-slow"></div>
-            <div className="absolute inset-2 border border-purple-400/20 rounded-full animate-spin-reverse"></div>
-          </div>
+        <p className="lp-subtitle">{t('landing.subtitle')}</p>
 
-          <button
-            onClick={onEnter}
-            disabled={!disclaimerChecked}
-            className="relative w-full px-8 sm:px-12 md:px-16 lg:px-20 py-4 sm:py-5 md:py-6 rounded-full font-serif uppercase tracking-[0.2em] sm:tracking-[0.3em] text-sm sm:text-base md:text-lg text-white
-                       bg-gradient-to-r from-pink-600 via-purple-600 to-violet-600
-                       border-2 border-pink-400/70
-                       shadow-[0_0_40px_rgba(236,72,153,0.6),0_0_80px_rgba(147,51,234,0.4),inset_0_2px_20px_rgba(255,255,255,0.2)]
-                       hover:shadow-[0_0_60px_rgba(236,72,153,0.8),0_0_100px_rgba(147,51,234,0.6),inset_0_2px_30px_rgba(255,255,255,0.3)]
-                       hover:border-pink-300/90 hover:scale-105
-                       disabled:opacity-30 disabled:cursor-not-allowed disabled:scale-100 disabled:shadow-none
-                       transition-all duration-500 ease-out overflow-hidden group"
-            data-testid="button-enter"
-          >
-            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"></div>
+        <button className="lp-cta" onClick={onEnter} data-testid="button-enter">
+          <span className="lp-cta-text">{t('landing.enter')}</span>
+          <span className="lp-cta-arrow">→</span>
+          <span className="lp-cta-shimmer" aria-hidden />
+        </button>
 
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-              {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="absolute w-1 h-1 bg-amber-300 rounded-full animate-sparkle"
-                  style={{
-                    left: `${10 + i * 12}%`,
-                    top: `${30 + (i % 2) * 40}%`,
-                    animationDelay: `${i * 0.1}s`
-                  }}
-                />
-              ))}
-            </div>
-
-            <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3 md:gap-4">
-              <span className="text-amber-200 text-xl sm:text-2xl group-hover:rotate-180 transition-transform duration-700">✨</span>
-              <span className="font-bold whitespace-nowrap">{t('landing.enter')}</span>
-              <span className="text-pink-200 text-xl sm:text-2xl group-hover:translate-x-2 transition-transform duration-500">→</span>
-            </span>
-
-            <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent rounded-t-full pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent rounded-b-full pointer-events-none"></div>
-          </button>
-        </div>
-
-        {/* Texte de support adapté aux longs textes */}
-        <p className="mt-8 sm:mt-10 text-purple-200/70 text-[11px] sm:text-xs md:text-sm font-light max-w-lg mx-auto leading-relaxed px-4" data-testid="text-ads-support">
+        <p className="lp-mention" data-testid="text-ads-support">
           {t('landing.ads.support')}
         </p>
-      </div>
 
-      <div className="relative z-10 pb-4 text-amber-400/50 text-xs">
-        <div className="animate-float-slow">✦</div>
+        <div className="lp-rule" aria-hidden>
+          <span className="lp-rule-line" />
+          <span className="lp-rule-gem" />
+          <span className="lp-rule-line" />
+        </div>
       </div>
 
       <style>{`
-        @keyframes pulse-slow { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.6; } }
-        @keyframes pulse-slower { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.5; } }
-        @keyframes pulse-gentle { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
-        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes spin-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
-        @keyframes float-particle { 0%, 100% { transform: translateY(0) translateX(0); } 25% { transform: translateY(-20px) translateX(10px); } 50% { transform: translateY(-10px) translateX(-10px); } 75% { transform: translateY(-30px) translateX(5px); } }
-        @keyframes float-slow { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
-        @keyframes gradient-shift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-        @keyframes sparkle { 0%, 100% { opacity: 0; transform: scale(0); } 50% { opacity: 1; transform: scale(1.5); } }
+        /* ROOT */
+        .lp-root {
+          position: relative;
+          min-height: 100svh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #080808;
+          overflow: hidden;
+          font-family: 'Cormorant Garamond', 'Georgia', serif;
+        }
 
-        .animate-pulse-slow { animation: pulse-slow 4s ease-in-out infinite; }
-        .animate-pulse-slower { animation: pulse-slower 6s ease-in-out infinite; }
-        .animate-pulse-gentle { animation: pulse-gentle 3s ease-in-out infinite; }
-        .animate-spin-slow { animation: spin-slow 30s linear infinite; }
-        .animate-spin-reverse { animation: spin-reverse 20s linear infinite; }
-        .animate-float-particle { animation: float-particle ease-in-out infinite; }
-        .animate-float-slow { animation: float-slow 4s ease-in-out infinite; }
-        .animate-gradient-shift { background-size: 200% auto; animation: gradient-shift 8s ease infinite; }
-        .animate-sparkle { animation: sparkle 2s ease-in-out infinite; }
+        /* LANGUE */
+        .lp-lang {
+          position: absolute;
+          top: 18px; right: 18px;
+          z-index: 20;
+        }
+
+        /* FOND */
+        .lp-bg { position: absolute; inset: 0; pointer-events: none; }
+
+        .lp-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(90px);
+        }
+        /* Orb principal — or ambré très doux, remplace le violet */
+        .lp-orb-1 {
+          width: 520px; height: 520px;
+          top: -150px; left: 50%;
+          transform: translateX(-50%);
+          background: radial-gradient(ellipse, rgba(180,140,30,0.10) 0%, transparent 65%);
+          animation: orb-float 16s ease-in-out infinite alternate;
+        }
+        .lp-orb-2 {
+          width: 360px; height: 360px;
+          bottom: -80px; right: -80px;
+          background: radial-gradient(ellipse, rgba(140,100,20,0.07) 0%, transparent 65%);
+          animation: orb-float 11s ease-in-out infinite alternate-reverse;
+        }
+        .lp-orb-3 {
+          width: 280px; height: 280px;
+          bottom: 60px; left: -60px;
+          background: radial-gradient(ellipse, rgba(200,160,40,0.05) 0%, transparent 65%);
+          animation: orb-float 20s ease-in-out infinite alternate;
+        }
+
+        /* Grain luxueux */
+        .lp-grain {
+          position: absolute; inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+          opacity: 0.45;
+        }
+
+        /* Étoiles — points dorés et blancs sur noir */
+        .lp-stars {
+          position: absolute; inset: 0;
+          background-image:
+            radial-gradient(1.5px 1.5px at 12% 18%, rgba(212,175,55,0.85) 0%, transparent 100%),
+            radial-gradient(1px 1px at 38% 7%,  rgba(240,228,190,0.55) 0%, transparent 100%),
+            radial-gradient(1px 1px at 68% 22%, rgba(240,228,190,0.45) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 85% 40%, rgba(212,175,55,0.75) 0%, transparent 100%),
+            radial-gradient(1px 1px at 22% 55%, rgba(240,228,190,0.40) 0%, transparent 100%),
+            radial-gradient(1px 1px at 58% 65%, rgba(240,228,190,0.45) 0%, transparent 100%),
+            radial-gradient(1.5px 1.5px at 8%  78%, rgba(212,175,55,0.65) 0%, transparent 100%),
+            radial-gradient(1px 1px at 92% 82%, rgba(240,228,190,0.38) 0%, transparent 100%),
+            radial-gradient(1px 1px at 48% 92%, rgba(240,228,190,0.32) 0%, transparent 100%),
+            radial-gradient(1px 1px at 75% 88%, rgba(212,175,55,0.55) 0%, transparent 100%);
+        }
+
+        /* CONTENU */
+        .lp-content {
+          position: relative;
+          z-index: 10;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 28px;
+          padding: 40px 28px;
+          max-width: 340px;
+          width: 100%;
+          text-align: center;
+        }
+
+        /* LIGNE DÉCO */
+        .lp-rule {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 160px;
+        }
+        .lp-rule-line {
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.55), transparent);
+        }
+        .lp-rule-gem {
+          width: 5px; height: 5px;
+          background: #d4af37;
+          transform: rotate(45deg);
+          box-shadow: 0 0 10px rgba(212,175,55,0.95);
+          flex-shrink: 0;
+        }
+
+        /* TITRE — or vif sur noir, très lisible */
+        .lp-title {
+          font-family: 'Playfair Display', 'Georgia', serif;
+          font-size: clamp(2.2rem, 9vw, 3rem);
+          font-weight: 700;
+          line-height: 1.1;
+          letter-spacing: 0.01em;
+          margin: 0;
+          background: linear-gradient(150deg, #f5e6a0 0%, #d4af37 42%, #f0dc80 70%, #b8922c 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          animation: title-glow 5s ease-in-out infinite alternate;
+        }
+
+        /* SOUS-TITRE — blanc ivoire chaud */
+        .lp-subtitle {
+          font-size: clamp(0.88rem, 3.5vw, 1rem);
+          font-weight: 300;
+          line-height: 1.78;
+          color: rgba(235,225,200,0.82);
+          letter-spacing: 0.02em;
+          margin: 0;
+          max-width: 270px;
+        }
+
+        /* CTA */
+        .lp-cta {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          width: 100%;
+          max-width: 250px;
+          padding: 15px 28px;
+          background: transparent;
+          border: 1px solid rgba(212,175,55,0.42);
+          border-radius: 2px;
+          cursor: pointer;
+          overflow: hidden;
+          transition: border-color 0.35s, transform 0.25s, box-shadow 0.35s;
+          outline: none;
+        }
+        .lp-cta::before {
+          content: '';
+          position: absolute; inset: 3px;
+          border: 1px solid rgba(212,175,55,0.13);
+          border-radius: 1px;
+          pointer-events: none;
+        }
+        .lp-cta:hover {
+          border-color: rgba(212,175,55,0.88);
+          box-shadow: 0 0 40px rgba(212,175,55,0.20), 0 0 80px rgba(180,130,10,0.08);
+          transform: translateY(-2px);
+        }
+        .lp-cta:active { transform: translateY(0); }
+
+        .lp-cta-text {
+          font-family: 'Playfair Display', serif;
+          font-size: 0.85rem;
+          font-weight: 600;
+          letter-spacing: 0.24em;
+          text-transform: uppercase;
+          color: #f0e4b0;
+          transition: color 0.3s;
+          position: relative; z-index: 2;
+        }
+        .lp-cta:hover .lp-cta-text { color: #f8f0d0; }
+
+        .lp-cta-arrow {
+          font-size: 1rem;
+          color: rgba(212,175,55,0.72);
+          transition: transform 0.3s, color 0.3s;
+          position: relative; z-index: 2;
+        }
+        .lp-cta:hover .lp-cta-arrow {
+          transform: translateX(4px);
+          color: #d4af37;
+        }
+
+        .lp-cta-shimmer {
+          position: absolute;
+          top: 0; left: -100%;
+          width: 55%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.13), transparent);
+          transform: skewX(-18deg);
+          transition: left 0.6s ease;
+          pointer-events: none;
+        }
+        .lp-cta:hover .lp-cta-shimmer { left: 150%; }
+
+        /* MENTION */
+        .lp-mention {
+          font-size: 0.68rem;
+          color: rgba(210,195,165,0.45);
+          letter-spacing: 0.02em;
+          line-height: 1.5;
+          margin: 0;
+          max-width: 230px;
+        }
+
+        /* ANIMATIONS */
+        @keyframes orb-float {
+          0%   { transform: translateX(-50%) scale(1) translateY(0); }
+          100% { transform: translateX(-50%) scale(1.1) translateY(-20px); }
+        }
+        @keyframes title-glow {
+          0%   { filter: drop-shadow(0 0 16px rgba(212,175,55,0.18)); }
+          100% { filter: drop-shadow(0 0 42px rgba(212,175,55,0.52)); }
+        }
       `}</style>
     </div>
   );
