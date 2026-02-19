@@ -28,13 +28,9 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (legalModal) {
-          setLegalModal(null);
-        } else if (isRestoreModalOpen) {
-          setIsRestoreModalOpen(false);
-        } else {
-          onClose();
-        }
+        if (legalModal) setLegalModal(null);
+        else if (isRestoreModalOpen) setIsRestoreModalOpen(false);
+        else onClose();
       }
     };
     if (isOpen) {
@@ -44,10 +40,7 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
   }, [isOpen, onClose, legalModal, isRestoreModalOpen]);
 
   useEffect(() => {
-    if (!isOpen) {
-      setLegalModal(null);
-      setIsRestoreModalOpen(false);
-    }
+    if (!isOpen) { setLegalModal(null); setIsRestoreModalOpen(false); }
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -56,48 +49,34 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
 
   return (
     <>
-      {/* Overlay */}
       <div
         className="fixed inset-0 z-50 animate-fade-in"
-        style={{ background: 'rgba(0,0,0,0.80)', backdropFilter: 'blur(4px)' }}
+        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
         onClick={onClose}
       />
 
-      {/* Drawer */}
       <div
-        className="fixed left-0 top-0 bottom-0 w-80 z-50 animate-slide-in-left overflow-y-auto flex flex-col"
+        className="fixed left-0 top-0 bottom-0 w-80 z-50 overflow-y-auto flex flex-col"
         style={{
-          background: 'linear-gradient(160deg, #100e06 0%, #0e0c04 60%, #130f06 100%)',
-          border: '1px solid rgba(212,175,55,0.28)',
-          borderLeft: 'none',
-          boxShadow: '4px 0 40px rgba(0,0,0,0.8), 2px 0 16px rgba(212,175,55,0.06)',
+          background: 'linear-gradient(180deg, #0a0818 0%, #060612 50%, #080816 100%)',
+          borderRight: '1px solid rgba(139,92,246,0.25)',
+          boxShadow: '4px 0 40px rgba(0,0,0,0.95)',
         }}
       >
-        {/* Lueur dorée en haut */}
         <div
-          className="absolute top-0 left-0 right-0 h-40 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.12) 0%, transparent 70%)' }}
+          className="absolute top-0 left-0 right-0 h-48 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 50% -20%, rgba(139,92,246,0.15) 0%, transparent 70%)' }}
         />
 
-        {/* Header */}
-        <div
-          className="relative p-5 flex items-center justify-between"
-          style={{ borderBottom: '1px solid rgba(212,175,55,0.18)' }}
-        >
-          <h2
-            className="font-serif font-bold text-2xl"
-            style={{ color: '#d4af37', textShadow: '0 2px 12px rgba(212,175,55,0.30)' }}
-          >
+        {/* Header — titre blanc */}
+        <div className="relative p-5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(139,92,246,0.20)' }}>
+          <h2 className="font-serif font-bold text-2xl" style={{ color: 'rgba(255,255,255,0.95)' }}>
             Menu
           </h2>
           <button
             onClick={onClose}
             className="p-2 rounded-lg transition-colors"
-            style={{
-              background: 'rgba(212,175,55,0.08)',
-              border: '1px solid rgba(212,175,55,0.25)',
-              color: 'rgba(212,175,55,0.7)',
-            }}
+            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.65)' }}
             aria-label={t('common.close')}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,79 +85,63 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
           </button>
         </div>
 
-        {/* Nav */}
         <nav className="relative p-4 space-y-2 flex-1">
 
-          {/* Premium */}
+          {/* Premium — fond violet subtil, texte blanc */}
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onOpenPremium(); }}
             className="w-full flex items-center gap-4 p-4 rounded-xl transition-all group relative overflow-hidden"
-            style={{
-              background: 'rgba(212,175,55,0.08)',
-              border: '1px solid rgba(212,175,55,0.35)',
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.14)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.08)'; }}
+            style={{ background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(139,92,246,0.40)' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(124,58,237,0.28)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(124,58,237,0.18)'; }}
           >
             {isPremium && (
-              <div
-                className="absolute top-1.5 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full"
-                style={{ background: 'rgba(74,222,128,0.85)', color: '#052e16' }}
-              >
+              <div className="absolute top-1.5 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(74,222,128,0.85)', color: '#052e16' }}>
                 ✓ {t('premium.active')}
               </div>
             )}
             <span className="text-2xl group-hover:scale-110 transition-transform">⭐</span>
             <div className="flex-1 text-left">
-              <div className="font-semibold" style={{ color: '#d4af37' }}>{t('premium.title')}</div>
-              <div className="text-xs mt-0.5" style={{ color: 'rgba(212,175,55,0.55)' }}>{t('premium.subtitle')}</div>
+              {/* Texte blanc, pas jaune */}
+              <div className="font-semibold" style={{ color: 'rgba(255,255,255,0.95)' }}>{t('premium.title')}</div>
+              <div className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.65)' }}>{t('premium.subtitle')}</div>
             </div>
           </button>
 
-          {/* Restaurer abonnement */}
+          {/* Restaurer */}
           {!isPremium && (
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsRestoreModalOpen(true); }}
               className="w-full flex items-center gap-4 p-4 rounded-xl transition-all group"
-              style={{
-                background: 'rgba(212,175,55,0.04)',
-                border: '1px solid rgba(212,175,55,0.18)',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.08)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.04)'; }}
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; }}
             >
               <span className="text-2xl group-hover:scale-110 transition-transform">🔄</span>
               <div className="flex-1 text-left">
-                <div className="font-semibold" style={{ color: '#f0e4b0' }}>
-                  {t('premium.restore.title') || 'Restaurer mon abonnement'}
-                </div>
-                <div className="text-xs mt-0.5" style={{ color: 'rgba(240,228,176,0.45)' }}>
-                  {t('premium.restore.subtitle') || 'Déjà Premium ? Récupérez votre accès'}
-                </div>
+                <div className="font-semibold" style={{ color: 'rgba(255,255,255,0.85)' }}>{t('premium.restore.title') || 'Restaurer mon abonnement'}</div>
+                <div className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.50)' }}>{t('premium.restore.subtitle') || 'Déjà Premium ? Récupérez votre accès'}</div>
               </div>
             </button>
           )}
 
           {/* Langue */}
-          <div className="pt-4" style={{ borderTop: '1px solid rgba(212,175,55,0.15)' }}>
+          <div className="pt-4" style={{ borderTop: '1px solid rgba(139,92,246,0.15)' }}>
             <button
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsLanguageOpen(!isLanguageOpen); }}
               className="w-full flex items-center gap-4 p-4 rounded-xl transition-all group"
-              style={{
-                background: 'rgba(212,175,55,0.04)',
-                border: '1px solid rgba(212,175,55,0.18)',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.08)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.04)'; }}
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; }}
             >
-              <Globe className="w-5 h-5 group-hover:scale-110 transition-transform" style={{ color: '#d4af37' }} />
+              <Globe className="w-5 h-5 group-hover:scale-110 transition-transform" style={{ color: 'rgba(167,139,250,0.80)' }} />
               <div className="flex-1 text-left">
-                <div className="font-semibold flex items-center gap-2" style={{ color: '#f0e4b0' }}>
+                <div className="font-semibold flex items-center gap-2" style={{ color: 'rgba(255,255,255,0.85)' }}>
                   {currentLanguage?.flag} {currentLanguage?.name}
                 </div>
-                <div className="text-xs mt-0.5" style={{ color: 'rgba(212,175,55,0.45)' }}>
+                <div className="text-xs mt-0.5" style={{ color: 'rgba(167,139,250,0.50)' }}>
                   {language === 'fr' && 'Changer la langue'}
                   {language === 'en' && 'Change language'}
                   {language === 'es' && 'Cambiar idioma'}
@@ -187,8 +150,8 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
                 </div>
               </div>
               {isLanguageOpen
-                ? <ChevronUp className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.6)' }} />
-                : <ChevronDown className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.6)' }} />
+                ? <ChevronUp className="w-4 h-4" style={{ color: 'rgba(167,139,250,0.60)' }} />
+                : <ChevronDown className="w-4 h-4" style={{ color: 'rgba(167,139,250,0.60)' }} />
               }
             </button>
 
@@ -201,88 +164,51 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLanguage(lang.code); setIsLanguageOpen(false); }}
                     className="w-full flex items-center gap-3 p-3 rounded-lg transition-all"
                     style={{
-                      background: language === lang.code ? 'rgba(212,175,55,0.12)' : 'transparent',
-                      border: language === lang.code ? '1px solid rgba(212,175,55,0.40)' : '1px solid transparent',
-                      color: language === lang.code ? '#d4af37' : '#f0e4b0',
+                      background: language === lang.code ? 'rgba(124,58,237,0.22)' : 'transparent',
+                      border: language === lang.code ? '1px solid rgba(139,92,246,0.45)' : '1px solid transparent',
+                      color: language === lang.code ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.65)',
                     }}
                   >
                     <span className="text-lg">{lang.flag}</span>
                     <span className="text-sm font-medium">{lang.name}</span>
-                    {language === lang.code && (
-                      <span className="ml-auto" style={{ color: '#d4af37' }}>✓</span>
-                    )}
+                    {language === lang.code && <span className="ml-auto" style={{ color: 'rgba(196,181,253,0.90)' }}>✓</span>}
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {/* Pages légales */}
-          <div className="pt-4 space-y-1" style={{ borderTop: '1px solid rgba(212,175,55,0.15)' }}>
-            <button
-              onClick={() => setLegalModal('legal')}
-              className="flex items-center gap-3 w-full text-left p-3 rounded-lg transition-all text-sm"
-              style={{
-                color: 'rgba(240,228,176,0.65)',
-                border: '1px solid transparent',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.06)';
-                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.15)';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.background = 'transparent';
-                (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
-              }}
-            >
-              <span>📜</span>
-              <span>{t('legal.mentions')}</span>
-            </button>
-
-            <button
-              onClick={() => setLegalModal('privacy')}
-              className="flex items-center gap-3 w-full text-left p-3 rounded-lg transition-all text-sm"
-              style={{
-                color: 'rgba(240,228,176,0.65)',
-                border: '1px solid transparent',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.06)';
-                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.15)';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.background = 'transparent';
-                (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
-              }}
-            >
-              <span>🔒</span>
-              <span>{t('legal.privacy')}</span>
-            </button>
+          {/* Légal */}
+          <div className="pt-4 space-y-1" style={{ borderTop: '1px solid rgba(139,92,246,0.15)' }}>
+            {[
+              { icon: '📜', key: 'legal.mentions', type: 'legal' as const },
+              { icon: '🔒', key: 'legal.privacy', type: 'privacy' as const },
+            ].map(item => (
+              <button
+                key={item.type}
+                onClick={() => setLegalModal(item.type)}
+                className="flex items-center gap-3 w-full text-left p-3 rounded-lg transition-all text-sm"
+                style={{ color: 'rgba(255,255,255,0.50)', border: '1px solid transparent' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.80)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.50)'; }}
+              >
+                <span>{item.icon}</span>
+                <span>{t(item.key)}</span>
+              </button>
+            ))}
           </div>
         </nav>
 
-        {/* Footer */}
-        <div className="p-4 relative" style={{ borderTop: '1px solid rgba(212,175,55,0.12)' }}>
-          <p className="text-xs text-center" style={{ color: 'rgba(212,175,55,0.30)' }}>
-            TarotMystik v1.0
-          </p>
+        <div className="p-4 relative" style={{ borderTop: '1px solid rgba(139,92,246,0.12)' }}>
+          <p className="text-xs text-center" style={{ color: 'rgba(167,139,250,0.30)' }}>TarotMystik v1.0</p>
         </div>
       </div>
 
-      <LegalModal
-        isOpen={legalModal !== null}
-        onClose={() => setLegalModal(null)}
-        type={legalModal || 'legal'}
-      />
-
+      <LegalModal isOpen={legalModal !== null} onClose={() => setLegalModal(null)} type={legalModal || 'legal'} />
       <RestorePremiumModal
         isOpen={isRestoreModalOpen}
         onClose={() => setIsRestoreModalOpen(false)}
-        onRestoreSuccess={() => {
-          setIsRestoreModalOpen(false);
-          onClose();
-          window.location.reload();
-        }}
+        onRestoreSuccess={() => { setIsRestoreModalOpen(false); onClose(); window.location.reload(); }}
       />
     </>
   );

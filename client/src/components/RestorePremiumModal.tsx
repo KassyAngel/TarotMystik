@@ -8,7 +8,7 @@ interface RestorePremiumModalProps {
 }
 
 export default function RestorePremiumModal({ isOpen, onClose, onRestoreSuccess }: RestorePremiumModalProps) {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,22 +20,16 @@ export default function RestorePremiumModal({ isOpen, onClose, onRestoreSuccess 
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-
     try {
       const trimmedEmail = email.trim().toLowerCase();
-      
       if (!trimmedEmail || !trimmedEmail.includes('@')) {
         setError(language === 'fr' ? 'Veuillez entrer un email valide' : 'Please enter a valid email');
         setIsLoading(false);
         return;
       }
-
       localStorage.setItem('tarotmystik_premium_email', trimmedEmail);
-      
       setSuccess(true);
-      setTimeout(() => {
-        onRestoreSuccess();
-      }, 1500);
+      setTimeout(() => onRestoreSuccess(), 1500);
     } catch (err) {
       setError(language === 'fr' ? 'Erreur lors de la restauration' : 'Error during restoration');
     } finally {
@@ -45,45 +39,60 @@ export default function RestorePremiumModal({ isOpen, onClose, onRestoreSuccess 
 
   return (
     <>
-      <div 
-        className="fixed inset-0 bg-black/80 z-[100] animate-fade-in"
+      <div
+        className="fixed inset-0 z-[100] animate-fade-in"
+        style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(6px)' }}
         onClick={onClose}
       />
 
-      <div className="fixed inset-4 md:inset-20 z-[101] bg-gradient-to-b from-purple-900 via-indigo-900 to-purple-900 rounded-2xl shadow-2xl overflow-hidden border-2 border-purple-500/30 flex flex-col max-h-[80vh]">
-        <div className="flex items-center justify-between p-4 border-b border-purple-500/30 bg-purple-900/50">
-          <h2 className="text-yellow-300 font-serif font-bold text-xl">
-            {language === 'fr' ? 'Restaurer mon abonnement' : 'Restore my subscription'}
+      <div
+        className="fixed inset-4 md:inset-20 z-[101] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
+        style={{
+          background: 'linear-gradient(180deg, #0a0818 0%, #060612 100%)',
+          border: '1px solid rgba(139,92,246,0.30)',
+          boxShadow: '0 0 60px rgba(0,0,0,0.95)',
+        }}
+      >
+        <div
+          className="absolute top-0 left-0 right-0 h-32 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(139,92,246,0.18) 0%, transparent 70%)' }}
+        />
+
+        {/* Header — titre blanc */}
+        <div className="relative flex items-center justify-between p-4" style={{ borderBottom: '1px solid rgba(139,92,246,0.20)' }}>
+          <h2 className="font-serif font-bold text-xl" style={{ color: 'rgba(255,255,255,0.95)' }}>
+            {language === 'fr' ? '🔄 Restaurer mon abonnement' : '🔄 Restore my subscription'}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-purple-700/50 transition-colors"
+            className="p-2 rounded-lg transition-colors"
+            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.65)' }}
             aria-label="Fermer"
           >
-            <svg className="w-6 h-6 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="relative flex-1 overflow-y-auto p-6">
           {success ? (
             <div className="text-center py-8">
               <div className="text-6xl mb-4">✨</div>
-              <p className="text-green-400 text-lg font-semibold">
+              <p className="text-lg font-semibold" style={{ color: '#4ade80' }}>
                 {language === 'fr' ? 'Restauration réussie !' : 'Restoration successful!'}
               </p>
             </div>
           ) : (
             <form onSubmit={handleRestore} className="space-y-6">
-              <p className="text-purple-200 text-center">
-                {language === 'fr' 
-                  ? 'Entrez l\'email utilisé lors de votre achat Premium pour restaurer votre abonnement.'
+              <p className="text-center text-sm" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                {language === 'fr'
+                  ? "Entrez l'email utilisé lors de votre achat Premium pour restaurer votre abonnement."
                   : 'Enter the email used during your Premium purchase to restore your subscription.'}
               </p>
 
               <div>
-                <label className="block text-purple-300 text-sm mb-2">
+                <label className="block text-sm mb-2" style={{ color: 'rgba(255,255,255,0.70)' }}>
                   {language === 'fr' ? 'Adresse email' : 'Email address'}
                 </label>
                 <input
@@ -91,19 +100,29 @@ export default function RestorePremiumModal({ isOpen, onClose, onRestoreSuccess 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={language === 'fr' ? 'votre@email.com' : 'your@email.com'}
-                  className="w-full px-4 py-3 rounded-xl bg-purple-800/50 border border-purple-500/30 text-white placeholder-purple-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
                   disabled={isLoading}
+                  className="w-full px-4 py-3 rounded-xl disabled:opacity-50 focus:outline-none"
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(139,92,246,0.35)',
+                    color: 'rgba(255,255,255,0.90)',
+                  }}
                 />
               </div>
 
-              {error && (
-                <p className="text-red-400 text-sm text-center">{error}</p>
-              )}
+              {error && <p className="text-sm text-center" style={{ color: '#f87171' }}>{error}</p>}
 
+              {/* Bouton violet, pas jaune */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-4 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-bold text-lg hover:from-yellow-400 hover:to-amber-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                style={{
+                  background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+                  color: 'rgba(255,255,255,0.95)',
+                  boxShadow: '0 4px 20px rgba(139,92,246,0.40)',
+                  border: 'none',
+                }}
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">

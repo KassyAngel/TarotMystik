@@ -14,9 +14,7 @@ export default function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
 
   useEffect(() => {
     return () => {
-      if (iframeRef.current) {
-        iframeRef.current.src = 'about:blank';
-      }
+      if (iframeRef.current) iframeRef.current.src = 'about:blank';
     };
   }, []);
 
@@ -39,50 +37,34 @@ export default function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
 
   return (
     <>
-      {/* Overlay */}
       <div
         className="fixed inset-0 z-[100] animate-fade-in"
-        style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}
+        style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(6px)' }}
         onClick={onClose}
       />
-
-      {/* Modal */}
       <div
         className="fixed inset-4 md:inset-10 z-[101] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         style={{
-          background: 'linear-gradient(160deg, #100e06 0%, #0e0c04 60%, #130f06 100%)',
-          border: '1px solid rgba(212,175,55,0.35)',
-          boxShadow: '0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(212,175,55,0.08)',
+          background: 'linear-gradient(180deg, #0a0818 0%, #060612 100%)',
+          border: '1px solid rgba(139,92,246,0.30)',
+          boxShadow: '0 0 60px rgba(0,0,0,0.95)',
         }}
       >
-        {/* Lueur dorée en haut */}
         <div
           className="absolute top-0 left-0 right-0 h-24 pointer-events-none z-0"
-          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.10) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(139,92,246,0.12) 0%, transparent 70%)' }}
         />
-
-        {/* Header */}
         <div
           className="relative z-10 flex items-center justify-between p-4"
-          style={{ borderBottom: '1px solid rgba(212,175,55,0.18)' }}
+          style={{ borderBottom: '1px solid rgba(139,92,246,0.20)' }}
         >
-          <h2
-            className="font-serif font-bold text-xl"
-            style={{
-              color: '#d4af37',
-              textShadow: '0 2px 12px rgba(212,175,55,0.30)',
-            }}
-          >
+          <h2 className="font-serif font-bold text-xl" style={{ color: '#d4af37', textShadow: '0 2px 12px rgba(212,175,55,0.30)' }}>
             {type === 'legal' ? '📜' : '🔒'} {title}
           </h2>
           <button
             onClick={onClose}
             className="p-2 rounded-lg transition-colors"
-            style={{
-              background: 'rgba(212,175,55,0.08)',
-              border: '1px solid rgba(212,175,55,0.25)',
-              color: 'rgba(212,175,55,0.7)',
-            }}
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.6)' }}
             aria-label="Fermer"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,17 +72,8 @@ export default function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
             </svg>
           </button>
         </div>
-
-        {/* Content */}
         <div className="flex-1 bg-white">
-          <iframe
-            ref={iframeRef}
-            src={getFileName()}
-            className="w-full h-full border-0"
-            title={title}
-            sandbox="allow-same-origin allow-scripts"
-            loading="lazy"
-          />
+          <iframe ref={iframeRef} src={getFileName()} className="w-full h-full border-0" title={title} sandbox="allow-same-origin allow-scripts" loading="lazy" />
         </div>
       </div>
     </>

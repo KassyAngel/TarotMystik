@@ -7,7 +7,6 @@ interface NotificationPermissionModalProps {
   onClose: () => void;
 }
 
-// ✅ Fonction utilitaire pour créer/recréer les notifications avec la langue actuelle
 export async function scheduleNotificationWithLanguage(t: (key: string) => string) {
   try {
     console.log('🔔 [NOTIF] Planification avec langue:', t('common.language'));
@@ -31,9 +30,6 @@ export async function scheduleNotificationWithLanguage(t: (key: string) => strin
     ];
 
     const randomVariant = notificationVariants[Math.floor(Math.random() * notificationVariants.length)];
-
-    console.log('⏰ [NOTIF] Planification pour: 10h00 locale');
-    console.log('📝 Message:', randomVariant.title);
 
     await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
 
@@ -81,12 +77,8 @@ export default function NotificationPermissionModal({ onClose }: NotificationPer
 
   const handleAccept = async () => {
     try {
-      console.log('🔔 [NOTIF] Début de la demande de permission...');
       const permission = await LocalNotifications.requestPermissions();
-      console.log('🔔 [NOTIF] Permission reçue:', JSON.stringify(permission));
-
       if (permission.display === 'granted') {
-        console.log('✅ [NOTIF] Permission accordée');
         const success = await scheduleNotificationWithLanguage(t);
         if (success) {
           localStorage.setItem('notificationPermission', 'granted');
@@ -95,20 +87,17 @@ export default function NotificationPermissionModal({ onClose }: NotificationPer
         }
       } else {
         localStorage.setItem('notificationPermission', 'denied');
-        console.log('❌ Permission refusée');
       }
     } catch (err) {
       console.error('❌ Erreur notifications:', err);
       localStorage.setItem('notificationPermission', 'error');
     }
-
     setIsVisible(false);
     setTimeout(onClose, 300);
   };
 
   const handleDecline = () => {
     localStorage.setItem('notificationPermission', 'denied');
-    console.log('🔕 Notifications refusées');
     setIsVisible(false);
     setTimeout(onClose, 300);
   };
@@ -116,27 +105,27 @@ export default function NotificationPermissionModal({ onClose }: NotificationPer
   return (
     <div
       className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-      style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}
+      style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(6px)' }}
     >
       <div
         className={`relative max-w-md w-full rounded-2xl shadow-2xl transform transition-all duration-300 ${isVisible ? 'scale-100' : 'scale-90'}`}
         style={{
-          background: 'linear-gradient(160deg, #100e06 0%, #0e0c04 60%, #130f06 100%)',
-          border: '1px solid rgba(212,175,55,0.35)',
-          boxShadow: '0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(212,175,55,0.08)',
+          background: 'linear-gradient(180deg, #0a0818 0%, #060612 60%, #080816 100%)',
+          border: '1px solid rgba(139,92,246,0.35)',
+          boxShadow: '0 0 60px rgba(0,0,0,0.95), 0 0 30px rgba(139,92,246,0.08)',
         }}
       >
-        {/* Lueur dorée en haut */}
+        {/* Lueur violette en haut */}
         <div
           className="absolute top-0 left-0 right-0 h-32 pointer-events-none rounded-t-2xl"
-          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.13) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(139,92,246,0.18) 0%, transparent 70%)' }}
         />
 
         <div className="relative p-6">
           {/* Icône */}
           <div className="text-center mb-4">
             <div className="text-6xl mb-2 animate-pulse">🔔</div>
-            <div className="text-xs" style={{ color: 'rgba(212,175,55,0.55)' }}>✨ ✦ ✨</div>
+            <div className="text-xs" style={{ color: 'rgba(167,139,250,0.55)' }}>✨ ✦ ✨</div>
           </div>
 
           {/* Titre */}
@@ -148,10 +137,7 @@ export default function NotificationPermissionModal({ onClose }: NotificationPer
           </h2>
 
           {/* Description */}
-          <p
-            className="text-center mb-6 leading-relaxed text-sm"
-            style={{ color: 'rgba(240,228,176,0.75)' }}
-          >
+          <p className="text-center mb-6 leading-relaxed text-sm" style={{ color: 'rgba(226,217,243,0.75)' }}>
             {t('notification.modal.description')}
           </p>
 
@@ -159,8 +145,8 @@ export default function NotificationPermissionModal({ onClose }: NotificationPer
           <div
             className="rounded-xl p-4 mb-6 space-y-3"
             style={{
-              background: 'rgba(212,175,55,0.05)',
-              border: '1px solid rgba(212,175,55,0.15)',
+              background: 'rgba(139,92,246,0.06)',
+              border: '1px solid rgba(139,92,246,0.20)',
             }}
           >
             {[
@@ -168,35 +154,43 @@ export default function NotificationPermissionModal({ onClose }: NotificationPer
               { icon: '⭐', key: 'notification.modal.benefit2' },
               { icon: '✨', key: 'notification.modal.benefit3' },
             ].map(({ icon, key }) => (
-              <div key={key} className="flex items-start gap-3 text-sm" style={{ color: 'rgba(240,228,176,0.80)' }}>
+              <div key={key} className="flex items-start gap-3 text-sm" style={{ color: 'rgba(226,217,243,0.80)' }}>
                 <span className="mt-0.5">{icon}</span>
                 <span>{t(key)}</span>
               </div>
             ))}
           </div>
 
-          {/* Boutons */}
+          {/* Bouton Accepter — style doré comme le reste de l'app */}
           <div className="flex flex-col gap-3">
-            <MysticalButton variant="primary" onClick={handleAccept} className="w-full">
+            <button
+              onClick={handleAccept}
+              className="w-full font-bold py-4 rounded-xl transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
+              style={{
+                background: 'linear-gradient(135deg, #d4af37 0%, #b8942a 100%)',
+                color: '#0a0818',
+                boxShadow: '0 4px 20px rgba(212,175,55,0.35)',
+                border: 'none',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 28px rgba(212,175,55,0.50)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(212,175,55,0.35)'; }}
+            >
               🔔 {t('notification.modal.accept')}
-            </MysticalButton>
+            </button>
 
             <button
               onClick={handleDecline}
               className="text-sm transition-colors py-2"
-              style={{ color: 'rgba(212,175,55,0.45)' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(212,175,55,0.75)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(212,175,55,0.45)'; }}
+              style={{ color: 'rgba(167,139,250,0.45)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(167,139,250,0.75)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(167,139,250,0.45)'; }}
             >
               {t('notification.modal.decline')}
             </button>
           </div>
 
           {/* Note */}
-          <p
-            className="text-xs text-center mt-4 italic"
-            style={{ color: 'rgba(212,175,55,0.35)' }}
-          >
+          <p className="text-xs text-center mt-4 italic" style={{ color: 'rgba(167,139,250,0.35)' }}>
             {t('notification.modal.note')}
           </p>
         </div>

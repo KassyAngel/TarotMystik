@@ -39,17 +39,17 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
 
   const getGenderLabel = (gender: string) => {
     if (!gender) return '';
-    const genderMap: Record<string, string> = {
+    const map: Record<string, string> = {
       'homme': t('gender.male') || 'Homme',
       'femme': t('gender.female') || 'Femme',
       'autre': t('gender.other') || 'Autre'
     };
-    return genderMap[gender] || gender;
+    return map[gender] || gender;
   };
 
   const getZodiacKey = (signName: string) => {
     if (!signName) return 'aries';
-    const zodiacMap: Record<string, string> = {
+    const map: Record<string, string> = {
       'Aries': 'aries', 'Taurus': 'taurus', 'Gemini': 'gemini', 'Cancer': 'cancer',
       'Leo': 'leo', 'Virgo': 'virgo', 'Libra': 'libra', 'Scorpio': 'scorpio',
       'Sagittarius': 'sagittarius', 'Capricorn': 'capricorn', 'Aquarius': 'aquarius', 'Pisces': 'pisces',
@@ -57,7 +57,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
       'Vierge': 'virgo', 'Balance': 'libra', 'Scorpion': 'scorpio', 'Sagittaire': 'sagittarius',
       'Capricorne': 'capricorn', 'Verseau': 'aquarius', 'Poissons': 'pisces'
     };
-    return zodiacMap[signName] || signName.toLowerCase();
+    return map[signName] || signName.toLowerCase();
   };
 
   const getZodiacDates = () => {
@@ -65,8 +65,8 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
     try {
       if (typeof user.zodiacSign.dates === 'string') return user.zodiacSign.dates;
       if (user.zodiacSign.dates && typeof user.zodiacSign.dates === 'object') {
-        const dates = user.zodiacSign.dates as any;
-        if (dates.start && dates.end) return `${dates.start.day}/${dates.start.month} - ${dates.end.day}/${dates.end.month}`;
+        const d = user.zodiacSign.dates as any;
+        if (d.start && d.end) return `${d.start.day}/${d.start.month} - ${d.end.day}/${d.end.month}`;
       }
     } catch { }
     return '';
@@ -82,147 +82,107 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
     <>
       <div
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        style={{ background: 'rgba(0,0,0,0.80)', backdropFilter: 'blur(6px)' }}
+        style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}
         onClick={handleOverlayClick}
       >
         <div
           className="relative max-w-md w-full rounded-2xl shadow-2xl overflow-hidden"
           style={{
-            background: 'linear-gradient(160deg, #100e06 0%, #0e0c04 60%, #130f06 100%)',
-            border: '1px solid rgba(212,175,55,0.35)',
-            boxShadow: '0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(212,175,55,0.08)',
+            background: 'linear-gradient(180deg, #0a0818 0%, #060612 60%, #080816 100%)',
+            border: '1px solid rgba(139,92,246,0.30)',
+            boxShadow: '0 0 60px rgba(0,0,0,0.95)',
           }}
         >
-          {/* Lueur dorée en haut */}
+          {/* Lueur violette haut */}
           <div
             className="absolute top-0 left-0 right-0 h-40 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.12) 0%, transparent 70%)' }}
+            style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(139,92,246,0.20) 0%, transparent 70%)' }}
           />
 
           {/* Header */}
-          <div
-            className="relative p-6 text-center"
-            style={{ borderBottom: '1px solid rgba(212,175,55,0.18)' }}
-          >
-            {/* Bouton fermer */}
+          <div className="relative p-6 text-center" style={{ borderBottom: '1px solid rgba(139,92,246,0.18)' }}>
             <button
               onClick={onClose}
               className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors z-10"
-              style={{ color: 'rgba(212,175,55,0.6)' }}
-              aria-label={t('common.close') || 'Fermer'}
+              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.65)' }}
+              aria-label="Fermer"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            {/* Avatar zodiacal */}
+            {/* Avatar — cercle violet */}
             <div
-              className="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center text-5xl shadow-lg"
+              className="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center text-5xl"
               style={{
-                background: 'linear-gradient(135deg, #d4af37 0%, #aa8a2e 100%)',
-                boxShadow: '0 0 30px rgba(212,175,55,0.35)',
+                background: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
+                boxShadow: '0 0 30px rgba(139,92,246,0.40)',
               }}
             >
               {user.zodiacSign?.symbol || '✨'}
             </div>
 
-            <h2
-              className="text-2xl font-bold font-serif mb-1"
-              style={{ color: '#d4af37', textShadow: '0 0 20px rgba(212,175,55,0.4)' }}
-            >
+            {/* Nom — blanc, pas jaune */}
+            <h2 className="text-2xl font-bold font-serif mb-1" style={{ color: 'rgba(255,255,255,0.95)' }}>
               {user.name || 'Utilisateur'}
             </h2>
 
             {user.zodiacSign && (
-              <p className="text-sm" style={{ color: 'rgba(212,175,55,0.65)' }}>
+              <p className="text-sm" style={{ color: 'rgba(167,139,250,0.75)' }}>
                 {t(`zodiac.signs.${getZodiacKey(user.zodiacSign.name)}`)}
                 {getZodiacDates() && ` • ${getZodiacDates()}`}
               </p>
             )}
           </div>
 
-          {/* Informations */}
+          {/* Infos */}
           <div className="p-6 space-y-3">
-
-            {/* Date de naissance */}
-            {user.birthDate && (
+            {[
+              user.birthDate && {
+                icon: '🎂',
+                label: t('profile.birthdate') || 'Date de naissance',
+                value: formatBirthDate(user.birthDate),
+              },
+              user.gender && {
+                icon: user.gender === 'homme' ? '♂' : user.gender === 'femme' ? '♀' : '⚥',
+                label: t('profile.gender') || 'Genre',
+                value: getGenderLabel(user.gender),
+              },
+              user.zodiacSign && {
+                icon: user.zodiacSign.symbol,
+                label: t('profile.zodiac') || 'Signe astrologique',
+                value: t(`zodiac.signs.${getZodiacKey(user.zodiacSign.name)}`),
+                sub: getZodiacDates(),
+              },
+            ].filter(Boolean).map((item: any, i) => (
               <div
+                key={i}
                 className="rounded-xl p-4"
-                style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)' }}
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(139,92,246,0.18)' }}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-xl">🎂</span>
+                  <span className="text-xl" style={{ color: 'rgba(167,139,250,0.80)' }}>{item.icon}</span>
                   <div className="flex-1">
-                    <div className="text-xs mb-0.5" style={{ color: 'rgba(212,175,55,0.55)' }}>
-                      {t('profile.birthdate') || 'Date de naissance'}
-                    </div>
-                    <div className="font-semibold" style={{ color: '#f0e4b0' }}>
-                      {formatBirthDate(user.birthDate)}
-                    </div>
+                    <div className="text-xs mb-0.5" style={{ color: 'rgba(167,139,250,0.55)' }}>{item.label}</div>
+                    <div className="font-semibold" style={{ color: 'rgba(255,255,255,0.90)' }}>{item.value}</div>
+                    {item.sub && <div className="text-xs mt-0.5" style={{ color: 'rgba(167,139,250,0.45)' }}>{item.sub}</div>}
                   </div>
                 </div>
               </div>
-            )}
-
-            {/* Genre */}
-            {user.gender && (
-              <div
-                className="rounded-xl p-4"
-                style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)' }}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">
-                    {user.gender === 'homme' ? '♂' : user.gender === 'femme' ? '♀' : '⚥'}
-                  </span>
-                  <div className="flex-1">
-                    <div className="text-xs mb-0.5" style={{ color: 'rgba(212,175,55,0.55)' }}>
-                      {t('profile.gender') || 'Genre'}
-                    </div>
-                    <div className="font-semibold" style={{ color: '#f0e4b0' }}>
-                      {getGenderLabel(user.gender)}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Signe astrologique */}
-            {user.zodiacSign && (
-              <div
-                className="rounded-xl p-4"
-                style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)' }}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">{user.zodiacSign.symbol}</span>
-                  <div className="flex-1">
-                    <div className="text-xs mb-0.5" style={{ color: 'rgba(212,175,55,0.55)' }}>
-                      {t('profile.zodiac') || 'Signe astrologique'}
-                    </div>
-                    <div className="font-semibold" style={{ color: '#f0e4b0' }}>
-                      {t(`zodiac.signs.${getZodiacKey(user.zodiacSign.name)}`)}
-                    </div>
-                    {getZodiacDates() && (
-                      <div className="text-xs mt-0.5" style={{ color: 'rgba(212,175,55,0.45)' }}>
-                        {getZodiacDates()}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
+            ))}
           </div>
 
-          {/* Bouton modifier */}
+          {/* Bouton modifier — violet, pas jaune */}
           <div className="px-6 pb-6">
             <button
               onClick={() => setShowEditModal(true)}
               className="w-full font-semibold py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98]"
               style={{
-                background: 'linear-gradient(135deg, rgba(212,175,55,0.18) 0%, rgba(180,140,30,0.22) 100%)',
-                border: '1px solid rgba(212,175,55,0.45)',
-                color: '#d4af37',
-                boxShadow: '0 4px 20px rgba(212,175,55,0.12)',
+                background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+                color: 'rgba(255,255,255,0.95)',
+                boxShadow: '0 4px 20px rgba(139,92,246,0.35)',
+                border: 'none',
               }}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,12 +191,6 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               {t('profile.edit') || 'Modifier mon profil'}
             </button>
           </div>
-
-          {/* Ligne décorative bas */}
-          <div
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 h-px"
-            style={{ width: '50%', background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.4), transparent)' }}
-          />
         </div>
       </div>
 
@@ -244,10 +198,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
         <EditProfileModal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          onSaved={() => {
-            setShowEditModal(false);
-            onClose();
-          }}
+          onSaved={() => { setShowEditModal(false); onClose(); }}
         />
       )}
     </>

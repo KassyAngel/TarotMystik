@@ -20,12 +20,12 @@ export default function LegalMenu() {
           type="button"
           className="p-2 rounded-full transition-all shadow-lg"
           style={{
-            background: 'rgba(212,175,55,0.08)',
-            border: '1px solid rgba(212,175,55,0.30)',
+            background: 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(139,92,246,0.35)',
           }}
           aria-label={t("legal.menu.title")}
         >
-          <svg className="w-6 h-6" style={{ color: '#d4af37' }} fill="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6" style={{ color: 'rgba(226,217,243,0.80)' }} fill="currentColor" viewBox="0 0 24 24">
             <circle cx="12" cy="5" r="2" />
             <circle cx="12" cy="12" r="2" />
             <circle cx="12" cy="19" r="2" />
@@ -38,19 +38,16 @@ export default function LegalMenu() {
             <div
               className="absolute right-0 mt-2 w-64 rounded-xl shadow-2xl z-50 overflow-hidden"
               style={{
-                background: 'linear-gradient(160deg, #100e06 0%, #0e0c04 100%)',
-                border: '1px solid rgba(212,175,55,0.30)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.7), 0 0 16px rgba(212,175,55,0.06)',
+                background: 'linear-gradient(180deg, #0a0818 0%, #060612 100%)',
+                border: '1px solid rgba(139,92,246,0.30)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.90)',
               }}
             >
               <button
                 onClick={() => openModal('legal')}
                 className="w-full text-left block px-4 py-3 text-sm transition-colors"
-                style={{
-                  color: '#f0e4b0',
-                  borderBottom: '1px solid rgba(212,175,55,0.15)',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.08)')}
+                style={{ color: '#e2d9f3', borderBottom: '1px solid rgba(139,92,246,0.15)' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(139,92,246,0.10)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
               >
                 📜 {t("legal.mentions")}
@@ -58,8 +55,8 @@ export default function LegalMenu() {
               <button
                 onClick={() => openModal('privacy')}
                 className="w-full text-left block px-4 py-3 text-sm transition-colors"
-                style={{ color: '#f0e4b0' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.08)')}
+                style={{ color: '#e2d9f3' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(139,92,246,0.10)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
               >
                 🔒 {t("legal.privacy")}
@@ -69,11 +66,7 @@ export default function LegalMenu() {
         )}
       </div>
 
-      <LegalModal
-        isOpen={modalType !== null}
-        onClose={() => setModalType(null)}
-        type={modalType || 'legal'}
-      />
+      <LegalModal isOpen={modalType !== null} onClose={() => setModalType(null)} type={modalType || 'legal'} />
     </>
   );
 }

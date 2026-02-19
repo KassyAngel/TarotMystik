@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getZodiacSign } from '@/data/oracleData';
-import MysticalButton from '@/components/MysticalButton';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -70,23 +69,21 @@ export default function EditProfileModal({ isOpen, onClose, onSaved }: EditProfi
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 100 }, (_, i) => currentYear - i);
 
-  // Styles réutilisables
   const inputStyle: React.CSSProperties = {
-    background: 'rgba(212,175,55,0.05)',
-    border: '1px solid rgba(212,175,55,0.25)',
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(139,92,246,0.30)',
     borderRadius: '12px',
-    color: '#f0e4b0',
+    color: 'rgba(255,255,255,0.90)',
     padding: '12px 16px',
     width: '100%',
     outline: 'none',
-    transition: 'border-color 0.2s',
   };
 
   const selectStyle: React.CSSProperties = {
-    background: '#0e0c04',
-    border: '1px solid rgba(212,175,55,0.25)',
+    background: '#06060f',
+    border: '1px solid rgba(139,92,246,0.30)',
     borderRadius: '12px',
-    color: '#f0e4b0',
+    color: 'rgba(255,255,255,0.90)',
     padding: '12px 8px',
     flex: 1,
     outline: 'none',
@@ -95,46 +92,47 @@ export default function EditProfileModal({ isOpen, onClose, onSaved }: EditProfi
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}
+      style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(6px)' }}
       onClick={handleOverlayClick}
     >
       <div
         className="relative max-w-md w-full rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
         style={{
-          background: 'linear-gradient(160deg, #100e06 0%, #0e0c04 60%, #130f06 100%)',
-          border: '1px solid rgba(212,175,55,0.35)',
-          boxShadow: '0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(212,175,55,0.08)',
+          background: 'linear-gradient(180deg, #0a0818 0%, #060612 60%, #080816 100%)',
+          border: '1px solid rgba(139,92,246,0.30)',
+          boxShadow: '0 0 60px rgba(0,0,0,0.95)',
         }}
       >
-        {/* Lueur dorée en haut */}
+        {/* Lueur violette haut */}
         <div
           className="absolute top-0 left-0 right-0 h-32 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.10) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(139,92,246,0.18) 0%, transparent 70%)' }}
         />
 
         {/* Header sticky */}
         <div
           className="sticky top-0 z-10 p-5 relative"
           style={{
-            background: 'linear-gradient(160deg, #100e06 0%, #0e0c04 100%)',
-            borderBottom: '1px solid rgba(212,175,55,0.18)',
+            background: 'linear-gradient(180deg, #0a0818 0%, #060612 100%)',
+            borderBottom: '1px solid rgba(139,92,246,0.18)',
           }}
         >
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors z-10"
-            style={{ color: 'rgba(212,175,55,0.6)' }}
-            aria-label={t('common.close') || 'Fermer'}
+            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.65)' }}
+            aria-label="Fermer"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
 
-          <h2 className="text-xl font-bold font-serif" style={{ color: '#d4af37' }}>
+          {/* Titre blanc, pas jaune */}
+          <h2 className="text-xl font-bold font-serif" style={{ color: 'rgba(255,255,255,0.95)' }}>
             ✏️ {t('profile.edit.title') || 'Modifier mon profil'}
           </h2>
-          <p className="text-sm mt-0.5" style={{ color: 'rgba(212,175,55,0.55)' }}>
+          <p className="text-sm mt-0.5" style={{ color: 'rgba(167,139,250,0.60)' }}>
             {t('profile.edit.subtitle') || 'Mettez à jour vos informations personnelles'}
           </p>
         </div>
@@ -144,7 +142,7 @@ export default function EditProfileModal({ isOpen, onClose, onSaved }: EditProfi
 
           {/* Nom */}
           <div>
-            <label className="text-sm font-semibold block mb-2" style={{ color: 'rgba(212,175,55,0.75)' }}>
+            <label className="text-sm font-semibold block mb-2" style={{ color: 'rgba(255,255,255,0.70)' }}>
               {t('name.label') || 'Votre nom'}
             </label>
             <input
@@ -158,7 +156,7 @@ export default function EditProfileModal({ isOpen, onClose, onSaved }: EditProfi
 
           {/* Date de naissance */}
           <div>
-            <label className="text-sm font-semibold block mb-2" style={{ color: 'rgba(212,175,55,0.75)' }}>
+            <label className="text-sm font-semibold block mb-2" style={{ color: 'rgba(255,255,255,0.70)' }}>
               {t('date.title') || 'Date de naissance'}
             </label>
             <div className="flex gap-2">
@@ -179,7 +177,7 @@ export default function EditProfileModal({ isOpen, onClose, onSaved }: EditProfi
 
           {/* Genre */}
           <div>
-            <label className="text-sm font-semibold block mb-2" style={{ color: 'rgba(212,175,55,0.75)' }}>
+            <label className="text-sm font-semibold block mb-2" style={{ color: 'rgba(255,255,255,0.70)' }}>
               {t('gender.title') || 'Genre'}
             </label>
             <div className="space-y-2">
@@ -194,25 +192,18 @@ export default function EditProfileModal({ isOpen, onClose, onSaved }: EditProfi
                   onClick={() => setGender(option.value)}
                   className="w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200"
                   style={{
-                    background: gender === option.value
-                      ? 'rgba(212,175,55,0.12)'
-                      : 'rgba(212,175,55,0.04)',
-                    border: gender === option.value
-                      ? '1px solid rgba(212,175,55,0.55)'
-                      : '1px solid rgba(212,175,55,0.15)',
+                    background: gender === option.value ? 'rgba(124,58,237,0.25)' : 'rgba(255,255,255,0.04)',
+                    border: gender === option.value ? '1px solid rgba(139,92,246,0.60)' : '1px solid rgba(255,255,255,0.08)',
                   }}
                 >
-                  <span className="text-xl" style={{ color: gender === option.value ? '#d4af37' : 'rgba(212,175,55,0.5)' }}>
+                  <span className="text-xl" style={{ color: gender === option.value ? 'rgba(196,181,253,0.90)' : 'rgba(167,139,250,0.50)' }}>
                     {option.icon}
                   </span>
-                  <span
-                    className="font-medium"
-                    style={{ color: gender === option.value ? '#d4af37' : '#f0e4b0' }}
-                  >
+                  <span className="font-medium" style={{ color: gender === option.value ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.65)' }}>
                     {option.label}
                   </span>
                   {gender === option.value && (
-                    <span className="ml-auto text-sm" style={{ color: '#d4af37' }}>✓</span>
+                    <span className="ml-auto text-sm" style={{ color: 'rgba(196,181,253,0.90)' }}>✓</span>
                   )}
                 </button>
               ))}
@@ -222,17 +213,32 @@ export default function EditProfileModal({ isOpen, onClose, onSaved }: EditProfi
 
         {/* Boutons */}
         <div className="px-5 pb-6 flex gap-3">
-          <MysticalButton variant="secondary" onClick={onClose} className="flex-1">
+          {/* Annuler — gris/blanc */}
+          <button
+            onClick={onClose}
+            className="flex-1 py-3 rounded-xl font-semibold transition-all active:scale-[0.98]"
+            style={{
+              background: 'rgba(255,255,255,0.07)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              color: 'rgba(255,255,255,0.75)',
+            }}
+          >
             {t('common.cancel') || 'Annuler'}
-          </MysticalButton>
-          <MysticalButton
-            variant="primary"
+          </button>
+          {/* Sauvegarder — violet */}
+          <button
             onClick={handleSave}
-            className="flex-1"
             disabled={!name || !day || !month || !year || !gender}
+            className="flex-1 py-3 rounded-xl font-bold transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+              color: 'rgba(255,255,255,0.95)',
+              boxShadow: '0 4px 20px rgba(139,92,246,0.40)',
+              border: 'none',
+            }}
           >
             {t('common.save') || 'Enregistrer'}
-          </MysticalButton>
+          </button>
         </div>
       </div>
     </div>
