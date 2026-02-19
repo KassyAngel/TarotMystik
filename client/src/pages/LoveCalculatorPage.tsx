@@ -20,29 +20,39 @@ interface LoveCalculatorPageProps {
   shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>;
 }
 
-// ✅ NOUVELLE FONCTION: Calcule le % avec variation QUOTIDIENNE
+// ✅ FIX HASH : Nouvelle fonction qui génère vraiment un résultat différent chaque jour
+// Le problème de l'ancienne version : le hash JS est déterministe mais le numéro du jour
+// changeait peu la valeur finale car il était simplement concaténé comme string.
+// Solution : on multiplie le hash par un facteur basé sur le jour de l'année (1-366),
+// ce qui garantit une rotation significative chaque jour.
 const calculateLovePercentageWithDate = (name1: string, name2: string): number => {
-  // Normaliser les noms
   const n1 = name1.toLowerCase().trim();
   const n2 = name2.toLowerCase().trim();
 
-  // Obtenir la date du jour (YYYY-MM-DD)
+  // ✅ Toujours trier les noms dans le même ordre (A+B = B+A)
+  // Sans ça, "Karen + Marc" ≠ "Marc + Karen", ce qui est injuste
+  const sortedNames = [n1, n2].sort().join('|');
+
+  // ✅ Numéro du jour dans l'année (1 à 366) — change vraiment chaque jour
   const today = new Date();
-  const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const startOfYear = new Date(today.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((today.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
 
-  // Créer une seed unique basée sur les noms + la date
-  const combinedString = `${n1}${n2}${dateString}`;
-
-  // Hash simple mais efficace
-  let hash = 0;
-  for (let i = 0; i < combinedString.length; i++) {
-    const char = combinedString.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
+  // ✅ Hash des noms seuls (stable)
+  let nameHash = 0;
+  for (let i = 0; i < sortedNames.length; i++) {
+    nameHash = ((nameHash << 5) - nameHash) + sortedNames.charCodeAt(i);
+    nameHash = nameHash & nameHash;
   }
 
-  // Convertir en pourcentage (0-100)
-  const percentage = Math.abs(hash % 101);
+  // ✅ Combiner le hash des noms avec le jour de l'année
+  // La multiplication par un nombre premier garantit une distribution uniforme
+  const dailySeed = Math.abs(nameHash) * 31 + dayOfYear * 127;
+
+  // ✅ Extraire un pourcentage entre 30 et 98 (évite les extrêmes trop déprimants)
+  const percentage = 30 + (dailySeed % 69);
+
+  console.log(`💕 [LOVE] ${n1} + ${n2} | Jour ${dayOfYear} | Hash ${nameHash} | Résultat: ${percentage}%`);
 
   return percentage;
 };
@@ -73,7 +83,6 @@ export function LoveCalculatorPage({
       return;
     }
 
-    // 📊 Vérifier et afficher la pub AVANT le calcul
     if (shouldShowAdBeforeReading) {
       await shouldShowAdBeforeReading('loveCalculator');
     }
@@ -83,7 +92,6 @@ export function LoveCalculatorPage({
     setShowDetails(false);
 
     setTimeout(() => {
-      // ✅ UTILISATION DE LA NOUVELLE FONCTION AVEC DATE
       const lovePercent = calculateLovePercentageWithDate(name1, name2);
       const loveResult = getLoveResult(lovePercent);
 
@@ -97,7 +105,6 @@ export function LoveCalculatorPage({
 
       setTimeout(() => {
         setShowDetails(false);
-
         setTimeout(() => {
           setCurrentPhase('result');
 
@@ -107,25 +114,20 @@ export function LoveCalculatorPage({
           const animate = () => {
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / duration, 1);
-
             const easeOut = 1 - Math.pow(1 - progress, 3);
             const displayValue = Math.floor(easeOut * lovePercent);
-
             setDisplayPercentage(displayValue);
 
             if (progress < 1) {
               requestAnimationFrame(animate);
             } else {
               setDisplayPercentage(lovePercent);
-              setTimeout(() => {
-                setShowDetails(true);
-              }, 500);
+              setTimeout(() => setShowDetails(true), 500);
             }
           };
 
           requestAnimationFrame(animate);
 
-          // Sauvegarder
           if (onSaveReading) {
             onSaveReading({
               type: 'loveCalculator',
@@ -135,7 +137,6 @@ export function LoveCalculatorPage({
             });
           }
 
-          // 📊 Notifier le parent qu'un calcul est terminé
           if (onReadingComplete) {
             onReadingComplete('loveCalculator');
           }
@@ -159,9 +160,8 @@ export function LoveCalculatorPage({
   return (
     <div className="fixed inset-0 flex flex-col overflow-hidden">
 
-      {/* Background BLEU NUIT mystique */}
+      {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950">
-        {/* Étoiles scintillantes */}
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(30)].map((_, i) => (
             <div
@@ -179,22 +179,16 @@ export function LoveCalculatorPage({
             </div>
           ))}
         </div>
-
-        {/* Lueurs bleu nuit subtiles */}
         <div className="absolute top-1/4 left-1/5 w-96 h-96 bg-blue-500/8 rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/5 w-96 h-96 bg-cyan-500/8 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10 flex-1 flex flex-col safe-top safe-bottom overflow-hidden">
-
-        {/* CONTENU SCROLLABLE */}
         <div className="flex-1 overflow-y-auto px-4 pb-8">
 
           {/* PHASE 1: SAISIE */}
           {currentPhase === 'input' && (
             <div className="w-full max-w-md mx-auto space-y-6 pt-16">
-
-              {/* HEADER dans le contenu scrollable */}
               <div className="text-center pb-4 pt-8">
                 <h1 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-cyan-300 via-blue-200 to-indigo-300 bg-clip-text text-transparent drop-shadow-[0_2px_15px_rgba(6,182,212,0.4)]">
                   {t('loveCalculator.title')}
@@ -251,7 +245,6 @@ export function LoveCalculatorPage({
                 />
               </div>
 
-              {/* BOUTON CYAN/BLEU */}
               <button
                 onClick={handleCalculate}
                 className="group relative w-full py-6 text-xl font-bold rounded-2xl
@@ -266,13 +259,6 @@ export function LoveCalculatorPage({
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
                   translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-ping"></div>
-                  <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-cyan-200 rounded-full animate-ping" style={{animationDelay: '0.2s'}}></div>
-                  <div className="absolute bottom-1/4 left-1/3 w-1 h-1 bg-blue-200 rounded-full animate-ping" style={{animationDelay: '0.4s'}}></div>
-                </div>
-
                 <span className="relative z-10 flex items-center justify-center gap-3">
                   <span className="text-2xl group-hover:scale-110 transition-transform duration-300">💙</span>
                   <span className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">{t('loveCalculator.calculateButton')}</span>
@@ -284,22 +270,17 @@ export function LoveCalculatorPage({
                 <span>{t('loveCalculator.note')}</span>
               </div>
 
-              {/* Bouton Retour */}
               <div className="pt-6">
-                <MysticalButton 
-                  variant="secondary" 
+                <MysticalButton
+                  variant="secondary"
                   onClick={onBack}
-                  className="w-full max-w-xs mx-auto block 
-                    bg-slate-900/60 hover:bg-slate-800/70 
-                    border-cyan-400/30 text-cyan-100 backdrop-blur-md"
+                  className="w-full max-w-xs mx-auto block bg-slate-900/60 hover:bg-slate-800/70 border-cyan-400/30 text-cyan-100 backdrop-blur-md"
                 >
                   ← {t('common.back')}
                 </MysticalButton>
               </div>
 
-              {/* Espace pour la bannière pub */}
               <div className="h-20"></div>
-
             </div>
           )}
 
@@ -312,7 +293,6 @@ export function LoveCalculatorPage({
                     💖
                   </div>
                 </div>
-
                 <div className="space-y-4">
                   <p className="text-cyan-100 text-xl sm:text-2xl font-bold animate-pulse drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">
                     {t('loveCalculator.calculating')}
@@ -337,18 +317,14 @@ export function LoveCalculatorPage({
                         {name1} 💕 {name2}
                       </h3>
                     </div>
-
                     <div className="relative w-full max-w-[450px] aspect-square mx-auto">
                       <div className="absolute inset-0 border-4 border-cyan-400/20 rounded-full animate-spin-slow-smooth"></div>
                       <div className="absolute inset-10 border-4 border-blue-400/25 rounded-full animate-spin-reverse-smooth"></div>
                       <div className="absolute inset-20 border-4 border-cyan-300/30 rounded-full animate-spin-slow-smooth"></div>
-
                       <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-5xl animate-pulse-heart-smooth">💕</div>
                       <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-5xl animate-pulse-heart-smooth" style={{animationDelay: '0.4s'}}>💕</div>
                       <div className="absolute -left-8 top-1/2 -translate-y-1/2 text-5xl animate-pulse-heart-smooth" style={{animationDelay: '0.8s'}}>💕</div>
                       <div className="absolute -right-8 top-1/2 -translate-y-1/2 text-5xl animate-pulse-heart-smooth" style={{animationDelay: '1.2s'}}>💕</div>
-
-                      {/* Pourcentage */}
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center" style={{ lineHeight: '1', width: '280px', height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <span className="inline-block text-[7rem] font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-cyan-100 to-blue-200 drop-shadow-[0_8px_35px_rgba(0,0,0,0.9)] tabular-nums">
@@ -370,27 +346,9 @@ export function LoveCalculatorPage({
 
                     <div className="relative rounded-3xl p-6 sm:p-8 overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-blue-900/50 to-slate-900/70 backdrop-blur-xl rounded-3xl"></div>
-
                       <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-white/10 to-transparent rounded-t-3xl"></div>
 
-                      <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-3xl">
-                        {[...Array(8)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="absolute text-white/15 text-sm"
-                            style={{
-                              top: Math.random() * 100 + '%',
-                              left: Math.random() * 100 + '%',
-                              animation: `float-up ${Math.random() * 6 + 4}s ease-in-out infinite`,
-                              animationDelay: `${Math.random() * 2}s`
-                            }}>
-                            {['💕', '✨', '⭐'][Math.floor(Math.random() * 3)]}
-                          </div>
-                        ))}
-                      </div>
-
                       <div className="relative space-y-4">
-                        {/* Pourcentage */}
                         <div className="flex items-center justify-center py-6">
                           <div className="text-center px-4" style={{ lineHeight: '1.1', width: '280px', height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <span className="inline-block text-[7rem] font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-cyan-100 to-blue-200 drop-shadow-[0_8px_35px_rgba(0,0,0,0.9)] tabular-nums">
@@ -401,8 +359,7 @@ export function LoveCalculatorPage({
 
                         <div className="text-center space-y-2">
                           <div className="inline-block relative animate-float-gentle">
-                            <div className="absolute inset-0 blur-2xl opacity-40"
-                              style={{ backgroundColor: result.glowColor }}></div>
+                            <div className="absolute inset-0 blur-2xl opacity-40" style={{ backgroundColor: result.glowColor }}></div>
                             <div className="relative text-6xl sm:text-7xl drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
                               {result.emoji}
                             </div>
@@ -412,21 +369,17 @@ export function LoveCalculatorPage({
                           </h4>
                         </div>
 
-                        <div className="bg-black/40 rounded-2xl p-6 sm:p-8 border-2 border-cyan-400/25
-                          shadow-[inset_0_2px_20px_rgba(0,0,0,0.5)] backdrop-blur-sm">
-                          {/* Affichage du message sélectionné */}
+                        <div className="bg-black/40 rounded-2xl p-6 sm:p-8 border-2 border-cyan-400/25 shadow-[inset_0_2px_20px_rgba(0,0,0,0.5)] backdrop-blur-sm">
                           <p className="text-white text-lg sm:text-xl leading-relaxed text-center font-normal mb-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                             {selectedMessage}
                           </p>
                           <div className="pt-4 border-t border-cyan-400/25">
-                            {/* Affichage du conseil sélectionné */}
                             <p className="text-cyan-100/90 text-base sm:text-lg text-center italic drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                               💫 {selectedAdvice}
                             </p>
                           </div>
                         </div>
 
-                        {/* Bouton nouveau calcul */}
                         <button
                           onClick={handleReset}
                           className="group relative w-full py-4 text-base sm:text-lg font-bold rounded-2xl
@@ -436,32 +389,24 @@ export function LoveCalculatorPage({
                             transform hover:scale-[1.02] active:scale-[0.98]
                             transition-all duration-300
                             shadow-[0_10px_35px_rgba(6,182,212,0.5)]
-                            hover:shadow-[0_12px_45px_rgba(6,182,212,0.6)]
                             border-2 border-cyan-300/40"
                         >
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
-                            translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-
                           <span className="relative z-10 flex items-center justify-center gap-2">
-                            <span className="text-lg sm:text-xl group-hover:scale-110 transition-transform duration-300">✨</span>
-                            <span className="drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">{t('loveCalculator.newCalculation')}</span>
+                            <span className="text-lg sm:text-xl">✨</span>
+                            <span>{t('loveCalculator.newCalculation')}</span>
                           </span>
                         </button>
 
-                        {/* Bouton Retour */}
                         <div className="pt-6">
-                          <MysticalButton 
-                            variant="secondary" 
+                          <MysticalButton
+                            variant="secondary"
                             onClick={onBack}
-                            className="w-full max-w-xs mx-auto block 
-                              bg-slate-900/60 hover:bg-slate-800/70 
-                              border-cyan-400/30 text-cyan-100 backdrop-blur-md"
+                            className="w-full max-w-xs mx-auto block bg-slate-900/60 hover:bg-slate-800/70 border-cyan-400/30 text-cyan-100 backdrop-blur-md"
                           >
                             ← {t('common.back')}
                           </MysticalButton>
                         </div>
 
-                        {/* Espace pour la bannière pub */}
                         <div className="h-20"></div>
                       </div>
                     </div>
@@ -472,63 +417,23 @@ export function LoveCalculatorPage({
           )}
 
         </div>
-
       </div>
 
       <style>{`
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.2; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.3); }
-        }
-        @keyframes float-gentle {
-          0%, 100% { transform: translateY(0) scale(1); }
-          50% { transform: translateY(-12px) scale(1.03); }
-        }
-        @keyframes float-up {
-          0% { transform: translateY(0); opacity: 0.25; }
-          100% { transform: translateY(-80px); opacity: 0; }
-        }
-        @keyframes spin-slow-smooth {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes spin-reverse-smooth {
-          from { transform: rotate(360deg); }
-          to { transform: rotate(0deg); }
-        }
-        @keyframes pulse-heart-big {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.2); }
-        }
-        @keyframes pulse-heart-smooth {
-          0%, 100% { transform: scale(1); opacity: 0.8; }
-          50% { transform: scale(1.15); opacity: 1; }
-        }
-        @keyframes fade-in-smooth {
-          0% { opacity: 0; transform: translateY(20px) scale(0.98); }
-          100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
+        @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.3); } }
+        @keyframes float-gentle { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-12px) scale(1.03); } }
+        @keyframes spin-slow-smooth { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes spin-reverse-smooth { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+        @keyframes pulse-heart-big { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        @keyframes pulse-heart-smooth { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.15); opacity: 1; } }
+        @keyframes fade-in-smooth { 0% { opacity: 0; transform: translateY(20px) scale(0.98); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
-        .animate-spin-slow-smooth { 
-          animation: spin-slow-smooth 10s linear infinite;
-          will-change: transform;
-        }
-        .animate-spin-reverse-smooth { 
-          animation: spin-reverse-smooth 8s linear infinite;
-          will-change: transform;
-        }
-        .animate-pulse-heart-big { 
-          animation: pulse-heart-big 2.2s ease-in-out infinite;
-        }
-        .animate-pulse-heart-smooth { 
-          animation: pulse-heart-smooth 2s ease-in-out infinite;
-        }
-        .animate-float-gentle { 
-          animation: float-gentle 3.5s ease-in-out infinite;
-        }
-        .animate-fade-in-smooth { 
-          animation: fade-in-smooth 0.8s ease-out forwards;
-        }
+        .animate-spin-slow-smooth { animation: spin-slow-smooth 10s linear infinite; will-change: transform; }
+        .animate-spin-reverse-smooth { animation: spin-reverse-smooth 8s linear infinite; will-change: transform; }
+        .animate-pulse-heart-big { animation: pulse-heart-big 2.2s ease-in-out infinite; }
+        .animate-pulse-heart-smooth { animation: pulse-heart-smooth 2s ease-in-out infinite; }
+        .animate-float-gentle { animation: float-gentle 3.5s ease-in-out infinite; }
+        .animate-fade-in-smooth { animation: fade-in-smooth 0.8s ease-out forwards; }
         .safe-top { padding-top: env(safe-area-inset-top); }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
       `}</style>

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import ProgressBar from '@/components/ProgressBar';
-import MysticalButton from '@/components/MysticalButton';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NamePageProps {
@@ -13,164 +12,294 @@ export default function NamePage({ onNext }: NamePageProps) {
   const { t } = useLanguage();
 
   const handleSubmit = () => {
-    if (name.trim()) {
-      onNext(name.trim());
-    }
+    if (name.trim()) onNext(name.trim());
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && name.trim()) {
-      handleSubmit();
-    }
+    if (e.key === 'Enter' && name.trim()) handleSubmit();
   };
 
   return (
-    <div className="intro-page active flex flex-col min-h-screen text-center px-4 sm:px-6 relative overflow-hidden bg-gradient-to-b from-[#0a0e1a] via-[#1a1540] to-[#0a0e1a]">
-
-      {/* Particules */}
-      <div className="absolute inset-0 -z-10">
-        {[...Array(60)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full animate-twinkle"
-            style={{
-              backgroundColor: i % 3 === 0 ? '#d4af37' : i % 3 === 1 ? '#ff6692' : '#a78bfa',
-              width: Math.random() > 0.8 ? '3px' : '2px',
-              height: Math.random() > 0.8 ? '3px' : '2px',
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              opacity: Math.random() * 0.6 + 0.2,
-              animationDelay: `${Math.random() * 2}s`,
-              animationDuration: `${2 + Math.random() * 3}s`
-            }}
-          />
-        ))}
+    <div className="np-root">
+      {/* Fond */}
+      <div className="np-bg" aria-hidden>
+        <div className="np-orb np-orb-1" />
+        <div className="np-orb np-orb-2" />
+        <div className="np-grain" />
       </div>
 
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-pink-500/15 via-purple-500/15 to-transparent blur-3xl -z-10"></div>
-
-      {/* Progress Bar en haut */}
-      <div className="pt-8 sm:pt-12 pb-4">
+      {/* Progress */}
+      <div className="np-progress">
         <ProgressBar progress={33} />
       </div>
 
-      {/* Contenu PARFAITEMENT CENTRÉ */}
-      <div className="flex-1 flex flex-col justify-center items-center max-w-lg mx-auto w-full space-y-6 sm:space-y-8 -mt-16">
-
-        {/* Titre */}
-        <div className="space-y-3">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold bg-gradient-to-r from-pink-300 via-purple-300 to-amber-200 bg-clip-text text-transparent drop-shadow-[0_4px_30px_rgba(236,72,153,0.6)]">
-            {t('name.title')}
-          </h1>
-
-          <p className="text-purple-100/85 text-sm sm:text-base font-light leading-relaxed max-w-md mx-auto px-2">
-            {t('name.subtitle')}
-          </p>
-
-          <div className="flex items-center justify-center gap-3 pt-2">
-            <div className="w-12 h-px bg-gradient-to-r from-transparent via-pink-400/60 to-purple-400/50"></div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-amber-400/50 blur-lg rounded-full"></div>
-              <span className="relative text-amber-300 text-xl animate-pulse">✦</span>
-            </div>
-            <div className="w-12 h-px bg-gradient-to-l from-transparent via-pink-400/60 to-purple-400/50"></div>
+      {/* Contenu */}
+      <div className="np-content">
+        <div className="np-header">
+          <h1 className="np-title">{t('name.title')}</h1>
+          <p className="np-subtitle">{t('name.subtitle')}</p>
+          <div className="np-rule">
+            <span className="np-rule-line" />
+            <span className="np-rule-gem" />
+            <span className="np-rule-line" />
           </div>
         </div>
 
-        {/* Input avec HAUTEUR FIXE pour éviter le changement de taille */}
-        <div className="relative group pt-2 w-full">
-          <div className={`absolute -inset-2 bg-gradient-to-r from-pink-600/0 via-purple-500/50 to-violet-600/0 rounded-3xl blur-xl transition-all duration-500 ${
-            isFocused || name ? 'opacity-100' : 'opacity-0'
-          }`}></div>
-
-          <div className="relative h-[72px] flex items-center">
-            <label className={`absolute left-1/2 -translate-x-1/2 transition-all duration-300 pointer-events-none z-10 ${
-              isFocused || name 
-                ? 'top-2 text-xs text-pink-300 font-semibold' 
-                : 'top-1/2 -translate-y-1/2 text-base text-purple-300/50'
-            }`}>
-              {isFocused || name ? '✨ ' + t('name.placeholder') : t('name.placeholder')}
-            </label>
-
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onKeyPress={handleKeyPress}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              className={`w-full h-full px-6 ${isFocused || name ? 'pt-6 pb-2' : 'pt-0 pb-0'}
-                         bg-gradient-to-br from-violet-900/50 via-purple-900/40 to-violet-900/50
-                         border-2 rounded-2xl text-xl font-bold text-[#7c3aed] text-center
-                         focus:outline-none
-                         transition-all duration-300 backdrop-blur-xl
-                         shadow-[inset_0_2px_20px_rgba(0,0,0,0.5),0_0_30px_rgba(236,72,153,0.2)]
-                         focus:shadow-[inset_0_2px_20px_rgba(0,0,0,0.5),0_0_50px_rgba(236,72,153,0.4)]
-                         ${isFocused 
-                           ? 'border-pink-400/80 scale-[1.02]' 
-                           : name 
-                           ? 'border-purple-400/60' 
-                           : 'border-pink-500/40'
-                         }`}
-              data-testid="input-name"
-            />
-
-            <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent rounded-t-2xl pointer-events-none"></div>
-
-            {name && (
-              <div className="absolute right-5 top-1/2 -translate-y-1/2 flex gap-1">
-                {[...Array(3)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-2 h-2 rounded-full bg-gradient-to-r from-pink-400 to-amber-400 animate-bounce-stagger shadow-[0_0_10px_rgba(236,72,153,0.8)]"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+        {/* Input */}
+        <div className={`np-field-wrap ${isFocused ? 'np-field-focused' : ''} ${name ? 'np-field-filled' : ''}`}>
+          <label className={`np-label ${isFocused || name ? 'np-label-up' : ''}`}>
+            {t('name.placeholder')}
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyPress={handleKeyPress}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            className="np-input"
+            data-testid="input-name"
+            autoComplete="given-name"
+          />
+          <span className="np-field-bar" />
         </div>
 
         {/* Bouton */}
-        <div className="pt-2 w-full">
-          <div className="relative group">
-            <div className={`absolute -inset-3 bg-gradient-to-r from-pink-600 via-purple-600 to-violet-600 rounded-full blur-2xl transition-all duration-500 ${
-              name.trim() ? 'opacity-50 group-hover:opacity-80' : 'opacity-0'
-            }`}></div>
-
-            <button
-              onClick={handleSubmit}
-              disabled={!name.trim()}
-              className="relative w-full px-10 py-5 text-lg rounded-full font-semibold
-                         bg-gradient-to-r from-pink-600 via-purple-600 to-violet-600
-                         border-2 border-pink-400/70 text-white
-                         shadow-[0_0_40px_rgba(236,72,153,0.5),0_4px_20px_rgba(147,51,234,0.4),inset_0_2px_15px_rgba(255,255,255,0.2)]
-                         hover:shadow-[0_0_60px_rgba(236,72,153,0.7),0_6px_30px_rgba(147,51,234,0.6),inset_0_2px_20px_rgba(255,255,255,0.3)]
-                         hover:border-pink-300/90 hover:scale-105
-                         disabled:opacity-20 disabled:cursor-not-allowed disabled:scale-100
-                         transition-all duration-300 overflow-hidden"
-              data-testid="button-next"
-            >
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-12"></div>
-
-              <span className="flex items-center justify-center gap-3 relative z-10">
-                <span>{t('name.next')}</span>
-                <span className="text-amber-200 text-xl group-hover:translate-x-1 transition-transform duration-300">→</span>
-              </span>
-
-              <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent rounded-t-full pointer-events-none"></div>
-            </button>
-          </div>
-        </div>
+        <button
+          onClick={handleSubmit}
+          disabled={!name.trim()}
+          className="np-btn"
+          data-testid="button-next"
+        >
+          <span className="np-btn-text">{t('name.next')}</span>
+          <span className="np-btn-arrow">→</span>
+          <span className="np-btn-shimmer" aria-hidden />
+        </button>
       </div>
 
-      <div className="pb-8"></div>
-
       <style>{`
-        @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.4); } }
-        @keyframes bounce-stagger { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        .animate-twinkle { animation: twinkle ease-in-out infinite; }
-        .animate-bounce-stagger { animation: bounce-stagger 1s ease-in-out infinite; }
+        .np-root {
+          position: relative;
+          min-height: 100svh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          background: #080808;
+          overflow: hidden;
+          font-family: 'Cormorant Garamond', 'Georgia', serif;
+        }
+
+        .np-bg { position: absolute; inset: 0; pointer-events: none; }
+
+        .np-orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(80px);
+        }
+        .np-orb-1 {
+          width: 480px; height: 480px;
+          top: -100px; left: 50%; transform: translateX(-50%);
+          background: radial-gradient(ellipse, rgba(180,140,30,0.10) 0%, transparent 65%);
+          animation: np-drift 14s ease-in-out infinite alternate;
+        }
+        .np-orb-2 {
+          width: 300px; height: 300px;
+          bottom: -40px; right: -60px;
+          background: radial-gradient(ellipse, rgba(140,100,20,0.07) 0%, transparent 65%);
+          animation: np-drift 10s ease-in-out infinite alternate-reverse;
+        }
+
+        .np-grain {
+          position: absolute; inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+          opacity: 0.45;
+        }
+
+        .np-progress {
+          width: 100%;
+          padding: 32px 20px 0;
+          position: relative; z-index: 10;
+        }
+
+        .np-content {
+          position: relative; z-index: 10;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          gap: 36px;
+          padding: 0 28px 60px;
+          width: 100%;
+          max-width: 380px;
+          text-align: center;
+        }
+
+        /* HEADER */
+        .np-header {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+        }
+        .np-title {
+          font-family: 'Playfair Display', 'Georgia', serif;
+          font-size: clamp(1.9rem, 7vw, 2.6rem);
+          font-weight: 700;
+          margin: 0;
+          background: linear-gradient(150deg, #f5e6a0 0%, #d4af37 42%, #f0dc80 70%, #b8922c 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          letter-spacing: 0.01em;
+          animation: np-glow 5s ease-in-out infinite alternate;
+        }
+        .np-subtitle {
+          font-size: clamp(0.88rem, 3.5vw, 1rem);
+          font-weight: 300;
+          line-height: 1.78;
+          color: rgba(235,225,200,0.82);
+          margin: 0;
+          max-width: 270px;
+          letter-spacing: 0.02em;
+        }
+        .np-rule {
+          display: flex; align-items: center; gap: 10px; width: 140px; margin-top: 4px;
+        }
+        .np-rule-line {
+          flex: 1; height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.55), transparent);
+        }
+        .np-rule-gem {
+          width: 5px; height: 5px;
+          background: #d4af37; transform: rotate(45deg);
+          box-shadow: 0 0 10px rgba(212,175,55,0.95); flex-shrink: 0;
+        }
+
+        /* CHAMP */
+        .np-field-wrap {
+          position: relative;
+          width: 100%;
+          padding-top: 22px;
+        }
+        .np-label {
+          position: absolute;
+          top: 30px; left: 0; right: 0;
+          text-align: center;
+          font-size: 0.92rem;
+          font-weight: 400;
+          color: rgba(210,195,165,0.50);
+          letter-spacing: 0.05em;
+          pointer-events: none;
+          transition: top 0.25s, font-size 0.25s, color 0.25s;
+        }
+        .np-label-up {
+          top: 0;
+          font-size: 0.68rem;
+          color: rgba(212,175,55,0.85);
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+        .np-input {
+          width: 100%;
+          background: transparent;
+          border: none;
+          border-bottom: 1px solid rgba(212,175,55,0.28);
+          padding: 10px 0 8px;
+          font-size: 1.4rem;
+          font-weight: 500;
+          color: #f0ebe0;
+          text-align: center;
+          letter-spacing: 0.08em;
+          outline: none;
+          transition: border-color 0.3s;
+          font-family: 'Playfair Display', serif;
+        }
+        .np-field-focused .np-input,
+        .np-field-filled .np-input {
+          border-bottom-color: rgba(212,175,55,0.65);
+        }
+        .np-field-bar {
+          position: absolute;
+          bottom: 0; left: 50%; right: 50%;
+          height: 1.5px;
+          background: linear-gradient(90deg, #d4af37, #f0c840);
+          box-shadow: 0 0 6px rgba(212,175,55,0.55);
+          transition: left 0.35s, right 0.35s;
+        }
+        .np-field-focused .np-field-bar,
+        .np-field-filled .np-field-bar {
+          left: 0; right: 0;
+        }
+
+        /* BOUTON */
+        .np-btn {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          width: 100%;
+          max-width: 240px;
+          padding: 15px 28px;
+          background: transparent;
+          border: 1px solid rgba(212,175,55,0.42);
+          border-radius: 2px;
+          cursor: pointer;
+          overflow: hidden;
+          transition: border-color 0.35s, transform 0.25s, box-shadow 0.35s, opacity 0.3s;
+          outline: none;
+        }
+        .np-btn::before {
+          content: '';
+          position: absolute; inset: 3px;
+          border: 1px solid rgba(212,175,55,0.12);
+          border-radius: 1px;
+          pointer-events: none;
+        }
+        .np-btn:disabled {
+          opacity: 0.22;
+          cursor: not-allowed;
+          pointer-events: none;
+        }
+        .np-btn:not(:disabled):hover {
+          border-color: rgba(212,175,55,0.88);
+          box-shadow: 0 0 36px rgba(212,175,55,0.20);
+          transform: translateY(-2px);
+        }
+        .np-btn-text {
+          font-family: 'Playfair Display', serif;
+          font-size: 0.85rem;
+          font-weight: 600;
+          letter-spacing: 0.24em;
+          text-transform: uppercase;
+          color: #f0e4b0;
+          position: relative; z-index: 2;
+        }
+        .np-btn-arrow {
+          font-size: 1rem;
+          color: rgba(212,175,55,0.72);
+          transition: transform 0.3s;
+          position: relative; z-index: 2;
+        }
+        .np-btn:not(:disabled):hover .np-btn-arrow { transform: translateX(4px); }
+        .np-btn-shimmer {
+          position: absolute; top: 0; left: -100%;
+          width: 55%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.12), transparent);
+          transform: skewX(-18deg);
+          transition: left 0.55s ease;
+        }
+        .np-btn:not(:disabled):hover .np-btn-shimmer { left: 150%; }
+
+        @keyframes np-drift {
+          0%   { transform: translateX(-50%) translateY(0) scale(1); }
+          100% { transform: translateX(-50%) translateY(-18px) scale(1.07); }
+        }
+        @keyframes np-glow {
+          0%   { filter: drop-shadow(0 0 14px rgba(212,175,55,0.15)); }
+          100% { filter: drop-shadow(0 0 38px rgba(212,175,55,0.48)); }
+        }
       `}</style>
     </div>
   );

@@ -23,19 +23,19 @@ console.log('🔍 Détection plateforme AdMob:', {
 // 📱 IDs AdMob - TarotMystik
 const BANNER_AD_ID = isNative 
   ? (IS_PRODUCTION 
-      ? 'ca-app-pub-5733508257471048/9858415317' // ✅ Bannière TarotMystik
+      ? 'ca-app-pub-5733508257471048/9858415317'
       : 'ca-app-pub-3940256099942544/6300978111') // Test
   : '';
 
 const INTERSTITIAL_AD_ID = isNative
   ? (IS_PRODUCTION 
-      ? 'ca-app-pub-5733508257471048/3903381053' // ✅ Interstitiel TarotMystik
+      ? 'ca-app-pub-5733508257471048/3903381053'
       : 'ca-app-pub-3940256099942544/1033173712') // Test
   : '';
 
 const REWARDED_AD_ID = isNative
   ? (IS_PRODUCTION
-      ? 'ca-app-pub-5733508257471048/7285041100' // ✅ Récompensée TarotMystik
+      ? 'ca-app-pub-5733508257471048/7285041100'
       : 'ca-app-pub-3940256099942544/5224354917') // Test
   : '';
 
@@ -62,16 +62,38 @@ function _removeAllListenersSafe() {
   _allListeners = [];
 }
 
-// 🎯 Variables pour le pré-chargement intelligent
+// 🎯 Variables état
+let isAdMobInitialized = false; // ✅ FIX CRASH : Flag pour savoir si AdMob est prêt
 let isInterstitialReady = false;
 let isInterstitialLoading = false;
 let isInterstitialShowing = false;
 
-// 🔐 Variables pour le consentement RGPD
+// 🔐 Variables consentement RGPD
 let consentStatus: 'unknown' | 'required' | 'not_required' | 'obtained' = 'unknown';
 let isConsentFormShowing = false;
 
-// 🔐 NOUVELLE FONCTION : Vérifier et demander le consentement RGPD
+// ✅ FIX CRASH : Fonction utilitaire pour attendre que AdMob soit prêt
+// Utilisée par showBanner() pour éviter le NullPointerException
+async function waitForInitialization(maxWaitMs = 10000): Promise<boolean> {
+  if (isAdMobInitialized) return true;
+
+  console.log('⏳ [ADMOB] En attente de l\'initialisation...');
+  const start = Date.now();
+
+  while (!isAdMobInitialized && (Date.now() - start) < maxWaitMs) {
+    await new Promise(r => setTimeout(r, 200));
+  }
+
+  if (isAdMobInitialized) {
+    console.log('✅ [ADMOB] Prêt !');
+    return true;
+  } else {
+    console.warn('⚠️ [ADMOB] Timeout attente init');
+    return false;
+  }
+}
+
+// 🔐 Vérifier et demander le consentement RGPD
 export async function requestConsent(): Promise<boolean> {
   if (!isNative) {
     console.log('📱 Pas sur mobile natif, consentement ignoré');
@@ -81,12 +103,9 @@ export async function requestConsent(): Promise<boolean> {
   try {
     console.log('🔐 [CONSENTEMENT RGPD] Vérification du statut...');
 
-    // Étape 1 : Vérifier si le consentement est requis
     const consentInfo = await AdMob.requestConsentInfo();
-
     console.log('📊 [CONSENTEMENT] Statut:', consentInfo);
 
-    // Vérifier le statut du consentement
     if (consentInfo.status === 'OBTAINED') {
       console.log('✅ [CONSENTEMENT] Déjà obtenu');
       consentStatus = 'obtained';
@@ -99,11 +118,9 @@ export async function requestConsent(): Promise<boolean> {
       return true;
     }
 
-    // Le consentement est requis et non obtenu
     console.log('⚠️ [CONSENTEMENT] Requis - Affichage du formulaire');
     consentStatus = 'required';
 
-    // Étape 2 : Afficher le formulaire de consentement
     if (!isConsentFormShowing) {
       isConsentFormShowing = true;
 
@@ -111,7 +128,6 @@ export async function requestConsent(): Promise<boolean> {
         const result = await AdMob.showConsentForm();
         console.log('✅ [CONSENTEMENT] Formulaire fermé:', result);
 
-        // Vérifier à nouveau le statut après le formulaire
         const updatedInfo = await AdMob.requestConsentInfo();
 
         if (updatedInfo.status === 'OBTAINED') {
@@ -136,12 +152,12 @@ export async function requestConsent(): Promise<boolean> {
 
   } catch (error) {
     console.error('❌ [CONSENTEMENT] Erreur:', error);
-    // En cas d'erreur, on continue (mieux vaut afficher des pubs que crasher)
+    // En cas d'erreur on continue (mieux vaut afficher des pubs que crasher)
     return true;
   }
 }
 
-// 🔐 FONCTION : Réinitialiser le consentement (pour tests ou changement d'avis)
+// 🔐 Réinitialiser le consentement (pour tests ou changement d'avis)
 export async function resetConsent(): Promise<void> {
   if (!isNative) return;
 
@@ -155,12 +171,12 @@ export async function resetConsent(): Promise<void> {
   }
 }
 
-// 🔐 FONCTION : Obtenir le statut actuel du consentement
+// 🔐 Obtenir le statut actuel du consentement
 export function getConsentStatus(): string {
   return consentStatus;
 }
 
-// 🎯 FONCTION MODIFIÉE : Initialiser AdMob avec gestion du consentement
+// 🎯 Initialiser AdMob avec gestion du consentement
 export async function initialize() {
   console.log(`📱 Initialisation AdMob TarotMystik - Mode: ${IS_PRODUCTION ? 'PRODUCTION' : 'TEST'}`);
 
@@ -170,7 +186,7 @@ export async function initialize() {
   }
 
   try {
-    // ✅ ÉTAPE 1 : Demander le consentement AVANT d'initialiser AdMob
+    // ÉTAPE 1 : Demander le consentement AVANT d'initialiser AdMob
     console.log('🔐 [INIT] Étape 1/2 : Demande de consentement...');
     const consentGranted = await requestConsent();
 
@@ -178,14 +194,14 @@ export async function initialize() {
       console.warn('⚠️ [INIT] Consentement non obtenu - AdMob initialisé mais pubs limitées');
     }
 
-    // ✅ ÉTAPE 2 : Initialiser AdMob
+    // ÉTAPE 2 : Initialiser AdMob
     console.log('🔐 [INIT] Étape 2/2 : Initialisation AdMob...');
     await AdMob.initialize({
       testingDevices: IS_PRODUCTION ? [] : ['1763659614607'],
       initializeForTesting: !IS_PRODUCTION,
     });
 
-    // 🛠️ Enregistrement des listeners
+    // Enregistrement des listeners interstitielle
     _addListener('interstitialAdLoaded', () => {
       console.log('✅ Pub interstitielle chargée et prête');
       isInterstitialReady = true;
@@ -216,14 +232,21 @@ export async function initialize() {
       isInterstitialShowing = false;
     });
 
+    // ✅ FIX CRASH CLÉ : On marque AdMob comme prêt SEULEMENT ici,
+    // après que tout soit initialisé. showBanner() attend ce flag.
+    isAdMobInitialized = true;
+
     console.log(`✅ AdMob TarotMystik initialisé en mode ${IS_PRODUCTION ? 'PRODUCTION' : 'TEST'}`);
     console.log(`🔐 Statut consentement: ${consentStatus}`);
+
   } catch (error) {
     console.error('❌ Erreur init AdMob:', error);
+    // ✅ FIX : On ne met PAS isAdMobInitialized à true en cas d'erreur
+    // Ça évite que showBanner() soit appelé avec un AdMob cassé
   }
 }
 
-// 🎯 Pré-charger la pub sans l'afficher
+// 🎯 Pré-charger la pub interstitielle sans l'afficher
 export async function preloadInterstitial() {
   if (!isNative) return;
 
@@ -300,8 +323,17 @@ export async function showInterstitialAd(context: string = 'unknown'): Promise<b
   }
 }
 
+// ✅ FIX CRASH BANNIÈRE : showBanner attend que AdMob soit initialisé
+// C'est ici que le NullPointerException était causé sur vieux Android
 export async function showBanner() {
   if (!isNative) return;
+
+  // ✅ PROTECTION CRASH : On attend que AdMob soit prêt avant d'afficher la bannière
+  const ready = await waitForInitialization(10000);
+  if (!ready) {
+    console.warn('⚠️ [BANNIÈRE] AdMob pas initialisé, bannière annulée');
+    return;
+  }
 
   try {
     const options: BannerAdOptions = {
@@ -315,11 +347,13 @@ export async function showBanner() {
     console.log('✅ Bannière TarotMystik affichée');
   } catch (error) {
     console.error('❌ Erreur bannière:', error);
+    // ✅ On catch l'erreur sans crasher l'app
   }
 }
 
 export async function hideBanner() {
   if (!isNative) return;
+  if (!isAdMobInitialized) return; // ✅ Protection supplémentaire
 
   try {
     await AdMob.hideBanner();
@@ -331,6 +365,7 @@ export async function hideBanner() {
 
 export async function removeBanner() {
   if (!isNative) return;
+  if (!isAdMobInitialized) return; // ✅ Protection supplémentaire
 
   try {
     await AdMob.removeBanner();

@@ -1,22 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Base application theme. -->
+    <!-- Thème de base (gardé tel quel) -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- Thème principal de l'app (gardé tel quel) -->
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
     </style>
 
-
+    <!--
+        ✅ Thème du Splash Screen — utilise ton splash.xml (mipmap, centré, pas déformé)
+        Theme.SplashScreen est la bonne approche pour Android 12+
+        On ajoute le fond sombre + barre de statut sombre pour éviter le flash blanc
+    -->
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
+        <!-- ✅ FIX flash blanc : fond sombre pendant le chargement -->
+        <item name="android:windowBackground">@drawable/splash</item>
+        <item name="android:statusBarColor">#0a0e1a</item>
+        <item name="android:navigationBarColor">#0a0e1a</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
+
 </resources>

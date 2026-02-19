@@ -99,7 +99,7 @@ function WizardPage({
         }
 
         setIsProcessing(false);
-      }, 7000);
+      }, 6000);
     } catch (error) {
       console.error('❌ [WIZARD] Erreur:', error);
       setIsProcessing(false);

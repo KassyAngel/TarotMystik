@@ -1,5 +1,5 @@
 // client/src/pages/WheelPage.tsx
-// 🎡 Page Roue - VERSION FINALE (Pub à chaque fois + nouveau loading)
+// 🎡 Page Roue - VERSION SCROLLABLE
 
 import { useState, useEffect } from 'react';
 import Wheel from '@/components/Wheel';
@@ -25,9 +25,9 @@ const getRandomVariation = () => {
   return choice;
 };
 
-export default function WheelPage({ 
-  user, 
-  onBack, 
+export default function WheelPage({
+  user,
+  onBack,
   onSaveReading,
   isPremium = false,
   wheelCounter = 0,
@@ -40,230 +40,210 @@ export default function WheelPage({
   const [showLongAdMessage, setShowLongAdMessage] = useState(false);
   const [variation, setVariation] = useState<string | null>(null);
   const [wheelUnlocked, setWheelUnlocked] = useState(isPremium);
-  // ✅ FIX : Tracker si la pub a déjà été montrée pour CETTE session
   const [adShownThisSession, setAdShownThisSession] = useState(false);
 
-  // ✅ FIX : Reset adShownThisSession quand le composant monte (navigation vers la roue)
   useEffect(() => {
-    console.log('🎡 [WHEEL] Montage du composant - Reset de la session pub');
     setAdShownThisSession(false);
-  }, []); // Seulement au montage
+  }, []);
 
   useEffect(() => {
-    // ✅ FIX : Si la pub a déjà été montrée cette session, ne pas la re-déclencher
-    if (adShownThisSession) {
-      console.log('✅ [WHEEL] Pub déjà montrée cette session, skip');
-      return;
-    }
+    if (adShownThisSession) return;
 
     const unlockWheel = async () => {
       if (isPremium) {
-        console.log('👑 [WHEEL] Premium actif → Déblocage instantané');
-        const chosenVariation = getRandomVariation();
-        setVariation(chosenVariation);
+        setVariation(getRandomVariation());
         setWheelUnlocked(true);
         return;
       }
 
       const nextCount = wheelCounter + 1;
-      console.log(`🎯 [WHEEL] Tirage #${nextCount}`);
-
-      const chosenVariation = getRandomVariation();
-      setVariation(chosenVariation);
+      setVariation(getRandomVariation());
 
       if (nextCount === 1) {
-        console.log('🎁 [WHEEL] 1er tirage → Pub récompensée');
-
         let messageTimeoutId: NodeJS.Timeout | null = null;
-
         try {
           const adPromise = showRewardedAd('wheel_first');
-
           const loadingTimeoutId = setTimeout(() => {
-            console.log('⏳ [WHEEL] Affichage loading (pub en préparation)');
             setIsLoadingAd(true);
-
-            messageTimeoutId = setTimeout(() => {
-              console.log('💬 [WHEEL] Affichage message "pub longue"');
-              setShowLongAdMessage(true);
-            }, 45000);
+            messageTimeoutId = setTimeout(() => setShowLongAdMessage(true), 45000);
           }, 500);
-
           const rewardGranted = await adPromise;
-
           clearTimeout(loadingTimeoutId);
           if (messageTimeoutId) clearTimeout(messageTimeoutId);
-
           setIsLoadingAd(false);
           setShowLongAdMessage(false);
-          setAdShownThisSession(true); // ✅ Marquer la pub comme montrée
-
-          console.log(`🎁 [WHEEL] Résultat: ${rewardGranted ? '✅ DÉBLOQUÉ' : '❌ BLOQUÉ'}`);
-
+          setAdShownThisSession(true);
           if (rewardGranted) {
-            console.log('✅ [WHEEL] Pub complétée → Déblocage');
             setWheelUnlocked(true);
           } else {
-            console.log('❌ [WHEEL] Pub non complétée → Retour');
             alert(t('oracle.wheel.adNotCompleted') || 'Veuillez regarder la publicité jusqu\'à la fin.');
             onBack();
           }
         } catch (error) {
-          console.error('❌ [WHEEL] Erreur:', error);
           if (messageTimeoutId) clearTimeout(messageTimeoutId);
           setIsLoadingAd(false);
           setShowLongAdMessage(false);
           alert(t('oracle.wheel.adError') || 'Une erreur est survenue. Réessayez.');
           onBack();
         }
-      }
-      else if ((nextCount - 1) % 3 === 0 && nextCount > 1) {
-        console.log(`📺 [WHEEL] Tirage #${nextCount} → Pub interstitielle`);
+      } else if ((nextCount - 1) % 3 === 0 && nextCount > 1) {
         try {
           await showInterstitialAd(`wheel_${nextCount}`);
-          console.log('✅ [WHEEL] Pub interstitielle affichée');
-          setAdShownThisSession(true); // ✅ Marquer la pub comme montrée
+          setAdShownThisSession(true);
         } catch (error) {
           console.error('❌ [WHEEL] Erreur pub interstitielle:', error);
         }
         setWheelUnlocked(true);
-      }
-      else {
-        console.log(`⏭️ [WHEEL] Tirage #${nextCount} → Pas de pub`);
+      } else {
         setWheelUnlocked(true);
       }
     };
 
     unlockWheel();
-  }, [isPremium, wheelCounter, t, onBack, adShownThisSession]); // ✅ Ajouter adShownThisSession en dépendance
+  }, [isPremium, wheelCounter, t, onBack, adShownThisSession]);
 
   const handleComplete = (result: { category: string; interpretation: string }) => {
     setIsComplete(true);
-    console.log('✅ Roue complétée:', result);
-
-    if (onWheelComplete) {
-      onWheelComplete();
-    }
+    if (onWheelComplete) onWheelComplete();
   };
 
-  // ✅ NOUVEAU LOADING SCREEN ÉLÉGANT
   if (isLoadingAd) {
     return <AdLoadingScreen showLongMessage={showLongAdMessage} adType="rewarded" />;
   }
 
-  // ÉCRAN PRINCIPAL
   if (wheelUnlocked) {
     return (
-      <div className="fixed inset-0 flex flex-col bg-gradient-to-br from-[#0a0e1a] via-[#1a1540] to-[#0a0e1a]">
+      // ✅ SCROLLABLE : la page entière défile, fond fixe derrière
+      <div className="fixed inset-0" style={{ background: '#080808' }}>
 
-        {/* Background avec étoiles */}
-        <div className="fixed inset-0 -z-10">
-          <div className="absolute inset-0 opacity-25">
-            {[...Array(100)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full animate-twinkle"
-                style={{
-                  backgroundColor: ['#8b5cf6', '#67e8f9', '#d4af37'][i % 3],
-                  width: (i % 3 === 0 ? Math.random() * 3.5 : Math.random() * 2) + 0.5 + 'px',
-                  height: (i % 3 === 0 ? Math.random() * 3.5 : Math.random() * 2) + 0.5 + 'px',
-                  top: Math.random() * 100 + '%',
-                  left: Math.random() * 100 + '%',
-                  animationDelay: Math.random() * 4 + 's',
-                  animationDuration: Math.random() * 3 + 2 + 's'
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Étoiles filantes */}
-          {[...Array(3)].map((_, i) => (
-            <div
-              key={`shooting-${i}`}
-              className="absolute opacity-0 animate-shooting-star"
-              style={{
-                top: `${10 + i * 30}%`,
-                right: `${20 + i * 20}%`,
-                animationDelay: `${i * 10 + 4}s`,
-                animationDuration: '2.5s'
-              }}
-            >
-              <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full blur-sm shadow-[0_0_15px_rgba(34,211,238,0.9)]" />
-            </div>
-          ))}
+        {/* ── FOND CONSTELLATION DORÉE — fixe derrière ── */}
+        <canvas
+          id="constellation-canvas"
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          style={{ zIndex: 0 }}
+        />
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+          <div className="wp-orb wp-orb-1" />
+          <div className="wp-orb wp-orb-2" />
         </div>
 
-        {/* Container principal */}
-        <div className="flex-1 flex flex-col min-h-0">
-          <Wheel 
+        {/* ✅ ZONE SCROLLABLE au-dessus du fond */}
+        <div
+          className="absolute inset-0"
+          style={{
+            zIndex: 10,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            WebkitOverflowScrolling: 'touch',
+            paddingTop: '60px',
+            paddingBottom: '24px',
+          }}
+        >
+          <Wheel
             onComplete={handleComplete}
             variation={variation}
             isPremium={isPremium}
-            onReset={() => {
-              const newVariation = getRandomVariation();
-              setVariation(newVariation);
-              console.log('🔄 Nouvelle variation:', newVariation);
-            }}
+            onReset={() => setVariation(getRandomVariation())}
           />
-        </div>
 
-        {/* BOUTON DE NAVIGATION - BIEN ESPACÉ */}
-        <div 
-          className="fixed left-0 right-0 pointer-events-none"
-          style={{
-            bottom: '60px',
-            zIndex: 50
-          }}
-        >
-          <div className="bg-gradient-to-t from-slate-900/98 via-slate-900/95 to-transparent backdrop-blur-md border-t border-amber-500/20 pointer-events-auto">
-            <div className="max-w-lg mx-auto px-4 pt-5 pb-3 pb-safe-ios">
-              {!isComplete ? (
-                <button 
-                  onClick={onBack}
-                  className="w-full min-h-[52px] text-base font-bold px-4 bg-gradient-to-r from-slate-900/70 via-slate-800/70 to-slate-900/70 hover:from-slate-800/80 hover:via-slate-700/80 hover:to-slate-800/80 border-2 border-amber-500/40 hover:border-amber-500/60 text-amber-100 backdrop-blur-sm rounded-xl transition-all duration-300 active:scale-[0.97] shadow-lg"
-                >
-                  ← {t('common.back') || 'Retour'}
-                </button>
-              ) : (
-                <button 
-                  onClick={onBack}
-                  className="w-full min-h-[52px] text-base font-bold px-4 bg-gradient-to-r from-slate-900/90 via-slate-800/90 to-slate-900/90 hover:from-slate-800 hover:via-slate-700 hover:to-slate-800 shadow-[0_0_25px_rgba(212,175,55,0.3)] text-amber-100 backdrop-blur-sm rounded-xl border-2 border-amber-500/50 hover:border-amber-400/70 transition-all duration-300 active:scale-[0.97]"
-                >
-                  {t('oracle.backToOracles') || 'Retour aux oracles'} →
-                </button>
-              )}
+          {/* ✅ BOUTON RETOUR dans le scroll — pas fixed */}
+          <div className="px-4 mt-3 pb-6">
+            <div className="max-w-lg mx-auto">
+              <button
+                onClick={onBack}
+                className="w-full min-h-[52px] text-base font-bold px-4 border-2 border-amber-500/40 text-amber-100 rounded-xl transition-all duration-300 active:scale-[0.97]"
+                style={{ background: 'rgba(8,8,8,0.85)' }}
+              >
+                {isComplete
+                  ? `${t('oracle.backToOracles') || 'Retour aux oracles'} →`
+                  : `← ${t('common.back') || 'Retour'}`
+                }
+              </button>
             </div>
           </div>
         </div>
 
         <style>{`
-          @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.5); }
+          .wp-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
           }
-          @keyframes shooting-star {
-            0% { 
-              opacity: 0;
-              transform: translate(0, 0);
-            }
-            10% { opacity: 1; }
-            90% { opacity: 0.5; }
-            100% {
-              opacity: 0;
-              transform: translate(-250px, 250px);
-            }
+          .wp-orb-1 {
+            width: 420px; height: 420px;
+            top: -120px; left: 50%; transform: translateX(-50%);
+            background: radial-gradient(ellipse, rgba(180,140,30,0.08) 0%, transparent 65%);
+            animation: wp-float 16s ease-in-out infinite alternate;
           }
-          .animate-twinkle {
-            animation: twinkle ease-in-out infinite;
+          .wp-orb-2 {
+            width: 280px; height: 280px;
+            bottom: -40px; right: -60px;
+            background: radial-gradient(ellipse, rgba(140,100,20,0.05) 0%, transparent 65%);
+            animation: wp-float 11s ease-in-out infinite alternate-reverse;
           }
-          .animate-shooting-star {
-            animation: shooting-star ease-out infinite;
+          @keyframes wp-float {
+            0%   { transform: translateX(-50%) translateY(0) scale(1); }
+            100% { transform: translateX(-50%) translateY(-20px) scale(1.08); }
           }
-
           .pb-safe-ios {
             padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
           }
         `}</style>
+
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            var canvas = document.getElementById('constellation-canvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            var W = canvas.width  = window.innerWidth;
+            var H = canvas.height = window.innerHeight;
+            var stars = [];
+            for (var i = 0; i < 120; i++) {
+              stars.push({
+                x: Math.random() * W, y: Math.random() * H,
+                r: Math.random() * 1.4 + 0.3,
+                gold: Math.random() > 0.55,
+                phase: Math.random() * Math.PI * 2,
+                speed: Math.random() * 0.8 + 0.3,
+              });
+            }
+            var lines = [];
+            for (var j = 0; j < 20; j++) {
+              var a = Math.floor(Math.random() * stars.length);
+              var b = Math.floor(Math.random() * stars.length);
+              var dx = stars[a].x - stars[b].x;
+              var dy = stars[a].y - stars[b].y;
+              if (Math.sqrt(dx*dx + dy*dy) < 130) lines.push([a, b]);
+            }
+            var t = 0;
+            function draw() {
+              ctx.clearRect(0, 0, W, H);
+              t += 0.008;
+              lines.forEach(function(l) {
+                var sa = stars[l[0]], sb = stars[l[1]];
+                ctx.beginPath(); ctx.moveTo(sa.x, sa.y); ctx.lineTo(sb.x, sb.y);
+                ctx.strokeStyle = 'rgba(212,175,55,0.09)'; ctx.lineWidth = 0.5; ctx.stroke();
+              });
+              stars.forEach(function(s) {
+                var op = 0.3 + 0.55 * Math.sin(t * s.speed + s.phase);
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = s.gold ? 'rgba(212,175,55,' + op + ')' : 'rgba(240,235,220,' + (op * 0.55) + ')';
+                ctx.fill();
+                if (s.gold && s.r > 1.2) {
+                  ctx.beginPath(); ctx.arc(s.x, s.y, s.r * 2.8, 0, Math.PI * 2);
+                  ctx.fillStyle = 'rgba(212,175,55,' + (op * 0.07) + ')'; ctx.fill();
+                }
+              });
+              requestAnimationFrame(draw);
+            }
+            draw();
+            window.addEventListener('resize', function() {
+              W = canvas.width = window.innerWidth;
+              H = canvas.height = window.innerHeight;
+            });
+          })();
+        `}} />
       </div>
     );
   }
