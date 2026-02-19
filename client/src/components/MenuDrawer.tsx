@@ -7,7 +7,6 @@ import RestorePremiumModal from './RestorePremiumModal';
 interface MenuDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  // ❌ SUPPRIMÉ : onOpenGrimoire: () => void;
   onOpenPremium: () => void;
   isPremium: boolean;
 }
@@ -57,70 +56,105 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
 
   return (
     <>
-      <div 
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 animate-fade-in"
+      {/* Overlay */}
+      <div
+        className="fixed inset-0 z-50 animate-fade-in"
+        style={{ background: 'rgba(0,0,0,0.80)', backdropFilter: 'blur(4px)' }}
         onClick={onClose}
       />
 
-      <div className="fixed left-0 top-0 bottom-0 w-80 bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900 shadow-2xl z-50 transform transition-transform duration-300 animate-slide-in-left overflow-y-auto border-r border-cyan-400/20">
+      {/* Drawer */}
+      <div
+        className="fixed left-0 top-0 bottom-0 w-80 z-50 animate-slide-in-left overflow-y-auto flex flex-col"
+        style={{
+          background: 'linear-gradient(160deg, #100e06 0%, #0e0c04 60%, #130f06 100%)',
+          border: '1px solid rgba(212,175,55,0.28)',
+          borderLeft: 'none',
+          boxShadow: '4px 0 40px rgba(0,0,0,0.8), 2px 0 16px rgba(212,175,55,0.06)',
+        }}
+      >
+        {/* Lueur dorée en haut */}
+        <div
+          className="absolute top-0 left-0 right-0 h-40 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.12) 0%, transparent 70%)' }}
+        />
 
-        <div className="p-6 border-b border-cyan-400/20">
-          <div className="flex items-center justify-between">
-            <h2 className="text-amber-300 font-serif font-bold text-2xl drop-shadow-[0_2px_8px_rgba(251,191,36,0.4)]">Menu</h2>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/60 transition-colors border border-cyan-400/20"
-              aria-label={t('common.close')}
-            >
-              <svg className="w-6 h-6 text-cyan-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+        {/* Header */}
+        <div
+          className="relative p-5 flex items-center justify-between"
+          style={{ borderBottom: '1px solid rgba(212,175,55,0.18)' }}
+        >
+          <h2
+            className="font-serif font-bold text-2xl"
+            style={{ color: '#d4af37', textShadow: '0 2px 12px rgba(212,175,55,0.30)' }}
+          >
+            Menu
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg transition-colors"
+            style={{
+              background: 'rgba(212,175,55,0.08)',
+              border: '1px solid rgba(212,175,55,0.25)',
+              color: 'rgba(212,175,55,0.7)',
+            }}
+            aria-label={t('common.close')}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        <nav className="p-4 space-y-2">
-
-          {/* ❌ SUPPRIMÉ : Bouton Grimoire */}
+        {/* Nav */}
+        <nav className="relative p-4 space-y-2 flex-1">
 
           {/* Premium */}
           <button
             type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onOpenPremium();
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onOpenPremium(); }}
+            className="w-full flex items-center gap-4 p-4 rounded-xl transition-all group relative overflow-hidden"
+            style={{
+              background: 'rgba(212,175,55,0.08)',
+              border: '1px solid rgba(212,175,55,0.35)',
             }}
-            className="w-full flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-amber-900/40 to-yellow-900/40 hover:from-amber-800/50 hover:to-yellow-800/50 transition-all group relative overflow-hidden border border-amber-400/30 hover:border-amber-300/50"
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.14)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.08)'; }}
           >
             {isPremium && (
-              <div className="absolute top-1 right-1 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+              <div
+                className="absolute top-1.5 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(74,222,128,0.85)', color: '#052e16' }}
+              >
                 ✓ {t('premium.active')}
               </div>
             )}
-            <div className="text-3xl group-hover:scale-110 transition-transform">⭐</div>
+            <span className="text-2xl group-hover:scale-110 transition-transform">⭐</span>
             <div className="flex-1 text-left">
-              <div className="text-amber-200 font-semibold">{t('premium.title')}</div>
-              <div className="text-amber-300/70 text-xs">{t('premium.subtitle')}</div>
+              <div className="font-semibold" style={{ color: '#d4af37' }}>{t('premium.title')}</div>
+              <div className="text-xs mt-0.5" style={{ color: 'rgba(212,175,55,0.55)' }}>{t('premium.subtitle')}</div>
             </div>
           </button>
 
+          {/* Restaurer abonnement */}
           {!isPremium && (
             <button
               type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsRestoreModalOpen(true);
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsRestoreModalOpen(true); }}
+              className="w-full flex items-center gap-4 p-4 rounded-xl transition-all group"
+              style={{
+                background: 'rgba(212,175,55,0.04)',
+                border: '1px solid rgba(212,175,55,0.18)',
               }}
-              className="w-full flex items-center gap-4 p-4 rounded-xl bg-blue-900/30 hover:bg-blue-800/40 transition-all group border border-blue-400/30 hover:border-blue-300/50"
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.08)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.04)'; }}
             >
-              <div className="text-3xl group-hover:scale-110 transition-transform">🔄</div>
+              <span className="text-2xl group-hover:scale-110 transition-transform">🔄</span>
               <div className="flex-1 text-left">
-                <div className="text-blue-200 font-semibold">
+                <div className="font-semibold" style={{ color: '#f0e4b0' }}>
                   {t('premium.restore.title') || 'Restaurer mon abonnement'}
                 </div>
-                <div className="text-blue-300/70 text-xs">
+                <div className="text-xs mt-0.5" style={{ color: 'rgba(240,228,176,0.45)' }}>
                   {t('premium.restore.subtitle') || 'Déjà Premium ? Récupérez votre accès'}
                 </div>
               </div>
@@ -128,21 +162,23 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
           )}
 
           {/* Langue */}
-          <div className="pt-4 border-t border-cyan-400/20">
+          <div className="pt-4" style={{ borderTop: '1px solid rgba(212,175,55,0.15)' }}>
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsLanguageOpen(!isLanguageOpen);
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsLanguageOpen(!isLanguageOpen); }}
+              className="w-full flex items-center gap-4 p-4 rounded-xl transition-all group"
+              style={{
+                background: 'rgba(212,175,55,0.04)',
+                border: '1px solid rgba(212,175,55,0.18)',
               }}
-              className="w-full flex items-center gap-4 p-4 rounded-xl bg-slate-800/40 hover:bg-slate-700/50 transition-all group border border-cyan-400/20 hover:border-cyan-300/40"
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.08)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.04)'; }}
             >
-              <Globe className="w-6 h-6 text-cyan-200 group-hover:scale-110 transition-transform" />
+              <Globe className="w-5 h-5 group-hover:scale-110 transition-transform" style={{ color: '#d4af37' }} />
               <div className="flex-1 text-left">
-                <div className="text-cyan-100 font-semibold flex items-center gap-2">
+                <div className="font-semibold flex items-center gap-2" style={{ color: '#f0e4b0' }}>
                   {currentLanguage?.flag} {currentLanguage?.name}
                 </div>
-                <div className="text-slate-300 text-xs">
+                <div className="text-xs mt-0.5" style={{ color: 'rgba(212,175,55,0.45)' }}>
                   {language === 'fr' && 'Changer la langue'}
                   {language === 'en' && 'Change language'}
                   {language === 'es' && 'Cambiar idioma'}
@@ -150,11 +186,10 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
                   {language === 'it' && 'Cambia lingua'}
                 </div>
               </div>
-              {isLanguageOpen ? (
-                <ChevronUp className="w-5 h-5 text-cyan-300" />
-              ) : (
-                <ChevronDown className="w-5 h-5 text-cyan-300" />
-              )}
+              {isLanguageOpen
+                ? <ChevronUp className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.6)' }} />
+                : <ChevronDown className="w-4 h-4" style={{ color: 'rgba(212,175,55,0.6)' }} />
+              }
             </button>
 
             {isLanguageOpen && (
@@ -163,22 +198,18 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
                   <button
                     key={lang.code}
                     type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setLanguage(lang.code);
-                      setIsLanguageOpen(false);
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLanguage(lang.code); setIsLanguageOpen(false); }}
+                    className="w-full flex items-center gap-3 p-3 rounded-lg transition-all"
+                    style={{
+                      background: language === lang.code ? 'rgba(212,175,55,0.12)' : 'transparent',
+                      border: language === lang.code ? '1px solid rgba(212,175,55,0.40)' : '1px solid transparent',
+                      color: language === lang.code ? '#d4af37' : '#f0e4b0',
                     }}
-                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                      language === lang.code
-                        ? 'bg-cyan-900/50 text-amber-300 border border-cyan-400/30'
-                        : 'hover:bg-slate-800/40 text-cyan-200 border border-transparent'
-                    }`}
                   >
-                    <span className="text-xl">{lang.flag}</span>
+                    <span className="text-lg">{lang.flag}</span>
                     <span className="text-sm font-medium">{lang.name}</span>
                     {language === lang.code && (
-                      <span className="ml-auto text-amber-300">✓</span>
+                      <span className="ml-auto" style={{ color: '#d4af37' }}>✓</span>
                     )}
                   </button>
                 ))}
@@ -187,10 +218,22 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
           </div>
 
           {/* Pages légales */}
-          <div className="pt-4 border-t border-cyan-400/20 space-y-1">
+          <div className="pt-4 space-y-1" style={{ borderTop: '1px solid rgba(212,175,55,0.15)' }}>
             <button
               onClick={() => setLegalModal('legal')}
-              className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-slate-800/40 transition-colors text-slate-300 text-sm border border-transparent hover:border-cyan-400/20"
+              className="flex items-center gap-3 w-full text-left p-3 rounded-lg transition-all text-sm"
+              style={{
+                color: 'rgba(240,228,176,0.65)',
+                border: '1px solid transparent',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.06)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.15)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.background = 'transparent';
+                (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
+              }}
             >
               <span>📜</span>
               <span>{t('legal.mentions')}</span>
@@ -198,7 +241,19 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
 
             <button
               onClick={() => setLegalModal('privacy')}
-              className="flex items-center gap-3 w-full text-left p-3 rounded-lg hover:bg-slate-800/40 transition-colors text-slate-300 text-sm border border-transparent hover:border-cyan-400/20"
+              className="flex items-center gap-3 w-full text-left p-3 rounded-lg transition-all text-sm"
+              style={{
+                color: 'rgba(240,228,176,0.65)',
+                border: '1px solid transparent',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.06)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.15)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.background = 'transparent';
+                (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
+              }}
             >
               <span>🔒</span>
               <span>{t('legal.privacy')}</span>
@@ -206,14 +261,15 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
           </div>
         </nav>
 
-        <div className="p-4 border-t border-cyan-400/20 mt-4">
-          <p className="text-slate-400 text-xs text-center">
+        {/* Footer */}
+        <div className="p-4 relative" style={{ borderTop: '1px solid rgba(212,175,55,0.12)' }}>
+          <p className="text-xs text-center" style={{ color: 'rgba(212,175,55,0.30)' }}>
             TarotMystik v1.0
           </p>
         </div>
       </div>
 
-      <LegalModal 
+      <LegalModal
         isOpen={legalModal !== null}
         onClose={() => setLegalModal(null)}
         type={legalModal || 'legal'}

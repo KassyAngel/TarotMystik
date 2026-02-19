@@ -12,7 +12,6 @@ export async function scheduleNotificationWithLanguage(t: (key: string) => strin
   try {
     console.log('🔔 [NOTIF] Planification avec langue:', t('common.language'));
 
-    // ✅ Créer le canal avec les traductions actuelles
     await LocalNotifications.createChannel({
       id: 'daily-tirage',
       name: t('notification.channel.name'),
@@ -23,7 +22,6 @@ export async function scheduleNotificationWithLanguage(t: (key: string) => strin
       visibility: 1,
     });
 
-    // Phrases mystiques traduites
     const notificationVariants = [
       { title: t('notification.variants.1.title'), body: t('notification.variants.1.body') },
       { title: t('notification.variants.2.title'), body: t('notification.variants.2.body') },
@@ -37,7 +35,6 @@ export async function scheduleNotificationWithLanguage(t: (key: string) => strin
     console.log('⏰ [NOTIF] Planification pour: 10h00 locale');
     console.log('📝 Message:', randomVariant.title);
 
-    // ✅ Annuler les anciennes notifications avant d'en créer de nouvelles
     await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
 
     await LocalNotifications.schedule({
@@ -47,10 +44,7 @@ export async function scheduleNotificationWithLanguage(t: (key: string) => strin
           title: randomVariant.title,
           body: randomVariant.body,
           schedule: {
-            on: {
-              hour: 10,
-              minute: 0,
-            },
+            on: { hour: 10, minute: 0 },
             repeats: true,
             allowWhileIdle: true,
           },
@@ -60,9 +54,7 @@ export async function scheduleNotificationWithLanguage(t: (key: string) => strin
           largeBody: randomVariant.body,
           summaryText: 'TarotMystik',
           actionTypeId: 'OPEN_APP',
-          extra: {
-            action: 'daily_reading'
-          },
+          extra: { action: 'daily_reading' },
           ongoing: false,
           autoCancel: true,
           channelId: 'daily-tirage',
@@ -71,7 +63,7 @@ export async function scheduleNotificationWithLanguage(t: (key: string) => strin
     });
 
     console.log('✅ Notification quotidienne programmée');
-    localStorage.setItem('notificationLanguage', t('common.language') || 'fr'); // ✅ Sauvegarder la langue
+    localStorage.setItem('notificationLanguage', t('common.language') || 'fr');
     return true;
   } catch (err) {
     console.error('❌ Erreur planification notification:', err);
@@ -95,10 +87,7 @@ export default function NotificationPermissionModal({ onClose }: NotificationPer
 
       if (permission.display === 'granted') {
         console.log('✅ [NOTIF] Permission accordée');
-
-        // ✅ Utiliser la fonction utilitaire
         const success = await scheduleNotificationWithLanguage(t);
-
         if (success) {
           localStorage.setItem('notificationPermission', 'granted');
           localStorage.setItem('notificationTime', '10:00');
@@ -125,55 +114,92 @@ export default function NotificationPermissionModal({ onClose }: NotificationPer
   };
 
   return (
-    <div className={`fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-      <div className={`bg-gradient-to-br from-purple-900 via-indigo-900 to-purple-900 rounded-2xl p-6 max-w-md w-full border-2 border-yellow-400/50 shadow-2xl transform transition-all duration-300 ${isVisible ? 'scale-100' : 'scale-90'}`}>
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}
+    >
+      <div
+        className={`relative max-w-md w-full rounded-2xl shadow-2xl transform transition-all duration-300 ${isVisible ? 'scale-100' : 'scale-90'}`}
+        style={{
+          background: 'linear-gradient(160deg, #100e06 0%, #0e0c04 60%, #130f06 100%)',
+          border: '1px solid rgba(212,175,55,0.35)',
+          boxShadow: '0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(212,175,55,0.08)',
+        }}
+      >
+        {/* Lueur dorée en haut */}
+        <div
+          className="absolute top-0 left-0 right-0 h-32 pointer-events-none rounded-t-2xl"
+          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.13) 0%, transparent 70%)' }}
+        />
 
-        {/* Icône mystique */}
-        <div className="text-center mb-4">
-          <div className="text-6xl mb-2 animate-pulse">🔔</div>
-          <div className="text-yellow-300 text-xs">✨ ✦ ✨</div>
-        </div>
-
-        {/* Titre */}
-        <h2 className="text-2xl font-bold text-yellow-300 text-center mb-3 font-serif">
-          {t('notification.modal.title')}
-        </h2>
-
-        {/* Description */}
-        <p className="text-purple-200 text-center mb-6 leading-relaxed text-sm">
-          {t('notification.modal.description')}
-        </p>
-
-        {/* Avantages */}
-        <div className="bg-black/30 rounded-lg p-4 mb-6 space-y-2">
-          <div className="flex items-start gap-2 text-purple-100 text-sm">
-            <span className="text-yellow-400 mt-0.5">🔮</span>
-            <span>{t('notification.modal.benefit1')}</span>
+        <div className="relative p-6">
+          {/* Icône */}
+          <div className="text-center mb-4">
+            <div className="text-6xl mb-2 animate-pulse">🔔</div>
+            <div className="text-xs" style={{ color: 'rgba(212,175,55,0.55)' }}>✨ ✦ ✨</div>
           </div>
-          <div className="flex items-start gap-2 text-purple-100 text-sm">
-            <span className="text-yellow-400 mt-0.5">⭐</span>
-            <span>{t('notification.modal.benefit2')}</span>
+
+          {/* Titre */}
+          <h2
+            className="text-2xl font-bold text-center mb-3 font-serif"
+            style={{ color: '#d4af37', textShadow: '0 2px 12px rgba(212,175,55,0.30)' }}
+          >
+            {t('notification.modal.title')}
+          </h2>
+
+          {/* Description */}
+          <p
+            className="text-center mb-6 leading-relaxed text-sm"
+            style={{ color: 'rgba(240,228,176,0.75)' }}
+          >
+            {t('notification.modal.description')}
+          </p>
+
+          {/* Avantages */}
+          <div
+            className="rounded-xl p-4 mb-6 space-y-3"
+            style={{
+              background: 'rgba(212,175,55,0.05)',
+              border: '1px solid rgba(212,175,55,0.15)',
+            }}
+          >
+            {[
+              { icon: '🔮', key: 'notification.modal.benefit1' },
+              { icon: '⭐', key: 'notification.modal.benefit2' },
+              { icon: '✨', key: 'notification.modal.benefit3' },
+            ].map(({ icon, key }) => (
+              <div key={key} className="flex items-start gap-3 text-sm" style={{ color: 'rgba(240,228,176,0.80)' }}>
+                <span className="mt-0.5">{icon}</span>
+                <span>{t(key)}</span>
+              </div>
+            ))}
           </div>
-          <div className="flex items-start gap-2 text-purple-100 text-sm">
-            <span className="text-yellow-400 mt-0.5">✨</span>
-            <span>{t('notification.modal.benefit3')}</span>
+
+          {/* Boutons */}
+          <div className="flex flex-col gap-3">
+            <MysticalButton variant="primary" onClick={handleAccept} className="w-full">
+              🔔 {t('notification.modal.accept')}
+            </MysticalButton>
+
+            <button
+              onClick={handleDecline}
+              className="text-sm transition-colors py-2"
+              style={{ color: 'rgba(212,175,55,0.45)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(212,175,55,0.75)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(212,175,55,0.45)'; }}
+            >
+              {t('notification.modal.decline')}
+            </button>
           </div>
+
+          {/* Note */}
+          <p
+            className="text-xs text-center mt-4 italic"
+            style={{ color: 'rgba(212,175,55,0.35)' }}
+          >
+            {t('notification.modal.note')}
+          </p>
         </div>
-
-        {/* Boutons */}
-        <div className="flex flex-col gap-3">
-          <MysticalButton variant="primary" onClick={handleAccept} className="w-full">
-            🔔 {t('notification.modal.accept')}
-          </MysticalButton>
-
-          <button onClick={handleDecline} className="text-purple-300 hover:text-purple-100 text-sm transition-colors">
-            {t('notification.modal.decline')}
-          </button>
-        </div>
-
-        <p className="text-purple-400 text-xs text-center mt-4 italic">
-          {t('notification.modal.note')}
-        </p>
       </div>
     </div>
   );

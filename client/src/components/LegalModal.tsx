@@ -12,7 +12,6 @@ export default function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
   const { language } = useLanguage();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // 🖼️ Nettoyage de l'iframe pour éviter les fuites mémoire
   useEffect(() => {
     return () => {
       if (iframeRef.current) {
@@ -24,58 +23,81 @@ export default function LegalModal({ isOpen, onClose, type }: LegalModalProps) {
   if (!isOpen || !type) return null;
 
   const getFileName = () => {
-    const fileName = type === 'legal' 
+    const fileName = type === 'legal'
       ? (language === 'fr' ? 'mentions-legales.html' : 'mentions-legales-en.html')
       : (language === 'fr' ? 'politique-confidentialite.html' : 'politique-confidentialite-en.html');
-
     const isNative = Capacitor.isNativePlatform();
     const platform = Capacitor.getPlatform();
-
-    // Sur mobile natif, utiliser un chemin relatif simple
     const fullPath = isNative ? `./${fileName}` : `/${fileName}`;
-
     console.log('📄 Chargement page légale:', fullPath, 'isNative:', isNative, 'platform:', platform);
     return fullPath;
   };
 
+  const title = type === 'legal'
+    ? (language === 'fr' ? 'Mentions Légales' : 'Legal Notice')
+    : (language === 'fr' ? 'Politique de Confidentialité' : 'Privacy Policy');
+
   return (
     <>
       {/* Overlay */}
-      <div 
-        className="fixed inset-0 bg-black/80 z-[100] animate-fade-in"
+      <div
+        className="fixed inset-0 z-[100] animate-fade-in"
+        style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}
         onClick={onClose}
       />
 
-      {/* Modal - Style nuit étoilée */}
-      <div className="fixed inset-4 md:inset-10 z-[101] bg-gradient-to-b from-slate-900 via-blue-950 to-slate-900 rounded-2xl shadow-2xl overflow-hidden border-2 border-cyan-400/30">
+      {/* Modal */}
+      <div
+        className="fixed inset-4 md:inset-10 z-[101] rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        style={{
+          background: 'linear-gradient(160deg, #100e06 0%, #0e0c04 60%, #130f06 100%)',
+          border: '1px solid rgba(212,175,55,0.35)',
+          boxShadow: '0 0 40px rgba(0,0,0,0.8), 0 0 20px rgba(212,175,55,0.08)',
+        }}
+      >
+        {/* Lueur dorée en haut */}
+        <div
+          className="absolute top-0 left-0 right-0 h-24 pointer-events-none z-0"
+          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.10) 0%, transparent 70%)' }}
+        />
 
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-cyan-400/20 bg-slate-900/80 backdrop-blur-sm">
-          <h2 className="text-amber-300 font-serif font-bold text-xl drop-shadow-[0_2px_8px_rgba(251,191,36,0.4)]">
-            {type === 'legal' ? (
-              language === 'fr' ? 'Mentions Légales' : 'Legal Notice'
-            ) : (
-              language === 'fr' ? 'Politique de Confidentialité' : 'Privacy Policy'
-            )}
+        <div
+          className="relative z-10 flex items-center justify-between p-4"
+          style={{ borderBottom: '1px solid rgba(212,175,55,0.18)' }}
+        >
+          <h2
+            className="font-serif font-bold text-xl"
+            style={{
+              color: '#d4af37',
+              textShadow: '0 2px 12px rgba(212,175,55,0.30)',
+            }}
+          >
+            {type === 'legal' ? '📜' : '🔒'} {title}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg bg-slate-800/60 hover:bg-slate-700/70 transition-colors border border-cyan-400/30"
+            className="p-2 rounded-lg transition-colors"
+            style={{
+              background: 'rgba(212,175,55,0.08)',
+              border: '1px solid rgba(212,175,55,0.25)',
+              color: 'rgba(212,175,55,0.7)',
+            }}
             aria-label="Fermer"
           >
-            <svg className="w-6 h-6 text-cyan-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Content */}
-        <div className="h-[calc(100%-64px)] bg-white">
+        <div className="flex-1 bg-white">
           <iframe
             ref={iframeRef}
             src={getFileName()}
             className="w-full h-full border-0"
-            title={type === 'legal' ? 'Mentions Légales' : 'Politique de Confidentialité'}
+            title={title}
             sandbox="allow-same-origin allow-scripts"
             loading="lazy"
           />
