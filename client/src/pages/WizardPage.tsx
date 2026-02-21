@@ -307,7 +307,7 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
               </div>
 
               <div className="flex-shrink-0 space-y-3 pb-6">
-                {/* ✨ BOUTON PREMIUM */}
+                {/* BOUTON PREMIUM */}
                 <button
                   className="btn-consult"
                   onClick={handleGoToQuestion}
@@ -320,9 +320,9 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
                   <div className="btn-sparkle" style={{ top: '65%', right: '8%', animationDelay: '0.4s' }} />
 
                   <div className="btn-consult-inner">
-                    <span className="btn-icon-left">🔮</span>
+                    <span className="btn-icon-left"></span>
                     <span className="btn-label">{t('wizard.consultButton')}</span>
-                    <span className="btn-icon-right">✨</span>
+                    <span className="btn-icon-right"></span>
                   </div>
                 </button>
 
@@ -394,11 +394,11 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
                       <div className="btn-sparkle" style={{ top: '20%', left: '8%', animationDelay: '0s' }} />
                       <div className="btn-sparkle" style={{ top: '65%', right: '8%', animationDelay: '1.2s' }} />
                       <div className="btn-consult-inner">
-                        <span className="btn-icon-left">🔮</span>
+                        <span className="btn-icon-left"></span>
                         <span className="btn-label">
                           {isProcessing ? (t('wizard.processing') || 'Traitement...') : t('wizard.consultAction')}
                         </span>
-                        <span className="btn-icon-right">✨</span>
+                        <span className="btn-icon-right"></span>
                       </div>
                     </button>
 
@@ -483,9 +483,9 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
                     <div className="btn-sparkle" style={{ top: '20%', left: '8%', animationDelay: '0s' }} />
                     <div className="btn-sparkle" style={{ top: '65%', right: '8%', animationDelay: '1.2s' }} />
                     <div className="btn-consult-inner">
-                      <span className="btn-icon-left">✨</span>
+                      <span className="btn-icon-left"></span>
                       <span className="btn-label">{t('wizard.newQuestion')}</span>
-                      <span className="btn-icon-right">🔮</span>
+                      <span className="btn-icon-right"></span>
                     </div>
                   </button>
 

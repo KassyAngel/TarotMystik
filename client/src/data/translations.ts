@@ -472,6 +472,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "crossSpread.description": "Ce tirage explore une situation amoureuse à travers trois axes : les énergies favorables (Pour), les obstacles ou blocages (Contre) et le message final (Synthèse). Chaque carte révèle une variation différente selon le tirage obtenu.",
         "interpretation.loveOracle.greeting": "Voici ce que révèle ton tirage de l’amour",
         "revelation.personalAdvice": "Ton conseil personnel",
+        "common.loading": "Chargement...",
 
         // Noms des cartes Love Oracle
         "cards.loveOracle.lerendezvous.name": "Le Rendez-Vous",
@@ -2275,6 +2276,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "crossSpread.description": "This spread explores your romantic situation through three axes: supportive energies (Pros), obstacles or challenges (Cons), and the final message (Synthesis). Each card reveals a specific variation based on your draw.",
     "interpretation.loveOracle.greeting": "Here is what your love reading reveals",
     "revelation.personalAdvice": "Your personal advice",
+    "common.loading": "Loading...",
 
     // Love Oracle Card Names
     "cards.loveOracle.lerendezvous.name": "The Date",
@@ -4051,6 +4053,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "crossSpread.description": "Esta tirada analiza tu situación sentimental a través de tres ejes: energías favorables (A Favor), obstáculos o bloqueos (En Contra) y el mensaje final (Síntesis). Cada carta revela una variación específica según tu lectura.",
     "interpretation.loveOracle.greeting": "Esto es lo que revela tu tirada del amor",
     "revelation.personalAdvice": "Tu consejo personal",
+    "common.loading": "Cargando...",
 
     // Nombres de las cartas del Oráculo del Amor
     "cards.loveOracle.lerendezvous.name": "El Encuentro",
@@ -5810,6 +5813,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "crossSpread.description": "Diese Legung untersucht deine romantische Situation anhand von drei Aspekten: unterstützende Energien (Pro), Hindernisse oder Blockaden (Kontra) und die abschließende Botschaft (Synthese). Jede Karte zeigt eine spezifische Variation entsprechend deiner Ziehung.",
     "interpretation.loveOracle.greeting": "Das enthüllt deine Liebeslegung",
     "revelation.personalAdvice": "Dein persönlicher Rat",
+    "common.loading": "Wird geladen...",
 
     // Namen der Liebesorakel-Karten
     "cards.loveOracle.lerendezvous.name": "Die Begegnung",
@@ -7575,6 +7579,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "crossSpread.description": "Questa stesura esplora la tua situazione sentimentale attraverso tre aspetti: energie favorevoli (Pro), ostacoli o blocchi (Contro) e il messaggio finale (Sintesi). Ogni carta rivela una variazione specifica in base alla tua estrazione.",
     "interpretation.loveOracle.greeting": "Ecco cosa rivela il tuo tiro sull’amore",
     "revelation.personalAdvice": "Il tuo consiglio personale",
+    "common.loading": "Caricamento in corso...",
 
     // Nomi delle carte dell'Oracolo dell'Amore
     "cards.loveOracle.lerendezvous.name": "L’Incontro",

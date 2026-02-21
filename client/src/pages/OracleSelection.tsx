@@ -201,16 +201,6 @@ export default function OracleSelection({
     <div className="main-content w-full min-h-screen flex flex-col p-3 sm:p-4 pt-14 sm:pt-16 pb-4">
       {/* Header */}
       <div className="text-center mb-4 sm:mb-6">
-        <div className="flex justify-center mb-3">
-          <div className="relative w-12 h-12 sm:w-16 sm:h-16">
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-400/30 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute inset-2 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-3xl sm:text-4xl text-cyan-100 drop-shadow-[0_0_24px_rgba(103,232,249,0.9)] filter brightness-110">✦</span>
-            </div>
-          </div>
-        </div>
-
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-100 via-blue-100 to-purple-100 bg-clip-text text-transparent mb-2 tracking-wide drop-shadow-[0_0_30px_rgba(147,197,253,0.3)]">
           {t('oracle.selection.title') || 'Choisissez Votre Oracle'}
         </h1>

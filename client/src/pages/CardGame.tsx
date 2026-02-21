@@ -1,5 +1,6 @@
 // src/pages/CardGame.tsx
 // ✅ FIX ANDROID : Alignement PARFAIT des cartes quelle que soit la langue
+// ✅ FIX TOUCH : touch-action pan-y uniquement (bloque mouvements circulaires)
 
 import { useState, useEffect } from 'react';
 import TarotCard from '@/components/TarotCard';
@@ -213,7 +214,10 @@ export default function CardGame({
 
   return (
     <>
-      <div className="game-area w-full text-center min-h-screen flex flex-col justify-between p-2 sm:p-4 pt-20 sm:pt-24 bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420] relative overflow-hidden">
+      <div
+        className="game-area w-full text-center min-h-screen flex flex-col justify-between p-2 sm:p-4 pt-20 sm:pt-24 bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420] relative overflow-hidden"
+        style={{ touchAction: 'pan-y' }}
+      >
 
         <div className="absolute inset-0 pointer-events-none opacity-20">
           <div className="absolute top-20 left-10 w-40 h-40 bg-[#2d3e57]/30 rounded-full blur-3xl"></div>
@@ -353,6 +357,11 @@ export default function CardGame({
         }
         .animate-pulse-soft {
           animation: pulse-soft 2s ease-in-out infinite;
+        }
+
+        /* ✅ FIX TOUCH : scroll vertical uniquement sur tout le jeu */
+        .game-area {
+          touch-action: pan-y;
         }
 
         /* ✅ FIX ANDROID CRITIQUE : ALIGNEMENT PARFAIT */

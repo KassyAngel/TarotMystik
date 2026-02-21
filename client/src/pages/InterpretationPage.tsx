@@ -301,7 +301,7 @@ export default function InterpretationPage({
           className="min-h-[48px] w-full max-w-sm px-8 bg-gradient-to-r from-[#a8896f]/90 via-[#c9a87f] to-[#a8896f]/90 text-[#0a1420] font-semibold border-2 border-[#c9a87f]/40 shadow-[0_4px_20px_rgba(201,168,127,0.4)] hover:shadow-[0_6px_30px_rgba(201,168,127,0.6)] hover:scale-105 transition-all duration-300"
           data-testid="button-new-reading"
         >
-          ✨ {t('interpretation.newConsultation')}
+           {t('interpretation.newConsultation')}
         </MysticalButton>
 
         <MysticalButton 

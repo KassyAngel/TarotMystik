@@ -233,7 +233,7 @@ export default function CrossSpreadInterpretation({
           onClick={onBackToMode}
           className="min-h-[48px] w-full max-w-sm px-8 bg-gradient-to-r from-[#a8896f] via-[#c9a87f] to-[#a8896f] text-[#0a1420] font-semibold border-2 border-[#c9a87f]/50 shadow-[0_4px_20px_rgba(201,168,127,0.5)] hover:shadow-[0_6px_30px_rgba(201,168,127,0.7)] hover:scale-105"
         >
-          ✨ {t('crossSpread.interpretation.newConsultation') || 'Nouveau Tirage'}
+           {t('crossSpread.interpretation.newConsultation') || 'Nouveau Tirage'}
         </MysticalButton>
 
         <MysticalButton 

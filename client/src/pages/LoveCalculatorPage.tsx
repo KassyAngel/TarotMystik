@@ -392,7 +392,7 @@ export function LoveCalculatorPage({
                             border-2 border-cyan-300/40"
                         >
                           <span className="relative z-10 flex items-center justify-center gap-2">
-                            <span className="text-lg sm:text-xl">✨</span>
+                            <span className="text-lg sm:text-xl"></span>
                             <span>{t('loveCalculator.newCalculation')}</span>
                           </span>
                         </button>
