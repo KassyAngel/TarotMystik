@@ -232,11 +232,13 @@ export default function OracleMystiqueApp({
         )}
 
         {currentStep === 'oracle' && (
+          // ✅ FIX : isPremium ajouté à OracleSelection
           <OracleSelection
             user={user}
             onOracleSelect={handleOracleSelect}
             onBack={handleBackToGender}
             onHome={handleBackToHome}
+            isPremium={isPremium}
           />
         )}
 

@@ -3,7 +3,7 @@ import { useUser } from '@/contexts/UserContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import MenuDrawer from './MenuDrawer';
 import UserProfileModal from './UserProfileModal';
-import PremiumModal from './PremiumModal';
+// ✅ FIX : PremiumModal supprimé — géré uniquement dans App.tsx
 
 interface TopBarProps {
   onOpenPremium: () => void;
@@ -13,7 +13,6 @@ interface TopBarProps {
 export default function TopBar({ onOpenPremium, isPremium }: TopBarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
   const { user } = useUser();
   const { t } = useLanguage();
 
@@ -24,7 +23,6 @@ export default function TopBar({ onOpenPremium, isPremium }: TopBarProps) {
     e.stopPropagation();
     try {
       setIsMenuOpen(false);
-      setIsPremiumModalOpen(false);
       setTimeout(() => setIsProfileOpen(true), 100);
     } catch (error) {
       console.error('Error opening profile:', error);
@@ -36,23 +34,23 @@ export default function TopBar({ onOpenPremium, isPremium }: TopBarProps) {
     e.stopPropagation();
     try {
       setIsProfileOpen(false);
-      setIsPremiumModalOpen(false);
       setIsMenuOpen(true);
     } catch (error) {
       console.error('Error opening menu:', error);
     }
   };
 
+  // ✅ FIX CRITIQUE : handleOpenPremium remonte à App.tsx via onOpenPremium
+  // setIsPremium(true) sera bien appelé dans App.tsx via handlePremiumActivated
   const handleOpenPremium = () => {
     setIsMenuOpen(false);
     setIsProfileOpen(false);
-    setTimeout(() => setIsPremiumModalOpen(true), 100);
+    onOpenPremium(); // ✅ Remonte à App.tsx qui gère setIsPremium(true)
   };
 
   const closeAll = () => {
     setIsMenuOpen(false);
     setIsProfileOpen(false);
-    setIsPremiumModalOpen(false);
   };
 
   return (
@@ -133,17 +131,11 @@ export default function TopBar({ onOpenPremium, isPremium }: TopBarProps) {
         isPremium={isPremium}
       />
 
-      {!isMenuOpen && !isPremiumModalOpen && isProfileOpen && (
+      {!isMenuOpen && isProfileOpen && (
         <UserProfileModal isOpen={isProfileOpen} onClose={closeAll} />
       )}
 
-      {!isMenuOpen && !isProfileOpen && isPremiumModalOpen && (
-        <PremiumModal
-          isOpen={isPremiumModalOpen}
-          onClose={closeAll}
-          onPurchase={() => closeAll()}
-        />
-      )}
+      {/* ✅ FIX : PremiumModal supprimé ici — rendu uniquement dans App.tsx */}
     </>
   );
 }

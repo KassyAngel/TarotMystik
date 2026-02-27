@@ -2,7 +2,7 @@ import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { useEffect, useState } from 'react';
 import { Globe, ChevronDown, ChevronUp } from 'lucide-react';
 import LegalModal from './LegalModal';
-import RestorePremiumModal from './RestorePremiumModal';
+// ✅ RestorePremiumModal supprimé — le restore passe par PremiumModal
 
 interface MenuDrawerProps {
   isOpen: boolean;
@@ -23,13 +23,11 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
   const { t, language, setLanguage } = useLanguage();
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [legalModal, setLegalModal] = useState<'legal' | 'privacy' | null>(null);
-  const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (legalModal) setLegalModal(null);
-        else if (isRestoreModalOpen) setIsRestoreModalOpen(false);
         else onClose();
       }
     };
@@ -37,15 +35,21 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
       document.addEventListener('keydown', handleEscape);
       return () => document.removeEventListener('keydown', handleEscape);
     }
-  }, [isOpen, onClose, legalModal, isRestoreModalOpen]);
+  }, [isOpen, onClose, legalModal]);
 
   useEffect(() => {
-    if (!isOpen) { setLegalModal(null); setIsRestoreModalOpen(false); }
+    if (!isOpen) setLegalModal(null);
   }, [isOpen]);
 
   if (!isOpen) return null;
 
   const currentLanguage = languages.find(l => l.code === language);
+
+  // ✅ Ouvre PremiumModal (qui contient déjà le restore intégré)
+  const handleOpenRestore = () => {
+    onClose();         // Ferme le drawer
+    onOpenPremium();   // Ouvre PremiumModal → l'utilisateur clique sur "♻️ Restaurer"
+  };
 
   return (
     <>
@@ -68,7 +72,7 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
           style={{ background: 'radial-gradient(ellipse at 50% -20%, rgba(139,92,246,0.15) 0%, transparent 70%)' }}
         />
 
-        {/* Header — titre blanc */}
+        {/* Header */}
         <div className="relative p-5 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(139,92,246,0.20)' }}>
           <h2 className="font-serif font-bold text-2xl" style={{ color: 'rgba(255,255,255,0.95)' }}>
             Menu
@@ -87,7 +91,7 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
 
         <nav className="relative p-4 space-y-2 flex-1">
 
-          {/* Premium — fond violet subtil, texte blanc */}
+          {/* Premium */}
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onOpenPremium(); }}
@@ -103,17 +107,16 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
             )}
             <span className="text-2xl group-hover:scale-110 transition-transform">⭐</span>
             <div className="flex-1 text-left">
-              {/* Texte blanc, pas jaune */}
               <div className="font-semibold" style={{ color: 'rgba(255,255,255,0.95)' }}>{t('premium.title')}</div>
               <div className="text-xs mt-0.5" style={{ color: 'rgba(196,181,253,0.65)' }}>{t('premium.subtitle')}</div>
             </div>
           </button>
 
-          {/* Restaurer */}
+          {/* ✅ Restaurer — ouvre PremiumModal (qui contient déjà le restore via RevenueCat) */}
           {!isPremium && (
             <button
               type="button"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsRestoreModalOpen(true); }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleOpenRestore(); }}
               className="w-full flex items-center gap-4 p-4 rounded-xl transition-all group"
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.08)'; }}
@@ -205,11 +208,7 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
       </div>
 
       <LegalModal isOpen={legalModal !== null} onClose={() => setLegalModal(null)} type={legalModal || 'legal'} />
-      <RestorePremiumModal
-        isOpen={isRestoreModalOpen}
-        onClose={() => setIsRestoreModalOpen(false)}
-        onRestoreSuccess={() => { setIsRestoreModalOpen(false); onClose(); window.location.reload(); }}
-      />
+      {/* ✅ RestorePremiumModal supprimé — le restore est intégré dans PremiumModal */}
     </>
   );
 }

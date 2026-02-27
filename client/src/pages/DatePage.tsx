@@ -2,16 +2,24 @@ import { useState } from 'react';
 import ProgressBar from '@/components/ProgressBar';
 import { getZodiacSign } from '@/data/oracleData';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-interface ZodiacSign {
-  symbol: string;
-  name: string;
-  dates: string;
-}
+import { ZodiacSign } from '@shared/schema';
+// ✅ FIX : Plus de ZodiacSign local — on utilise celui de schema.ts (startDate/endDate)
 
 interface DatePageProps {
   onNext: (birthDate: string, zodiacSign?: ZodiacSign) => void;
   onBack: () => void;
+}
+
+// ✅ Helper pour afficher les dates du signe zodiacal depuis startDate/endDate
+const MONTH_NAMES = [
+  '', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin',
+  'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'
+];
+
+function formatZodiacDates(sign: ZodiacSign): string {
+  const start = `${sign.startDate.day} ${MONTH_NAMES[sign.startDate.month]}`;
+  const end = `${sign.endDate.day} ${MONTH_NAMES[sign.endDate.month]}`;
+  return `${start} – ${end}`;
 }
 
 export default function DatePage({ onNext, onBack }: DatePageProps) {
@@ -36,6 +44,7 @@ export default function DatePage({ onNext, onBack }: DatePageProps) {
     label: (currentYear - i).toString()
   }));
 
+  // ✅ FIX : getZodiacSign retourne le bon type ZodiacSign de schema.ts
   const zodiacSign = day && month
     ? getZodiacSign(parseInt(month), parseInt(day)) as ZodiacSign | undefined
     : undefined;
@@ -84,7 +93,8 @@ export default function DatePage({ onNext, onBack }: DatePageProps) {
             <span className="dp-zodiac-symbol">{zodiacSign.symbol}</span>
             <div className="dp-zodiac-info">
               <span className="dp-zodiac-name">{zodiacSign.name}</span>
-              <span className="dp-zodiac-dates">{zodiacSign.dates}</span>
+              {/* ✅ FIX : formatZodiacDates() remplace zodiacSign.dates (qui n'existe plus) */}
+              <span className="dp-zodiac-dates">{formatZodiacDates(zodiacSign)}</span>
             </div>
           </div>
         )}

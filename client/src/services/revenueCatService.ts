@@ -22,9 +22,9 @@ export async function initializeRevenueCat(): Promise<void> {
 
     const platform = Capacitor.getPlatform();
 
-    // ✅ Clé API Google Play uniquement (pas d'iOS pour l'instant)
-    const apiKey = platform === 'android' 
-      ? 'goog_FysChuiotCqiQGrxnPIxWGJtyKH'
+    // ✅ CORRIGÉ : Clé API TarotMystik (Play Store)
+    const apiKey = platform === 'android'
+      ? 'goog_xvoVfcwtQVTLSVNXQXmShOiYsYX'  // ✅ Clé TarotMystik
       : ''; // Ajouter la clé iOS plus tard si besoin
 
     if (!apiKey) {
@@ -34,7 +34,7 @@ export async function initializeRevenueCat(): Promise<void> {
     // Configure RevenueCat
     await Purchases.configure({ apiKey });
 
-    // ✅ MODIFIÉ : Activer les logs SEULEMENT en dev
+    // Activer les logs SEULEMENT en dev
     if (import.meta.env.DEV) {
       await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
       console.log('🐛 Mode DEBUG RevenueCat activé');
@@ -45,7 +45,7 @@ export async function initializeRevenueCat(): Promise<void> {
     console.log('✅ RevenueCat initialisé avec succès pour TarotMystik');
   } catch (error) {
     console.error('❌ Erreur initialisation RevenueCat:', error);
-    throw error; // ✅ AJOUTÉ : Propager l'erreur
+    throw error;
   }
 }
 
@@ -70,7 +70,7 @@ export async function getOfferings(): Promise<PurchasesOfferings | null> {
 
 /**
  * 🛒 Achat d'un package
- * ✅ Stockage 100% local, pas de backend
+ * ✅ Stockage 100% local, sans backend
  */
 export async function purchasePackage(
   aPackage: PurchasesPackage,
@@ -93,7 +93,7 @@ export async function purchasePackage(
 
     // 3. Vérifier si l'entitlement Premium est actif
     const entitlements = purchaseResult.customerInfo.entitlements.active;
-    const isPremiumActive = !!entitlements['premium'];
+    const isPremiumActive = !!entitlements['premium']; // ✅ Correspond à l'identifier RevenueCat
 
     if (isPremiumActive) {
       const premiumEntitlement = entitlements['premium'];
@@ -104,7 +104,6 @@ export async function purchasePackage(
       console.log('📦 Produit acheté:', productId);
       console.log('📅 Expiration:', expirationDate || 'Pas de date (achat permanent)');
 
-      // 4. ✅ STOCKAGE LOCAL (remplace le backend)
       await savePremiumToLocalStorage({
         email,
         productId,
@@ -120,7 +119,7 @@ export async function purchasePackage(
     return { success: false };
   } catch (error: any) {
     if (error.userCancelled) {
-      console.log('ℹ️ Achat annulé par l\'utilisateur');
+      console.log("ℹ️ Achat annulé par l'utilisateur");
     } else {
       console.error('❌ Erreur achat:', error);
     }
@@ -130,7 +129,6 @@ export async function purchasePackage(
 
 /**
  * ♻️ Restauration des achats
- * ✅ Stockage 100% local, pas de backend
  */
 export async function restorePurchases(
   email: string
@@ -143,14 +141,11 @@ export async function restorePurchases(
   try {
     console.log('♻️ Restauration en cours pour:', email);
 
-    // 1. Connecter l'utilisateur
     await Purchases.logIn({ appUserID: email });
     console.log(`✅ Utilisateur connecté pour restauration : ${email}`);
 
-    // 2. Restaurer les achats Google Play
     const result = await Purchases.restorePurchases();
 
-    // 3. Vérifier si l'entitlement Premium est actif
     const entitlements = result.customerInfo.entitlements.active;
     const isPremiumActive = !!entitlements['premium'];
 
@@ -163,7 +158,6 @@ export async function restorePurchases(
       console.log('📦 Produit restauré:', productId);
       console.log('📅 Expiration:', expirationDate || 'Pas de date (achat permanent)');
 
-      // 4. ✅ STOCKAGE LOCAL (remplace le backend)
       await savePremiumToLocalStorage({
         email,
         productId,
@@ -185,16 +179,13 @@ export async function restorePurchases(
 
 /**
  * 👑 Vérification du statut premium
- * ✅ Vérifie d'abord dans RevenueCat, sinon vérifie localStorage
  */
 export async function checkPremiumStatus(email: string): Promise<boolean> {
   if (!Capacitor.isNativePlatform()) {
-    // Sur web, vérifier uniquement localStorage
     return await checkPremiumFromLocalStorage(email);
   }
 
   try {
-    // 1. Vérifier dans RevenueCat (source de vérité)
     await Purchases.logIn({ appUserID: email });
     const result = await Purchases.getCustomerInfo();
 
@@ -203,7 +194,6 @@ export async function checkPremiumStatus(email: string): Promise<boolean> {
 
     console.log('👑 Statut Premium (RevenueCat):', isPremium);
 
-    // 2. Synchroniser avec localStorage
     if (isPremium) {
       const premiumEntitlement = entitlements['premium'];
       await savePremiumToLocalStorage({
@@ -220,8 +210,6 @@ export async function checkPremiumStatus(email: string): Promise<boolean> {
     return isPremium;
   } catch (error) {
     console.error('❌ Erreur vérification Premium (RevenueCat):', error);
-
-    // Fallback : vérifier dans localStorage
     return await checkPremiumFromLocalStorage(email);
   }
 }
@@ -236,9 +224,6 @@ interface PremiumData {
   activatedAt: string;
 }
 
-/**
- * 💾 Sauvegarder le statut Premium dans localStorage
- */
 async function savePremiumToLocalStorage(data: PremiumData): Promise<void> {
   try {
     const key = `tarotmystik_premium_${data.email.toLowerCase().trim()}`;
@@ -249,9 +234,6 @@ async function savePremiumToLocalStorage(data: PremiumData): Promise<void> {
   }
 }
 
-/**
- * 🔍 Vérifier le statut Premium depuis localStorage
- */
 async function checkPremiumFromLocalStorage(email: string): Promise<boolean> {
   try {
     const key = `tarotmystik_premium_${email.toLowerCase().trim()}`;
@@ -264,12 +246,9 @@ async function checkPremiumFromLocalStorage(email: string): Promise<boolean> {
 
     const premiumData: PremiumData = JSON.parse(data);
 
-    // Vérifier si le Premium a expiré
     if (premiumData.expirationDate) {
       const expirationDate = new Date(premiumData.expirationDate);
-      const now = new Date();
-
-      if (expirationDate < now) {
+      if (expirationDate < new Date()) {
         console.log('⏰ Premium expiré dans localStorage pour:', email);
         await clearPremiumFromLocalStorage(email);
         return false;
@@ -284,9 +263,6 @@ async function checkPremiumFromLocalStorage(email: string): Promise<boolean> {
   }
 }
 
-/**
- * 🗑️ Supprimer le Premium du localStorage
- */
 async function clearPremiumFromLocalStorage(email: string): Promise<void> {
   try {
     const key = `tarotmystik_premium_${email.toLowerCase().trim()}`;
@@ -297,16 +273,11 @@ async function clearPremiumFromLocalStorage(email: string): Promise<void> {
   }
 }
 
-/**
- * 📊 Récupérer les données Premium depuis localStorage
- */
 export async function getPremiumData(email: string): Promise<PremiumData | null> {
   try {
     const key = `tarotmystik_premium_${email.toLowerCase().trim()}`;
     const data = localStorage.getItem(key);
-
     if (!data) return null;
-
     return JSON.parse(data);
   } catch (error) {
     console.error('❌ Erreur récupération données Premium:', error);
@@ -314,9 +285,6 @@ export async function getPremiumData(email: string): Promise<PremiumData | null>
   }
 }
 
-/**
- * 🚪 Déconnexion utilisateur RevenueCat
- */
 export async function logoutUser(): Promise<void> {
   if (!Capacitor.isNativePlatform()) {
     console.log('🌐 logoutUser : Non disponible sur Web');
@@ -331,5 +299,4 @@ export async function logoutUser(): Promise<void> {
   }
 }
 
-// ✅ AJOUTÉ : Export du type PremiumData
 export type { PremiumData };

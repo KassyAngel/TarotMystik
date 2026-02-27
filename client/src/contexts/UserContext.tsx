@@ -1,24 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ZodiacSign as BaseZodiacSign } from '@shared/schema';
+import { ZodiacSign } from '@shared/schema';
+// ✅ FIX : On utilise directement ZodiacSign depuis schema.ts (startDate/endDate)
+// Plus besoin d'étendre avec "dates" — ça créait un conflit de types
 
-// ✅ On étend le type ZodiacSign pour ajouter les dates
-export interface ZodiacSign extends BaseZodiacSign {
-  dates?: {
-    start: { month: number; day: number };
-    end: { month: number; day: number };
-  };
-}
-
-// ✅ AJOUT : Support Premium
+// ✅ Support Premium
 export interface UserSession {
   name: string;
   birthDate: string;
   gender: string;
   zodiacSign?: ZodiacSign;
-  // ✅ NOUVEAUX CHAMPS PREMIUM
-  email?: string; // Pour RevenueCat
-  isPremium?: boolean; // Statut premium local (cache)
-  premiumUntil?: string; // Date d'expiration
+  // Champs Premium
+  email?: string;         // Pour RevenueCat
+  isPremium?: boolean;    // Statut premium local (cache)
+  premiumUntil?: string;  // Date d'expiration
 }
 
 interface UserContextType {
@@ -26,14 +20,13 @@ interface UserContextType {
   setUser: (user: UserSession) => void;
   updateUser: (updates: Partial<UserSession>) => void;
   clearUser: () => void;
-  // ✅ NOUVEAUX : Gestion Premium
+  // Gestion Premium
   updatePremiumStatus: (isPremium: boolean, premiumUntil?: string) => void;
   setUserEmail: (email: string) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// ✅ MODIFIÉ : Nouvelle clé pour TarotMystik
 const USER_STORAGE_KEY = 'tarotmystik_user_session';
 
 const loadUserFromStorage = (): UserSession => {
@@ -51,10 +44,10 @@ const loadUserFromStorage = (): UserSession => {
 const saveUserToStorage = (user: UserSession) => {
   try {
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-    console.log('✅ User sauvegardé:', { 
-      name: user.name, 
-      email: user.email, 
-      isPremium: user.isPremium 
+    console.log('✅ User sauvegardé:', {
+      name: user.name,
+      email: user.email,
+      isPremium: user.isPremium
     });
   } catch (error) {
     console.error('❌ Erreur sauvegarde user:', error);
@@ -64,7 +57,6 @@ const saveUserToStorage = (user: UserSession) => {
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<UserSession>(loadUserFromStorage);
 
-  // ✅ Sauvegarder automatiquement à chaque changement
   useEffect(() => {
     if (user.name || user.birthDate || user.gender || user.email) {
       saveUserToStorage(user);
@@ -85,7 +77,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     console.log('🗑️ User session effacée');
   };
 
-  // ✅ NOUVEAU : Mettre à jour le statut premium
   const updatePremiumStatus = (isPremium: boolean, premiumUntil?: string) => {
     setUserState(prev => ({
       ...prev,
@@ -95,7 +86,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     console.log(`💎 Premium mis à jour: ${isPremium ? 'Actif' : 'Inactif'}`);
   };
 
-  // ✅ NOUVEAU : Définir l'email (pour RevenueCat)
   const setUserEmail = (email: string) => {
     const normalizedEmail = email.toLowerCase().trim();
     setUserState(prev => ({
@@ -106,10 +96,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ 
-      user, 
-      setUser, 
-      updateUser, 
+    <UserContext.Provider value={{
+      user,
+      setUser,
+      updateUser,
       clearUser,
       updatePremiumStatus,
       setUserEmail,
@@ -126,3 +116,6 @@ export function useUser() {
   }
   return context;
 }
+
+// ✅ Ré-export de ZodiacSign depuis schema pour les composants qui l'importaient depuis UserContext
+export type { ZodiacSign };
