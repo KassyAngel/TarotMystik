@@ -12,7 +12,7 @@ export default function WizardAnimation({ isChanneling = false }: WizardAnimatio
   const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const wizardImage = '/Image/wizard.jpg';
+  const wizardImage = '/Image/wizard.webp';
   const wizardVideo = '/Image/wizard-video.mp4';
 
   useEffect(() => {

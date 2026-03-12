@@ -80,23 +80,23 @@ export default function FlipCard({
   const getCardImagePath = (): string => {
     const normalized = normalizeCardName(card.name);
     const folder = getOracleFolderName();
-    return `/Image/${folder}/${normalized}.jpg`;
+    return `/Image/${folder}/${normalized}.webp`;
   };
 
   // ✅ CORRECTION PRINCIPALE : Chemins mis à jour pour le dos des cartes
   const getBackImagePath = (): string => {
     switch(oracleType) {
       case 'lunar':
-        return '/Image/luneOracle/card-verso-luna.jpg';
+        return '/Image/luneOracle/card-verso-luna.webp';
       case 'loveOracle':
-        // ✅ OPTION 1: Si votre fichier est bien dans /Image/card-back.jpg
-        return '/Image/card-back.jpg';
+        // ✅ OPTION 1: Si votre fichier est bien dans /Image/card-back.webp
+        return '/Image/card-back.webp';
         // ✅ OPTION 2: Si vous voulez le mettre dans le dossier loveOracle
-        // return '/Image/loveOracle/card-back.jpg';
+        // return '/Image/loveOracle/card-back.webp';
       case 'runes':
-        return '/Image/runes/card-back.jpg';
+        return '/Image/runes/card-back.webp';
       default:
-        return '/Image/card-back.jpg';
+        return '/Image/card-back.webp';
     }
   };
 

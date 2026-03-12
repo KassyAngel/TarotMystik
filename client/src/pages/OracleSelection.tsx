@@ -9,11 +9,11 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useSound } from '@/hooks/useSound';
 import { useState } from 'react';
 import { showInterstitialAd } from '@/admobService';
-import wizardImage from '/Image/wizard.jpg';
-import roueMystikImage from '/Image/RoueMystik.jpg';
-import loveOracleImage from '/Image/Tarotamour-icone.jpg';
-import lunarOracleImage from '/Image/Oraclelune-icone.jpg';
-import loveCalculatorImage from '/Image/Compatibilite-icone.jpg';
+import wizardImage from '/Image/wizard.webp';
+import roueMystikImage from '/Image/RoueMystik.webp';
+import loveOracleImage from '/Image/Tarotamour-icone.webp';
+import lunarOracleImage from '/Image/Oraclelune-icone.webp';
+import loveCalculatorImage from '/Image/Compatibilite-icone.webp';
 
 interface OracleSelectionProps {
   user: UserSession;

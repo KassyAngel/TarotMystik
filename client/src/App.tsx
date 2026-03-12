@@ -18,10 +18,6 @@ import OracleMystiqueApp from "@/pages/OracleMystiqueApp";
 import NotFound from "@/pages/not-found";
 import { initialize as initializeAdMob, showBanner, hideBanner, showInterstitialAd, preloadInterstitial } from './admobService';
 import { initializeRevenueCat, checkPremiumStatus } from './services/revenueCatService';
-// ✅ FIX CRITIQUE : getUserEmail() lit depuis Capacitor Preferences sur mobile
-// et localStorage sur web — cohérent avec saveUserEmail() appelé dans PremiumModal
-// L'ancien localStorage.getItem('tarotmystik_premium_email') ne fonctionnait pas
-// sur mobile natif car Preferences et localStorage sont deux stockages séparés
 import { getUserEmail } from './lib/userStorage';
 import { useRatingPrompt } from './hooks/useRatingPrompt';
 
@@ -103,8 +99,6 @@ function AppContent() {
       ]);
       console.log('✅ Services AdMob + RevenueCat initialisés');
 
-      // ✅ FIX CRITIQUE : getUserEmail() utilise Capacitor Preferences sur mobile
-      // au lieu de localStorage qui ne persiste pas de la même façon sur Android
       const savedEmail = await getUserEmail();
 
       if (savedEmail) {
@@ -116,7 +110,6 @@ function AppContent() {
           console.log(`👑 Statut Premium au démarrage: ${status ? 'ACTIF ✅' : 'INACTIF ❌'}`);
         } catch (error) {
           console.error('❌ Erreur vérification Premium au démarrage:', error);
-          // Fallback cache localStorage (géré dans checkPremiumStatus de revenueCatService)
           const cached = localStorage.getItem(`tarotmystik_premium_${savedEmail.toLowerCase().trim()}`);
           if (cached) {
             const data = JSON.parse(cached);
@@ -168,6 +161,14 @@ function AppContent() {
   }, [currentStep, isPremium, bannerShown]);
 
   const showTopBar = !['landing', 'name', 'date', 'gender'].includes(currentStep);
+
+  // ✅ Scroll en haut à chaque changement de page
+  useEffect(() => {
+    const scrollContainer = document.querySelector('.overflow-y-auto');
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0;
+    }
+  }, [currentStep]);
 
   useEffect(() => {
     const checkNotificationPermission = () => {
@@ -273,7 +274,6 @@ function AppContent() {
 
   const handleWheelComplete = () => handleReadingComplete('wheel');
 
-  // ✅ Met à jour isPremium ET le UserContext en une seule fois
   const handlePremiumActivated = () => {
     console.log('👑 Premium activé !');
     setIsPremium(true);

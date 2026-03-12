@@ -77,7 +77,7 @@ export default function CardRevealModal({
 
     const normalized = normalizeForImage(nameForImage);
     const folder = getOracleFolderName();
-    const path = `/Image/${folder}/${normalized}.jpg`;
+    const path = `/Image/${folder}/${normalized}.webp`;
 
     console.log('🖼️ CardRevealModal image path:', {
       originalCardName,

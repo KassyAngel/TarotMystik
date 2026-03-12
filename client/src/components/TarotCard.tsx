@@ -84,21 +84,21 @@ const TarotCard = memo(function TarotCard({
     if (!cardName) return '';
     const normalized = normalizeForImage(cardName);
     const folder = getOracleFolderName();
-    return `/Image/${folder}/${normalized}.jpg`;
+    return `/Image/${folder}/${normalized}.webp`;
   };
 
   const getBackImagePath = (): string => {
     switch(oracleType) {
       case 'lunar':
-        return '/Image/luneOracle/card-verso-luna.jpg';
+        return '/Image/luneOracle/card-verso-luna.webp';
       case 'loveOracle':
-        return '/Image/card-back.jpg';
+        return '/Image/card-back.webp';
       case 'runes':
-        return '/Image/runes/card-back.jpg';
+        return '/Image/runes/card-back.webp';
       case 'oracle':
-        return '/Image/card-back.jpg';
+        return '/Image/card-back.webp';
       default:
-        return '/Image/card-back.jpg';
+        return '/Image/card-back.webp';
     }
   };
 
