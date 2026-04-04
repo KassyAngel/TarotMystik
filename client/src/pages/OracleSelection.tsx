@@ -94,11 +94,12 @@ export default function OracleSelection({
     },
     {
       id: 'wizard',
-      title: t('wizard.title') || '🧙‍♂️ Azraël le Voyant',
+      title: t('wizard.title') || 'Azraël le Voyant',
       description: t('oracle.wizard.description') || 'Consultez le grand magicien pour révéler votre destinée',
       useImage: true,
       imageSrc: wizardImage,
-      imageStyle: 'scale-150 object-top',
+      // ✅ FIX: suppression de scale-150 et object-top qui faisaient déborder l'image
+      imageStyle: 'object-center object-cover',
       gradient: 'from-indigo-900/30 via-purple-800/25 to-indigo-900/30',
       border: 'border-indigo-400/70',
       hoverBorder: 'hover:border-indigo-300',
@@ -131,7 +132,6 @@ export default function OracleSelection({
     }
   ];
 
-  // ✅ FIX: Gérer le clic sur un oracle normal
   const handleOracleClick = (oracleId: string) => {
     playFlipSound();
     setSelectedOracle(oracleId);
@@ -140,20 +140,14 @@ export default function OracleSelection({
     }, 500);
   };
 
-  // ✅ FIX: Gérer le clic sur la ROUE avec pub interstitielle
   const handleWheelClick = async () => {
     playFlipSound();
     setSelectedOracle('wheel');
 
-    // Si Premium, pas de pub
     if (isPremium) {
-      console.log('👑 [WHEEL] Premium → Pas de pub');
       setTimeout(() => onOracleSelect('wheel'), 500);
       return;
     }
-
-    // Afficher la pub interstitielle AVANT de naviguer
-    console.log('📺 [WHEEL] Affichage pub interstitielle...');
 
     let messageTimeoutId: NodeJS.Timeout | null = null;
 
@@ -161,11 +155,9 @@ export default function OracleSelection({
       const adPromise = showInterstitialAd('wheel_entry');
 
       const loadingTimeoutId = setTimeout(() => {
-        console.log('⏳ [WHEEL] Affichage loading screen');
         setIsLoadingAd(true);
 
         messageTimeoutId = setTimeout(() => {
-          console.log('💬 [WHEEL] Message pub longue');
           setShowLongAdMessage(true);
         }, 45000);
       }, 500);
@@ -178,21 +170,17 @@ export default function OracleSelection({
       setIsLoadingAd(false);
       setShowLongAdMessage(false);
 
-      console.log('✅ [WHEEL] Pub terminée → Navigation');
       setTimeout(() => onOracleSelect('wheel'), 300);
 
     } catch (error) {
-      console.error('❌ [WHEEL] Erreur pub:', error);
+      console.error('[WHEEL] Erreur pub:', error);
       if (messageTimeoutId) clearTimeout(messageTimeoutId);
       setIsLoadingAd(false);
       setShowLongAdMessage(false);
-
-      // Continuer même en cas d'erreur
       setTimeout(() => onOracleSelect('wheel'), 300);
     }
   };
 
-  // ✅ Afficher le loading screen si pub en cours
   if (isLoadingAd) {
     return <AdLoadingScreen showLongMessage={showLongAdMessage} adType="interstitial" />;
   }
@@ -241,7 +229,7 @@ export default function OracleSelection({
                 {oracle.badge && (
                   <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 max-w-[90%]">
                     <div className={`bg-gradient-to-r ${oracle.badgeColor} text-white px-3 sm:px-3.5 py-1 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wide shadow-lg border border-purple-300/40 whitespace-nowrap`}>
-                      <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">💕 {oracle.badge}</span>
+                      <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">{oracle.badge}</span>
                     </div>
                   </div>
                 )}
@@ -257,10 +245,10 @@ export default function OracleSelection({
                     <div className={`absolute inset-0 ${oracle.iconGlow} rounded-full blur-2xl animate-pulse`}></div>
                     <div className={`absolute inset-0 ${oracle.iconBg} rounded-full border-2 ${oracle.iconBorder} flex items-center justify-center shadow-inner overflow-hidden`}>
                       {oracle.useImage && oracle.imageSrc ? (
-                        <img 
+                        <img
                           src={oracle.imageSrc}
                           alt={oracle.title}
-                          className={`w-full h-full object-cover ${oracle.imageStyle || ''}`}
+                          className={`w-full h-full ${oracle.imageStyle || 'object-cover object-center'}`}
                           style={{
                             filter: 'brightness(1.1) contrast(1.1) drop-shadow(0 2px 8px rgba(0,0,0,0.4))'
                           }}
@@ -295,7 +283,7 @@ export default function OracleSelection({
 
             <div
               onClick={handleWheelClick}
-              className={`relative cursor-pointer group rounded-3xl p-5 sm:p-6 
+              className={`relative cursor-pointer group rounded-3xl p-5 sm:p-6
                 bg-gradient-to-br from-slate-900/40 via-blue-900/30 to-slate-900/40
                 border-2 border-amber-400/60 hover:border-amber-300/80
                 shadow-[0_8px_32px_rgba(251,191,36,0.25)] hover:shadow-[0_12px_48px_rgba(251,191,36,0.4)]
@@ -314,10 +302,10 @@ export default function OracleSelection({
                 <div className="relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 group-hover:scale-110 transition-transform duration-500 group-hover:rotate-12">
                   <div className="absolute inset-0 bg-amber-400/35 rounded-full blur-2xl animate-pulse"></div>
                   <div className="absolute inset-0 bg-gradient-to-br from-slate-800/80 to-blue-900/80 rounded-full border-2 border-amber-400/50 flex items-center justify-center shadow-inner overflow-hidden">
-                    <img 
+                    <img
                       src={roueMystikImage}
                       alt="Roue de la Destinée"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-center"
                       style={{
                         filter: 'brightness(1.1) contrast(1.1) drop-shadow(0 2px 8px rgba(0,0,0,0.4))'
                       }}
@@ -355,7 +343,7 @@ export default function OracleSelection({
             onClick={onBack}
             className="w-full min-h-[48px] text-base"
           >
-            ← {t('oracle.back')}
+            {t('oracle.back')}
           </MysticalButton>
         </div>
       </div>

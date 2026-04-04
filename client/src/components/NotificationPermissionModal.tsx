@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import MysticalButton from '@/components/MysticalButton';
 import { LocalNotifications } from '@capacitor/local-notifications';
 
 interface NotificationPermissionModalProps {
@@ -103,98 +102,259 @@ export default function NotificationPermissionModal({ onClose }: NotificationPer
   };
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-      style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(6px)' }}
-    >
+    <>
+      <style>{`
+        @keyframes notif-backdrop-in {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes notif-card-in {
+          from { opacity: 0; transform: translateY(24px) scale(0.96); }
+          to   { opacity: 1; transform: translateY(0)    scale(1); }
+        }
+        @keyframes bell-ring {
+          0%,100% { transform: rotate(0deg); }
+          15%     { transform: rotate(14deg); }
+          30%     { transform: rotate(-10deg); }
+          45%     { transform: rotate(8deg); }
+          60%     { transform: rotate(-5deg); }
+          75%     { transform: rotate(3deg); }
+        }
+        @keyframes gold-shimmer {
+          0%   { background-position: -200% center; }
+          100% { background-position:  200% center; }
+        }
+        @keyframes orb-pulse {
+          0%,100% { transform: scale(1);   opacity: 0.55; }
+          50%     { transform: scale(1.18); opacity: 0.80; }
+        }
+        @keyframes star-drift {
+          0%   { transform: translateY(0px)   rotate(0deg);   opacity: 0.4; }
+          50%  { transform: translateY(-6px)  rotate(180deg); opacity: 0.9; }
+          100% { transform: translateY(0px)   rotate(360deg); opacity: 0.4; }
+        }
+        .notif-backdrop {
+          animation: notif-backdrop-in 0.25s ease-out forwards;
+        }
+        .notif-card {
+          animation: notif-card-in 0.35s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+        .bell-icon { animation: bell-ring 2.4s ease-in-out infinite; }
+        .gold-btn-text {
+          background: linear-gradient(
+            90deg,
+            #b8942a 0%, #f5d876 30%, #d4af37 50%, #f5d876 70%, #b8942a 100%
+          );
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gold-shimmer 2.8s linear infinite;
+        }
+        .orb { animation: orb-pulse 3s ease-in-out infinite; }
+        .star-float { animation: star-drift ease-in-out infinite; }
+        .divider-line {
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.45), transparent);
+        }
+      `}</style>
+
+      {/* Backdrop */}
       <div
-        className={`relative max-w-md w-full rounded-2xl shadow-2xl transform transition-all duration-300 ${isVisible ? 'scale-100' : 'scale-90'}`}
-        style={{
-          background: 'linear-gradient(180deg, #0a0818 0%, #060612 60%, #080816 100%)',
-          border: '1px solid rgba(139,92,246,0.35)',
-          boxShadow: '0 0 60px rgba(0,0,0,0.95), 0 0 30px rgba(139,92,246,0.08)',
-        }}
+        className="notif-backdrop fixed inset-0 z-50 flex items-center justify-center"
+        style={{ background: 'rgba(4,3,14,0.92)', backdropFilter: 'blur(8px)', padding: '24px' }}
       >
-        {/* Lueur violette en haut */}
+        {/* Card */}
         <div
-          className="absolute top-0 left-0 right-0 h-32 pointer-events-none rounded-t-2xl"
-          style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(139,92,246,0.18) 0%, transparent 70%)' }}
-        />
-
-        <div className="relative p-6">
-          {/* Icône */}
-          <div className="text-center mb-4">
-            <div className="text-6xl mb-2 animate-pulse">🔔</div>
-            <div className="text-xs" style={{ color: 'rgba(167,139,250,0.55)' }}>✨ ✦ ✨</div>
-          </div>
-
-          {/* Titre */}
-          <h2
-            className="text-2xl font-bold text-center mb-3 font-serif"
-            style={{ color: '#d4af37', textShadow: '0 2px 12px rgba(212,175,55,0.30)' }}
-          >
-            {t('notification.modal.title')}
-          </h2>
-
-          {/* Description */}
-          <p className="text-center mb-6 leading-relaxed text-sm" style={{ color: 'rgba(226,217,243,0.75)' }}>
-            {t('notification.modal.description')}
-          </p>
-
-          {/* Avantages */}
+          className="notif-card relative w-full overflow-hidden"
+          style={{
+            maxWidth: '340px',
+            borderRadius: '20px',
+            background: 'linear-gradient(160deg, #0e0b1e 0%, #100d22 50%, #0a0818 100%)',
+            border: '1px solid rgba(212,175,55,0.28)',
+            boxShadow: `
+              0 0 0 1px rgba(212,175,55,0.08),
+              0 8px 40px rgba(0,0,0,0.85),
+              0 0 80px rgba(212,175,55,0.06),
+              inset 0 1px 0 rgba(212,175,55,0.12)
+            `,
+          }}
+        >
+          {/* Top golden glow */}
           <div
-            className="rounded-xl p-4 mb-6 space-y-3"
+            className="absolute top-0 left-0 right-0 pointer-events-none"
             style={{
-              background: 'rgba(139,92,246,0.06)',
-              border: '1px solid rgba(139,92,246,0.20)',
+              height: '140px',
+              background: 'radial-gradient(ellipse at 50% -20%, rgba(212,175,55,0.14) 0%, transparent 70%)',
             }}
-          >
-            {[
-              { icon: '🔮', key: 'notification.modal.benefit1' },
-              { icon: '⭐', key: 'notification.modal.benefit2' },
-              { icon: '✨', key: 'notification.modal.benefit3' },
-            ].map(({ icon, key }) => (
-              <div key={key} className="flex items-start gap-3 text-sm" style={{ color: 'rgba(226,217,243,0.80)' }}>
-                <span className="mt-0.5">{icon}</span>
-                <span>{t(key)}</span>
-              </div>
-            ))}
-          </div>
+          />
 
-          {/* Bouton Accepter — style doré comme le reste de l'app */}
-          <div className="flex flex-col gap-3">
+          {/* Floating stars background */}
+          {[
+            { top:'12%', left:'8%',  size:'3px', delay:'0s',   dur:'3.2s' },
+            { top:'8%',  left:'88%', size:'2px', delay:'0.6s', dur:'2.8s' },
+            { top:'22%', left:'92%', size:'2px', delay:'1.2s', dur:'3.6s' },
+            { top:'18%', left:'4%',  size:'2px', delay:'0.3s', dur:'4s'   },
+            { top:'55%', left:'96%', size:'2px', delay:'1.8s', dur:'3s'   },
+            { top:'70%', left:'3%',  size:'2px', delay:'0.9s', dur:'3.4s' },
+          ].map((s, i) => (
+            <div
+              key={i}
+              className="star-float absolute rounded-full"
+              style={{
+                top: s.top, left: s.left,
+                width: s.size, height: s.size,
+                background: '#d4af37',
+                animationDelay: s.delay,
+                animationDuration: s.dur,
+              }}
+            />
+          ))}
+
+          <div className="relative px-6 pt-7 pb-6">
+            {/* Bell icon */}
+            <div className="flex justify-center mb-5">
+              <div className="relative">
+                <div
+                  className="orb absolute inset-0 rounded-full"
+                  style={{
+                    background: 'radial-gradient(circle, rgba(212,175,55,0.22) 0%, transparent 70%)',
+                    filter: 'blur(12px)',
+                    transform: 'scale(1.8)',
+                  }}
+                />
+                <div
+                  className="relative flex items-center justify-center"
+                  style={{
+                    width: '68px', height: '68px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(145deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%)',
+                    border: '1px solid rgba(212,175,55,0.30)',
+                    boxShadow: '0 0 20px rgba(212,175,55,0.12), inset 0 1px 0 rgba(212,175,55,0.20)',
+                  }}
+                >
+                  <span className="bell-icon text-3xl" style={{ display: 'inline-block' }}>🔔</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Ornament */}
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div className="divider-line w-12" />
+              <span style={{ color: 'rgba(212,175,55,0.50)', fontSize: '9px', letterSpacing: '4px' }}>✦ ✦ ✦</span>
+              <div className="divider-line w-12" />
+            </div>
+
+            {/* Title */}
+            <h2
+              className="text-center font-bold mb-2"
+              style={{
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                fontSize: '20px',
+                letterSpacing: '0.03em',
+                color: '#d4af37',
+                textShadow: '0 2px 16px rgba(212,175,55,0.35)',
+              }}
+            >
+              {t('notification.modal.title')}
+            </h2>
+
+            {/* Description */}
+            <p
+              className="text-center mb-5 leading-relaxed"
+              style={{ fontSize: '13px', color: 'rgba(220,210,255,0.65)', lineHeight: '1.6' }}
+            >
+              {t('notification.modal.description')}
+            </p>
+
+            {/* Benefits */}
+            <div
+              className="rounded-xl mb-5 overflow-hidden"
+              style={{
+                background: 'rgba(212,175,55,0.04)',
+                border: '1px solid rgba(212,175,55,0.16)',
+              }}
+            >
+              {[
+                'notification.modal.benefit1',
+                'notification.modal.benefit2',
+                'notification.modal.benefit3',
+              ].map((key, i) => (
+                <div
+                  key={key}
+                  className="flex items-center gap-3 px-4 py-3"
+                  style={{
+                    borderBottom: i < 2 ? '1px solid rgba(212,175,55,0.10)' : 'none',
+                  }}
+                >
+                  <span style={{
+                    width: '5px', height: '5px',
+                    background: '#d4af37',
+                    borderRadius: '1px',
+                    transform: 'rotate(45deg)',
+                    flexShrink: 0,
+                    boxShadow: '0 0 6px rgba(212,175,55,0.60)',
+                  }} />
+                  <span style={{ fontSize: '12.5px', color: 'rgba(220,210,255,0.72)', lineHeight: '1.5' }}>
+                    {t(key)}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Accept button */}
             <button
               onClick={handleAccept}
-              className="w-full font-bold py-4 rounded-xl transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
+              className="w-full flex items-center justify-center transition-all duration-200 active:scale-[0.98]"
               style={{
-                background: 'linear-gradient(135deg, #d4af37 0%, #b8942a 100%)',
+                height: '50px',
+                borderRadius: '10px',
+                background: 'linear-gradient(180deg, #d4af37 0%, #b8942a 100%)',
+                boxShadow: '0 2px 16px rgba(212,175,55,0.25)',
+                border: '1px solid rgba(212,175,55,0.50)',
+                fontSize: '12px',
+                letterSpacing: '0.16em',
                 color: '#0a0818',
-                boxShadow: '0 4px 20px rgba(212,175,55,0.35)',
-                border: 'none',
+                fontWeight: '700',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 28px rgba(212,175,55,0.50)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(212,175,55,0.35)'; }}
+              onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 24px rgba(212,175,55,0.42)')}
+              onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 2px 16px rgba(212,175,55,0.25)')}
             >
-              🔔 {t('notification.modal.accept')}
+              {t('notification.modal.accept')}
             </button>
 
+            {/* Decline */}
             <button
               onClick={handleDecline}
-              className="text-sm transition-colors py-2"
-              style={{ color: 'rgba(167,139,250,0.45)' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(167,139,250,0.75)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(167,139,250,0.45)'; }}
+              className="w-full mt-3 py-2 text-center transition-colors duration-200"
+              style={{ fontSize: '13px', color: 'rgba(212,175,55,0.38)', background: 'none', border: 'none' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'rgba(212,175,55,0.65)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(212,175,55,0.38)')}
             >
               {t('notification.modal.decline')}
             </button>
+
+            {/* Note */}
+            <p
+              className="text-center mt-3 italic"
+              style={{ fontSize: '11px', color: 'rgba(212,175,55,0.28)', lineHeight: '1.4' }}
+            >
+              {t('notification.modal.note')}
+            </p>
           </div>
 
-          {/* Note */}
-          <p className="text-xs text-center mt-4 italic" style={{ color: 'rgba(167,139,250,0.35)' }}>
-            {t('notification.modal.note')}
-          </p>
+          {/* Bottom golden glow line */}
+          <div
+            className="absolute bottom-0 left-8 right-8"
+            style={{
+              height: '1px',
+              background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.20), transparent)',
+            }}
+          />
         </div>
       </div>
-    </div>
+    </>
   );
 }

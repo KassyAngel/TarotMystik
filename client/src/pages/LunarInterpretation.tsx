@@ -1,4 +1,6 @@
 // client/src/pages/LunarInterpretation.tsx
+// ✅ REDESIGN v2 — Lune webp, SVG custom, glassmorphism, zéro emoji
+
 import { UserSession, OracleCard } from '@shared/schema';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getSecureRandomInt } from '@/lib/utils';
@@ -11,183 +13,420 @@ interface LunarInterpretationProps {
   onHome: () => void;
 }
 
+const PHASE_IMAGES: Record<string, string> = {
+  newMoon:      '/Image/luneOracle/nouvelle-lune.webp',
+  firstQuarter: '/Image/luneOracle/premier-quartier.webp',
+  fullMoon:     '/Image/luneOracle/pleine-lune.webp',
+  lastQuarter:  '/Image/luneOracle/dernier-quartier.webp',
+};
+
+const PHASE_ACCENT: Record<string, string> = {
+  newMoon:      '#a3b4c6',
+  firstQuarter: '#a5b4fc',
+  fullMoon:     '#fcd34d',
+  lastQuarter:  '#c4b5fd',
+};
+
+// ── SVG "œil lunaire" pour État d'esprit ──
+function IconMindset({ accent }: { accent: string }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Œil */}
+      <ellipse cx="11" cy="11" rx="9" ry="5.5" stroke={accent} strokeWidth="1.2" strokeOpacity="0.85"/>
+      <circle cx="11" cy="11" r="2.8" fill={accent} fillOpacity="0.25" stroke={accent} strokeWidth="1.1" strokeOpacity="0.9"/>
+      <circle cx="11" cy="11" r="1.1" fill={accent} fillOpacity="0.9"/>
+      {/* Cils haut */}
+      <line x1="11" y1="5" x2="11" y2="3.2" stroke={accent} strokeWidth="0.9" strokeOpacity="0.5"/>
+      <line x1="7.5" y1="6.2" x2="6.5" y2="4.7" stroke={accent} strokeWidth="0.9" strokeOpacity="0.5"/>
+      <line x1="14.5" y1="6.2" x2="15.5" y2="4.7" stroke={accent} strokeWidth="0.9" strokeOpacity="0.5"/>
+    </svg>
+  );
+}
+
+// ── SVG "étoile à 4 branches" pour Guidance ──
+function IconGuidance({ accent }: { accent: string }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Étoile à 4 branches fines */}
+      <path d="M11 2 L12.2 9.8 L11 11 L9.8 9.8 Z" fill={accent} fillOpacity="0.9"/>
+      <path d="M11 20 L12.2 12.2 L11 11 L9.8 12.2 Z" fill={accent} fillOpacity="0.9"/>
+      <path d="M2 11 L9.8 9.8 L11 11 L9.8 12.2 Z" fill={accent} fillOpacity="0.9"/>
+      <path d="M20 11 L12.2 9.8 L11 11 L12.2 12.2 Z" fill={accent} fillOpacity="0.9"/>
+      {/* 4 petites étoiles aux coins */}
+      <circle cx="4.5" cy="4.5" r="0.9" fill={accent} fillOpacity="0.45"/>
+      <circle cx="17.5" cy="4.5" r="0.9" fill={accent} fillOpacity="0.45"/>
+      <circle cx="4.5" cy="17.5" r="0.9" fill={accent} fillOpacity="0.45"/>
+      <circle cx="17.5" cy="17.5" r="0.9" fill={accent} fillOpacity="0.45"/>
+    </svg>
+  );
+}
+
 export default function LunarInterpretation({
   user,
   selectedCard,
   selectedPhase,
   onBack,
-  onHome
+  onHome,
 }: LunarInterpretationProps) {
   const { t } = useLanguage();
 
-  // Normaliser pour clé de traduction
-  const normalizeCardName = (name: string): string => {
-    return name.toLowerCase().trim().replace(/[''\s-]/g, '');
-  };
+  const normalizeCardName = (name: string): string =>
+    name.toLowerCase().trim().replace(/[''\s-]/g, '');
 
   const normalizedCard = normalizeCardName(selectedCard.name);
+  const accent         = PHASE_ACCENT[selectedPhase] ?? '#a3b4c6';
+  const phaseImage     = PHASE_IMAGES[selectedPhase];
 
-  // Emoji de phase
-  const getPhaseEmoji = (phase: string): string => {
-    const emojiMap: Record<string, string> = {
-      newMoon: '🌑',
-      firstQuarter: '🌓',
-      fullMoon: '🌕',
-      lastQuarter: '🌗'
-    };
-    return emojiMap[phase] || '🌙';
-  };
-
-  const phaseEmoji = getPhaseEmoji(selectedPhase);
-
-  // Obtenir une variation aléatoire de mindset
   const getRandomMindset = (): string => {
-    const var1 = t(`cards.lunar.${normalizedCard}.mindset.var1`, { name: user.name });
-    const var2 = t(`cards.lunar.${normalizedCard}.mindset.var2`, { name: user.name });
-    const var3 = t(`cards.lunar.${normalizedCard}.mindset.var3`, { name: user.name });
-
-    const variations = [var1, var2, var3].filter(v => 
-      !v.includes('cards.lunar') && v.trim().length > 0
-    );
-
-    if (variations.length > 0) {
-      return variations[getSecureRandomInt(0, variations.length - 1)];
-    }
-
-    return t(`cards.lunar.${normalizedCard}.mindset`, { name: user.name });
+    const vars = [
+      t(`cards.lunar.${normalizedCard}.mindset.var1`, { name: user.name }),
+      t(`cards.lunar.${normalizedCard}.mindset.var2`, { name: user.name }),
+      t(`cards.lunar.${normalizedCard}.mindset.var3`, { name: user.name }),
+    ].filter(v => !v.includes('cards.lunar') && v.trim().length > 0);
+    return vars.length > 0
+      ? vars[getSecureRandomInt(0, vars.length - 1)]
+      : t(`cards.lunar.${normalizedCard}.mindset`, { name: user.name });
   };
 
-  // Obtenir une variation aléatoire de guidance
   const getRandomGuidance = (): string => {
-    const var1 = t(`cards.lunar.${normalizedCard}.guidance.var1`);
-    const var2 = t(`cards.lunar.${normalizedCard}.guidance.var2`);
-    const var3 = t(`cards.lunar.${normalizedCard}.guidance.var3`);
-
-    const variations = [var1, var2, var3].filter(v => 
-      !v.includes('cards.lunar') && v.trim().length > 0
-    );
-
-    if (variations.length > 0) {
-      return variations[getSecureRandomInt(0, variations.length - 1)];
-    }
-
-    return t(`cards.lunar.${normalizedCard}.guidance`);
+    const vars = [
+      t(`cards.lunar.${normalizedCard}.guidance.var1`),
+      t(`cards.lunar.${normalizedCard}.guidance.var2`),
+      t(`cards.lunar.${normalizedCard}.guidance.var3`),
+    ].filter(v => !v.includes('cards.lunar') && v.trim().length > 0);
+    return vars.length > 0
+      ? vars[getSecureRandomInt(0, vars.length - 1)]
+      : t(`cards.lunar.${normalizedCard}.guidance`);
   };
 
-  const mindsetText = getRandomMindset();
+  const mindsetText  = getRandomMindset();
   const guidanceText = getRandomGuidance();
-  const cardName = t(`cards.lunar.${normalizedCard}.name`) || selectedCard.name;
-  const phaseName = t(`lunar.phases.${selectedPhase}.name`);
+  const cardName     = t(`cards.lunar.${normalizedCard}.name`) || selectedCard.name;
+  const phaseName    = t(`lunar.phases.${selectedPhase}.name`);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-4 pt-20 sm:pt-24 pb-safe bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a] relative overflow-hidden">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(180deg, #07091280 0%, #0b0f1e 40%, #060810 100%)',
+      backgroundColor: '#060810',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      position: 'relative',
+      overflow: 'hidden',
+      paddingTop: '72px',
+      paddingBottom: '40px',
+    }}>
 
-      {/* Étoiles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(40)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-white animate-twinkle"
-            style={{
-              width: Math.random() > 0.7 ? '2px' : '1px',
-              height: Math.random() > 0.7 ? '2px' : '1px',
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              opacity: 0.6
-            }}
-          />
+      {/* ── Halo de phase en arrière-plan ── */}
+      <div style={{
+        position: 'absolute', top: 0, left: '50%',
+        transform: 'translateX(-50%)',
+        width: '420px', height: '320px',
+        background: `radial-gradient(ellipse at 50% 0%, ${accent}20 0%, transparent 65%)`,
+        filter: 'blur(60px)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* ── Étoiles ── */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+        {[...Array(55)].map((_, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            width: i % 7 === 0 ? '2px' : '1px',
+            height: i % 7 === 0 ? '2px' : '1px',
+            borderRadius: '50%',
+            background: 'white',
+            top: `${(i * 137.508) % 100}%`,
+            left: `${(i * 97.3) % 100}%`,
+            opacity: i % 7 === 0 ? 0.28 : 0.1,
+            animation: `li-twinkle ${2.5 + (i % 4)}s ease-in-out ${(i % 6) * 0.5}s infinite`,
+          }} />
         ))}
       </div>
 
-      {/* Header */}
-      <div className="text-center mb-6 relative z-10">
-        <div className="text-6xl mb-4 animate-float">
-          {phaseEmoji}
+      {/* ══════════════════════════════════════
+          ZONE 1 — HEADER : lune + titre + nom carte
+      ══════════════════════════════════════ */}
+      <div style={{
+        position: 'relative', zIndex: 10,
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        width: '100%', padding: '0 20px 28px',
+        textAlign: 'center',
+      }}>
+
+        {/* Lune webp */}
+        <div style={{ position: 'relative', display: 'inline-block', marginBottom: '20px' }}>
+          <div style={{
+            position: 'absolute', inset: '-28px', borderRadius: '50%',
+            background: `radial-gradient(circle, ${accent}45 0%, transparent 68%)`,
+            filter: 'blur(22px)',
+            animation: 'li-glow 3.5s ease-in-out infinite',
+          }} />
+          <img
+            src={phaseImage}
+            alt={phaseName}
+            style={{
+              width: '92px', height: '92px',
+              objectFit: 'contain',
+              position: 'relative',
+              filter: `drop-shadow(0 0 24px ${accent}dd) brightness(1.08)`,
+              animation: 'li-float 4s ease-in-out infinite',
+            }}
+          />
         </div>
 
-        <h2 className="text-2xl sm:text-3xl font-serif text-slate-200 mb-2 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+        {/* Nom de la phase */}
+        <h2 style={{
+          fontFamily: "'Cinzel', serif",
+          fontSize: '22px', fontWeight: 700,
+          color: '#f0e8d4',
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          margin: '0 0 14px',
+          textShadow: `0 0 28px ${accent}55, 0 2px 4px rgba(0,0,0,0.9)`,
+        }}>
           {phaseName}
         </h2>
 
-        <div className="inline-block px-6 py-2 bg-slate-800/60 border border-slate-600/40 rounded-full backdrop-blur-sm mt-3">
-          <p className="text-slate-300 text-lg font-semibold">
+        {/* Séparateur */}
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          justifyContent: 'center', gap: '8px', marginBottom: '16px',
+        }}>
+          <div style={{ width: '48px', height: '0.5px', background: `linear-gradient(90deg, transparent, ${accent}60)` }} />
+          <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: accent, opacity: 0.85, boxShadow: `0 0 8px ${accent}` }} />
+          <div style={{ width: '48px', height: '0.5px', background: `linear-gradient(270deg, transparent, ${accent}60)` }} />
+        </div>
+
+        {/* Nom de la carte — pill glassmorphism */}
+        <div style={{
+          display: 'inline-block',
+          padding: '8px 24px',
+          borderRadius: '999px',
+          background: `rgba(255,255,255,0.06)`,
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: `0.5px solid ${accent}40`,
+          boxShadow: `0 0 18px ${accent}18`,
+        }}>
+          <p style={{
+            fontFamily: "'Cinzel', serif",
+            fontSize: '14px', fontWeight: 600,
+            color: accent,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            margin: 0,
+            textShadow: `0 0 12px ${accent}60`,
+          }}>
             {cardName}
           </p>
         </div>
       </div>
 
-      {/* Interprétation */}
-      <div className="flex-1 flex items-center justify-center relative z-10">
-        <div className="max-w-2xl w-full space-y-6 px-4">
+      {/* ══════════════════════════════════════
+          ZONE 2 — ENCADRÉS glassmorphism
+      ══════════════════════════════════════ */}
+      <div style={{
+        position: 'relative', zIndex: 10,
+        width: '100%', maxWidth: '420px',
+        padding: '0 20px',
+        display: 'flex', flexDirection: 'column', gap: '14px',
+      }}>
 
-          {/* État d'esprit */}
-          <div className="bg-gradient-to-br from-slate-800/80 via-slate-900/80 to-slate-800/80 rounded-2xl p-6 border border-slate-600/30 backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-3xl">💭</span>
-              <h3 className="text-xl font-bold text-slate-200">
-                {t('lunar.interpretation.mindset') || 'État d\'esprit'}
-              </h3>
+        {/* Bloc État d'esprit */}
+        <div style={{
+          borderRadius: '20px',
+          background: 'rgba(255,255,255,0.055)',
+          backdropFilter: 'blur(18px)',
+          WebkitBackdropFilter: 'blur(18px)',
+          border: `0.5px solid rgba(255,255,255,0.12)`,
+          boxShadow: `0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)`,
+          padding: '22px 22px 20px',
+        }}>
+          {/* En-tête */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px',
+          }}>
+            <div style={{
+              width: '34px', height: '34px',
+              borderRadius: '10px',
+              background: `${accent}18`,
+              border: `0.5px solid ${accent}35`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <IconMindset accent={accent} />
             </div>
-            <p className="text-slate-300/90 text-base leading-relaxed">
-              {mindsetText}
-            </p>
+            <h3 style={{
+              fontFamily: "'Cinzel', serif",
+              fontSize: '13px', fontWeight: 600,
+              color: accent,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              margin: 0,
+              textShadow: `0 0 10px ${accent}50`,
+            }}>
+              {t('lunar.interpretation.mindset') || "État d'esprit"}
+            </h3>
           </div>
 
-          {/* Guidance */}
-          <div className="bg-gradient-to-br from-indigo-900/40 via-purple-900/40 to-indigo-900/40 rounded-2xl p-6 border border-indigo-500/30 backdrop-blur-sm shadow-[0_8px_32px_rgba(99,102,241,0.2)]">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-3xl">✨</span>
-              <h3 className="text-xl font-bold text-indigo-200">
-                {t('lunar.interpretation.guidance') || 'Guidance'}
-              </h3>
+          {/* Ligne déco */}
+          <div style={{
+            width: '100%', height: '0.5px',
+            background: `linear-gradient(90deg, ${accent}40, transparent)`,
+            marginBottom: '14px',
+          }} />
+
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '14.5px', fontWeight: 400,
+            lineHeight: '1.75',
+            color: '#e8edf3',
+            margin: 0,
+            letterSpacing: '0.02em',
+          }}>
+            {mindsetText}
+          </p>
+        </div>
+
+        {/* Bloc Guidance */}
+        <div style={{
+          borderRadius: '20px',
+          background: `linear-gradient(135deg, ${accent}0d 0%, rgba(255,255,255,0.04) 100%)`,
+          backdropFilter: 'blur(18px)',
+          WebkitBackdropFilter: 'blur(18px)',
+          border: `0.5px solid ${accent}28`,
+          boxShadow: `0 8px 32px rgba(0,0,0,0.45), 0 0 40px ${accent}0e, inset 0 1px 0 rgba(255,255,255,0.06)`,
+          padding: '22px 22px 20px',
+        }}>
+          {/* En-tête */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px',
+          }}>
+            <div style={{
+              width: '34px', height: '34px',
+              borderRadius: '10px',
+              background: `${accent}18`,
+              border: `0.5px solid ${accent}40`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <IconGuidance accent={accent} />
             </div>
-            <p className="text-indigo-100/90 text-base leading-relaxed">
-              {guidanceText}
-            </p>
+            <h3 style={{
+              fontFamily: "'Cinzel', serif",
+              fontSize: '13px', fontWeight: 600,
+              color: accent,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              margin: 0,
+              textShadow: `0 0 10px ${accent}60`,
+            }}>
+              {t('lunar.interpretation.guidance') || 'Guidance'}
+            </h3>
           </div>
 
+          {/* Ligne déco */}
+          <div style={{
+            width: '100%', height: '0.5px',
+            background: `linear-gradient(90deg, ${accent}50, transparent)`,
+            marginBottom: '14px',
+          }} />
+
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '14.5px', fontWeight: 400,
+            lineHeight: '1.75',
+            color: '#e8edf3',
+            margin: 0,
+            letterSpacing: '0.02em',
+          }}>
+            {guidanceText}
+          </p>
         </div>
       </div>
 
-      {/* Boutons avec espacement amélioré */}
-      <div className="text-center space-y-4 relative z-10 px-4 pb-4 mt-8">
+      {/* ══════════════════════════════════════
+          ZONE 3 — BOUTONS
+      ══════════════════════════════════════ */}
+      <div style={{
+        position: 'relative', zIndex: 10,
+        width: '100%', maxWidth: '420px',
+        padding: '16px 20px 0',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', gap: '6px',
+      }}>
+
+        {/* CTA principal — Nouvelle consultation */}
         <button
           onClick={onBack}
-          className="w-full max-w-md mx-auto px-6 py-4 bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 border-2 border-slate-500/50 text-slate-100 rounded-xl font-semibold hover:from-slate-600 hover:via-slate-500 hover:to-slate-600 hover:scale-105 transition-all duration-300 shadow-[0_4px_20px_rgba(100,116,139,0.3)] flex items-center justify-center gap-2"
+          style={{
+            width: '100%',
+            padding: '15px 0',
+            borderRadius: '16px',
+            background: `linear-gradient(135deg, ${accent}22 0%, ${accent}10 100%)`,
+            border: `0.5px solid ${accent}55`,
+            boxShadow: `0 4px 24px ${accent}18, inset 0 1px 0 rgba(255,255,255,0.08)`,
+            fontFamily: "'Cinzel', serif",
+            fontSize: '13px', fontWeight: 600,
+            color: accent,
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            transition: 'all 0.25s ease',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+          }}
+          onTouchStart={e => {
+            e.currentTarget.style.background = `linear-gradient(135deg, ${accent}35 0%, ${accent}18 100%)`;
+            e.currentTarget.style.transform = 'scale(0.98)';
+          }}
+          onTouchEnd={e => {
+            const el = e.currentTarget;
+            setTimeout(() => {
+              if (el) {
+                el.style.background = `linear-gradient(135deg, ${accent}22 0%, ${accent}10 100%)`;
+                el.style.transform = 'scale(1)';
+              }
+            }, 200);
+          }}
         >
-          <span className="text-xl">✨</span>
-          <span>{t('interpretation.newConsultation') || 'Nouvelle Consultation'}</span>
+          {t('interpretation.newConsultation') || 'Nouvelle Consultation'}
         </button>
 
+        {/* Retour secondaire — minimaliste */}
         <button
           onClick={onHome}
-          className="px-6 py-3 text-slate-300 hover:text-slate-100 transition-colors text-sm block mx-auto flex items-center justify-center gap-2"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '13px', fontWeight: 400,
+            color: '#b8c4d0',
+            letterSpacing: '0.08em',
+            padding: '12px 24px',
+            cursor: 'pointer',
+            transition: 'color 0.2s ease',
+          }}
+          onTouchStart={e => { e.currentTarget.style.color = '#c8d4e0'; }}
+          onTouchEnd={e => {
+            const el = e.currentTarget;
+            setTimeout(() => { if (el) el.style.color = '#b8c4d0'; }, 200);
+          }}
         >
-          <span>←</span>
-          <span>{t('common.back') || 'Retour'}</span>
+          ← {t('common.back') || 'Retour'}
         </button>
       </div>
 
       <style>{`
-        .pb-safe {
-          padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
 
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 1; }
-        }
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-        .animate-twinkle {
-          animation: twinkle ease-in-out infinite;
-        }
+        @keyframes li-float   { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-9px)} }
+        @keyframes li-glow    { 0%,100%{opacity:0.5} 50%{opacity:1} }
+        @keyframes li-twinkle { 0%,100%{opacity:0.08} 50%{opacity:0.4} }
+
+        * { -webkit-tap-highlight-color: transparent; }
       `}</style>
     </div>
   );

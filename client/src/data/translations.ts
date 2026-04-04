@@ -1059,7 +1059,25 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "lunar.cardGame.singleCard": "Une seule carte révélera le message de la lune", 
         "lunar.cardGame.oneChoice": "1 carte à choisir",
         "lunar.cardGame.oneCard": "1 carte",
-
+        "lunar.loading.connecting": "Connexion avec les énergies lunaires...",
+        "lunar.phaseSelection.cta": "Quelle énergie résonne aujourd'hui",
+        "lunar.phases.newMoon.keyword": "Début",
+        "lunar.phases.firstQuarter.keyword": "Élan",
+        "lunar.phases.fullMoon.keyword": "Clarté",
+        "lunar.phases.lastQuarter.keyword": "Lâcher",
+        "lunar.cardGame.oracle.newMoon.1": "Intentions naissantes...",
+        "lunar.cardGame.oracle.newMoon.2": "Le voile se lève...",
+        "lunar.cardGame.oracle.newMoon.3": "L'obscurité révèle...",
+        "lunar.cardGame.oracle.firstQuarter.1": "L'élan se forme...",
+        "lunar.cardGame.oracle.firstQuarter.2": "L'action appelle...",
+        "lunar.cardGame.oracle.firstQuarter.3": "Choisissez votre chemin...",
+        "lunar.cardGame.oracle.fullMoon.1": "La lumière illumine...",
+        "lunar.cardGame.oracle.fullMoon.2": "La vérité se montre...",
+        "lunar.cardGame.oracle.fullMoon.3": "Le mystère s'ouvre...",
+        "lunar.cardGame.oracle.lastQuarter.1": "Le lâcher-prise guide...",
+        "lunar.cardGame.oracle.lastQuarter.2": "La sagesse parle...",
+        "lunar.cardGame.oracle.lastQuarter.3": "L'âme se libère...",
+        
         //Cartes Oracles lunaire
         // Nouvelle Lune
         "cards.lunar.intention.name": "Intention",
@@ -1423,6 +1441,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "wizard.subtitle.channeling": "✧ Azraël consulte les forces cosmiques... ✧",
         "wizard.subtitle.answer": "✦ Révélation Mystique ✦",
         "oracle.wizard.description": "Consultez le grand magicien pour révéler votre destinée",
+        "wizard.oracleResponse": "Réponse d'Azraël",
 
         // Boutons
         "wizard.consultButton": "Consulter Azraël",
@@ -1440,7 +1459,8 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
 
         // Page Channeling
         "wizard.channeling": "Azraël consulte les forces cosmiques...",
-
+        "wizard.astraConnection": "⟡ Connexion astrale",
+       
         // Page Answer
         "wizard.yourQuestion": "Votre question",
         "wizard.disclaimer": "Les réponses d'Azraël sont symboliques et destinées au divertissement. Écoutez votre cœur pour les choix importants.",
@@ -2862,7 +2882,25 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "lunar.cardGame.singleCard": "A single card will reveal the moon's message",
     "lunar.cardGame.oneChoice": "1 card to choose",
     "lunar.cardGame.oneCard": "1 card",
-   
+    "lunar.loading.connecting": "Connecting with lunar energies...",
+    "lunar.phaseSelection.cta": "What energy resonates today",
+    "lunar.phases.newMoon.keyword": "Begin",
+    "lunar.phases.firstQuarter.keyword": "Act",
+    "lunar.phases.fullMoon.keyword": "Clarity",
+    "lunar.phases.lastQuarter.keyword": "Release",
+        "lunar.cardGame.oracle.newMoon.1": "Emerging intentions...",
+        "lunar.cardGame.oracle.newMoon.2": "The veil lifts...",
+        "lunar.cardGame.oracle.newMoon.3": "Darkness reveals...",
+        "lunar.cardGame.oracle.firstQuarter.1": "Momentum builds...",
+        "lunar.cardGame.oracle.firstQuarter.2": "Action calls...",
+        "lunar.cardGame.oracle.firstQuarter.3": "Choose your path...",
+        "lunar.cardGame.oracle.fullMoon.1": "Light illuminates...",
+        "lunar.cardGame.oracle.fullMoon.2": "Truth reveals itself...",
+        "lunar.cardGame.oracle.fullMoon.3": "The mystery unfolds...",
+        "lunar.cardGame.oracle.lastQuarter.1": "Letting go guides...",
+        "lunar.cardGame.oracle.lastQuarter.2": "Wisdom speaks...",
+        "lunar.cardGame.oracle.lastQuarter.3": "The soul is set free...",
+       
     // Lunar Oracle Cards
     // New Moon
     "cards.lunar.intention.name": "Intention",
@@ -3227,6 +3265,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "wizard.subtitle.channeling": "✧ Azraël consults the cosmic forces... ✧",
     "wizard.subtitle.answer": "✦ Mystical Revelation ✦",
     "oracle.wizard.description": "Consult the great wizard to reveal your destiny",
+    "wizard.oracleResponse": "Azrael's answer",
     "wizard.consultButton": "Consult Azraël",
     "wizard.backButton": "← Back",
     "wizard.backHome": "← Back to home",
@@ -3238,6 +3277,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "wizard.adviceText": "Azraël answers yes, no, or maybe. Ask a closed question to receive guidance from the stars.",
     "wizard.consultAction": "Consult Azraël",
     "wizard.channeling": "Azraël consults the cosmic forces...",
+    "wizard.astraConnection": "⟡ Astral connection",
     "wizard.yourQuestion": "Your question",
     "wizard.disclaimer": "Azraël's answers are symbolic and for entertainment purposes. Listen to your heart for important choices.",
     "wizard.answer.yes": "The stars confirm: Yes, without a shadow of doubt",
@@ -4639,7 +4679,25 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "lunar.cardGame.singleCard": "Una sola carta revelará el mensaje de la luna",
     "lunar.cardGame.oneChoice": "1 carta para elegir",
     "lunar.cardGame.oneCard": "1 carta",
-
+    "lunar.loading.connecting": "Conectando con las energías lunares...",
+    "lunar.phaseSelection.cta": "Qué energía resuena hoy",
+    "lunar.phases.newMoon.keyword": "Inicio",
+    "lunar.phases.firstQuarter.keyword": "Impulso",
+    "lunar.phases.fullMoon.keyword": "Claridad",
+    "lunar.phases.lastQuarter.keyword": "Soltar",
+    "lunar.cardGame.oracle.newMoon.1": "Intenciones nacientes...",
+    "lunar.cardGame.oracle.newMoon.2": "El velo se levanta...",
+    "lunar.cardGame.oracle.newMoon.3": "La oscuridad revela...",
+    "lunar.cardGame.oracle.firstQuarter.1": "El impulso se forma...",
+    "lunar.cardGame.oracle.firstQuarter.2": "La acción llama...",
+    "lunar.cardGame.oracle.firstQuarter.3": "Elige tu camino...",
+    "lunar.cardGame.oracle.fullMoon.1": "La luz ilumina...",
+    "lunar.cardGame.oracle.fullMoon.2": "La verdad se revela...",
+    "lunar.cardGame.oracle.fullMoon.3": "El misterio se abre...",
+    "lunar.cardGame.oracle.lastQuarter.1": "El dejar ir guía...",
+    "lunar.cardGame.oracle.lastQuarter.2": "La sabiduría habla...",
+    "lunar.cardGame.oracle.lastQuarter.3": "El alma se libera...",
+      
     // Cartas del Oráculo Lunar
     // Luna Nueva
     "cards.lunar.intention.name": "Intención",
@@ -4988,7 +5046,8 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
       "wizard.subtitle.question": "Formula tu pregunta con claridad",
       "wizard.subtitle.channeling": "✧ Azraël consulta las fuerzas cósmicas... ✧",
       "wizard.subtitle.answer": "✦ Revelación Mística ✦",
-    "oracle.wizard.description": "Consulta al gran mago para revelar tu destino",
+      "wizard.oracleResponse": "Respuesta de Azrael",
+      "oracle.wizard.description": "Consulta al gran mago para revelar tu destino",
       "wizard.consultButton": "Consultar a Azraël",
       "wizard.backButton": "← Volver",
       "wizard.backHome": "← Volver al inicio",
@@ -4998,6 +5057,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
       "wizard.questionPlaceholder": "Escribe tu pregunta...",
       "wizard.adviceTitle": "Consejo Místico",
       "wizard.adviceText": "Azraël responde sí, no o quizás. Haz una pregunta cerrada para recibir la guía de las estrellas.",
+      "wizard.astraConnection": "⟡ Conexión astral",
       "wizard.consultAction": "Consultar a Azraël",
       "wizard.channeling": "Azraël consulta las fuerzas cósmicas...",
       "wizard.yourQuestion": "Tu pregunta",
@@ -6399,7 +6459,25 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
         "lunar.cardGame.singleCard": "Eine einzelne Karte wird die Botschaft des Mondes enthüllen",
         "lunar.cardGame.oneChoice": "1 Karte auswählen",
         "lunar.cardGame.oneCard": "1 Karte",
-
+    "lunar.loading.connecting": "Verbindung mit den Mondenergien wird hergestellt...",
+    "lunar.phaseSelection.cta": "Welche Energie resoniert heute",
+    "lunar.phases.newMoon.keyword": "Beginn",
+    "lunar.phases.firstQuarter.keyword": "Schwung",
+    "lunar.phases.fullMoon.keyword": "Klarheit",
+    "lunar.phases.lastQuarter.keyword": "Loslassen",
+    "lunar.cardGame.oracle.newMoon.1": "Aufkeimende Absichten...",
+    "lunar.cardGame.oracle.newMoon.2": "Der Schleier hebt sich...",
+    "lunar.cardGame.oracle.newMoon.3": "Die Dunkelheit offenbart...",
+    "lunar.cardGame.oracle.firstQuarter.1": "Der Schwung baut sich auf...",
+    "lunar.cardGame.oracle.firstQuarter.2": "Die Handlung ruft...",
+    "lunar.cardGame.oracle.firstQuarter.3": "Wähle deinen Weg...",
+    "lunar.cardGame.oracle.fullMoon.1": "Das Licht erhellt...",
+    "lunar.cardGame.oracle.fullMoon.2": "Die Wahrheit zeigt sich...",
+    "lunar.cardGame.oracle.fullMoon.3": "Das Geheimnis entfaltet sich...",
+    "lunar.cardGame.oracle.lastQuarter.1": "Loslassen führt...",
+    "lunar.cardGame.oracle.lastQuarter.2": "Die Weisheit spricht...",
+    "lunar.cardGame.oracle.lastQuarter.3": "Die Seele wird befreit...",
+      
     // Karten des Mondorakels
     // Neumond
     "cards.lunar.intention.name": "Absicht",
@@ -6748,8 +6826,9 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
       "wizard.subtitle.home": "Der große Magier enthüllt die Geheimnisse deines Schicksals",
       "wizard.subtitle.question": "Formuliere deine Frage klar",
       "wizard.subtitle.channeling": "✧ Azraël befragt die kosmischen Kräfte... ✧",
+      "wizard.oracleResponse": "Azraels Antwort",
       "wizard.subtitle.answer": "✦ Mystische Offenbarung ✦",
-    "oracle.wizard.description": "Konsultiere den großen Magier, um dein Schicksal zu enthüllen",
+      "oracle.wizard.description": "Konsultiere den großen Magier, um dein Schicksal zu enthüllen",
       "wizard.consultButton": "Azraël konsultieren",
       "wizard.backButton": "← Zurück",
       "wizard.backHome": "← Zurück zur Startseite",
@@ -6777,7 +6856,8 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
       "wizard.answer.signsNo": "Die Vorzeichen sind klar: Nein",
       "wizard.answer.unclear": "Der Schleier zwischen den Welten bleibt undurchsichtig",
       "wizard.answer.trustIntuition": "Höre auf deine innere Stimme, sie kennt die Wahrheit",
-
+      "wizard.astraConnection": "⟡ Astrale Verbindung",
+    
      // MENU LÉGAL
     "legal.menu.title": "Rechtliches Menü",
     "legal.mentions": "Impressum",
@@ -8165,6 +8245,24 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
     "lunar.cardGame.singleCard": "Una sola carta rivelerà il messaggio della luna",
     "lunar.cardGame.oneChoice": "1 carta da scegliere",
     "lunar.cardGame.oneCard": "1 carta",
+    "lunar.loading.connecting": "Connessione con le energie lunari...",
+    "lunar.phaseSelection.cta": "Quale energia risuona oggi",
+    "lunar.phases.newMoon.keyword": "Inizio",
+    "lunar.phases.firstQuarter.keyword": "Slancio",
+    "lunar.phases.fullMoon.keyword": "Chiarezza",
+    "lunar.phases.lastQuarter.keyword": "Lasciare",
+    "lunar.cardGame.oracle.newMoon.1": "Intenzioni nascenti...",
+    "lunar.cardGame.oracle.newMoon.2": "Il velo si solleva...",
+    "lunar.cardGame.oracle.newMoon.3": "L'oscurità rivela...",
+    "lunar.cardGame.oracle.firstQuarter.1": "Lo slancio si forma...",
+    "lunar.cardGame.oracle.firstQuarter.2": "L'azione chiama...",
+    "lunar.cardGame.oracle.firstQuarter.3": "Scegli il tuo cammino...",
+    "lunar.cardGame.oracle.fullMoon.1": "La luce illumina...",
+    "lunar.cardGame.oracle.fullMoon.2": "La verità si rivela...",
+    "lunar.cardGame.oracle.fullMoon.3": "Il mistero si apre...",
+    "lunar.cardGame.oracle.lastQuarter.1": "Lasciare andare guida...",
+    "lunar.cardGame.oracle.lastQuarter.2": "La saggezza parla...",
+    "lunar.cardGame.oracle.lastQuarter.3": "L'anima si libera...",
 
     // Carte dell'Oracolo Lunare
     // Luna Nuova
@@ -8511,8 +8609,9 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
       "wizard.subtitle.home": "Il grande mago rivela i misteri del tuo destino",
       "wizard.subtitle.question": "Formula la tua domanda con chiarezza",
       "wizard.subtitle.channeling": "✧ Azraël consulta le forze cosmiche... ✧",
-      "wizard.subtitle.answer": "✦ Rivelazione Mistica ✦",
-    "oracle.wizard.description": "Consulta il grande mago per rivelare il tuo destino",
+     "wizard.oracleResponse": "Risposta di Azrael",
+     "wizard.subtitle.answer": "✦ Rivelazione Mistica ✦",
+     "oracle.wizard.description": "Consulta il grande mago per rivelare il tuo destino",
       "wizard.consultButton": "Consultare Azraël",
       "wizard.backButton": "← Indietro",
       "wizard.backHome": "← Torna alla home",
@@ -8540,6 +8639,7 @@ export type Language = "fr" | "en" | "es" | "de" | "it";
       "wizard.answer.signsNo": "Gli auspici sono chiari: No",
       "wizard.answer.unclear": "Il velo tra i mondi rimane opaco",
       "wizard.answer.trustIntuition": "Ascolta la tua voce interiore, conosce la verità",
+      "wizard.astraConnection": "⟡ Connessione astrale",
 
     // MENU LÉGAL
     "legal.menu.title": "Menu legale",

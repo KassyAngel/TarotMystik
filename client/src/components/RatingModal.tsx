@@ -13,23 +13,23 @@ export default function RatingModal({ isOpen, onClose, onRate }: RatingModalProp
   const { t } = useLanguage();
   const [stars, setStars] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      setTimeout(() => setVisible(true), 50);
     } else {
+      setVisible(false);
       document.body.style.overflow = 'unset';
     }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
+    return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
   if (!isOpen) return null;
 
   const handleRate = () => {
     if (stars >= 4) {
-      // Rediriger vers le Play Store pour les bonnes notes (4-5 étoiles)
       window.open('https://play.google.com/store/apps/details?id=com.tarotmystik.app', '_blank');
     }
     onRate();
@@ -46,164 +46,344 @@ export default function RatingModal({ isOpen, onClose, onRate }: RatingModalProp
     onClose();
   };
 
+  const activeStars = hoveredStar || stars;
+
+  const starLabels = ['', '😕', '😐', '🙂', '😊', '🤩'];
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-md animate-fade-in"
+    <>
+      <style>{`
+        @keyframes rating-backdrop {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes rating-card {
+          from { opacity: 0; transform: scale(0.94) translateY(16px); }
+          to   { opacity: 1; transform: scale(1)    translateY(0); }
+        }
+        @keyframes gold-pulse {
+          0%,100% { box-shadow: 0 0 20px rgba(212,175,55,0.20); }
+          50%     { box-shadow: 0 0 40px rgba(212,175,55,0.40); }
+        }
+        @keyframes gold-text-shimmer {
+          0%   { background-position: -200% center; }
+          100% { background-position:  200% center; }
+        }
+        @keyframes star-pop {
+          0%   { transform: scale(1); }
+          40%  { transform: scale(1.35); }
+          70%  { transform: scale(0.90); }
+          100% { transform: scale(1.10); }
+        }
+        @keyframes orb-float {
+          0%,100% { transform: scale(1);    opacity: 0.5; }
+          50%     { transform: scale(1.15); opacity: 0.75; }
+        }
+        @keyframes micro-star {
+          0%,100% { opacity: 0.25; transform: scale(1) rotate(0deg); }
+          50%     { opacity: 0.80; transform: scale(1.4) rotate(180deg); }
+        }
+        .rating-backdrop { animation: rating-backdrop 0.25s ease-out forwards; }
+        .rating-card     { animation: rating-card 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
+        .gold-orb        { animation: orb-float 3.2s ease-in-out infinite; }
+        .micro-star      { animation: micro-star ease-in-out infinite; }
+        .star-active     { animation: star-pop 0.25s ease-out forwards; }
+        .shimmer-gold {
+          background: linear-gradient(
+            90deg,
+            #b8942a 0%, #f5d876 30%, #d4af37 50%, #f5d876 70%, #b8942a 100%
+          );
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gold-text-shimmer 2.8s linear infinite;
+        }
+        .gold-btn {
+          position: relative;
+          overflow: hidden;
+          background: linear-gradient(135deg, #c9a227 0%, #e8c84a 40%, #c9a227 70%, #a07d18 100%);
+          box-shadow: 0 4px 20px rgba(212,175,55,0.30), inset 0 1px 0 rgba(255,255,255,0.15);
+          transition: box-shadow 0.2s, transform 0.15s;
+        }
+        .gold-btn:hover {
+          box-shadow: 0 6px 30px rgba(212,175,55,0.50), inset 0 1px 0 rgba(255,255,255,0.15);
+          transform: translateY(-1px);
+        }
+        .gold-btn:active { transform: scale(0.98); }
+        .gold-btn::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.20) 50%, transparent 65%);
+          background-size: 200% 100%;
+          animation: gold-text-shimmer 2.4s linear infinite;
+          pointer-events: none;
+        }
+        .gold-btn:disabled {
+          opacity: 0.35;
+          pointer-events: none;
+        }
+        .ghost-btn {
+          background: rgba(212,175,55,0.06);
+          border: 1px solid rgba(212,175,55,0.20);
+          color: rgba(212,175,55,0.60);
+          transition: all 0.2s;
+        }
+        .ghost-btn:hover {
+          background: rgba(212,175,55,0.12);
+          border-color: rgba(212,175,55,0.35);
+          color: rgba(212,175,55,0.85);
+        }
+        .divider-ornament {
+          display: flex; align-items: center; gap: 8px; justify-content: center;
+        }
+        .divider-ornament::before,
+        .divider-ornament::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.35), transparent);
+        }
+      `}</style>
+
+      <div
+        className="rating-backdrop fixed inset-0 z-[100] flex items-end sm:items-center justify-center"
+        style={{ background: 'rgba(4,3,14,0.92)', backdropFilter: 'blur(10px)' }}
         onClick={handleLater}
-      />
+      >
+        <div
+          className="rating-card relative w-full max-w-sm mx-4 mb-4 sm:mb-0 overflow-hidden"
+          style={{
+            borderRadius: '20px',
+            background: 'linear-gradient(160deg, #0e0b1e 0%, #100d22 55%, #0a0818 100%)',
+            border: '1px solid rgba(212,175,55,0.28)',
+            boxShadow: `
+              0 0 0 1px rgba(212,175,55,0.06),
+              0 16px 60px rgba(0,0,0,0.90),
+              0 0 100px rgba(212,175,55,0.06),
+              inset 0 1px 0 rgba(212,175,55,0.14)
+            `,
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Top glow */}
+          <div
+            className="absolute top-0 left-0 right-0 pointer-events-none"
+            style={{
+              height: '160px',
+              background: 'radial-gradient(ellipse at 50% -10%, rgba(212,175,55,0.12) 0%, transparent 70%)',
+            }}
+          />
 
-      <div className="relative bg-gradient-to-b from-[#1a1540] via-[#2a1a50] to-[#1a1540] rounded-3xl border-2 border-pink-400/30 shadow-[0_0_60px_rgba(236,72,153,0.4)] max-w-md w-full animate-scale-in overflow-hidden">
+          {/* Ambient orb bottom */}
+          <div
+            className="gold-orb absolute pointer-events-none"
+            style={{
+              bottom: '-40px', left: '50%', transform: 'translateX(-50%)',
+              width: '200px', height: '80px',
+              background: 'radial-gradient(ellipse, rgba(212,175,55,0.08) 0%, transparent 70%)',
+              filter: 'blur(20px)',
+            }}
+          />
 
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-purple-500/15 to-violet-600/10 pointer-events-none"></div>
-
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(20)].map((_, i) => (
+          {/* Floating micro stars */}
+          {[
+            { top:'10%', left:'6%',  dur:'3.2s', delay:'0s'   },
+            { top:'7%',  left:'90%', dur:'2.7s', delay:'0.7s' },
+            { top:'20%', left:'93%', dur:'3.8s', delay:'1.3s' },
+            { top:'25%', left:'3%',  dur:'4.1s', delay:'0.4s' },
+            { top:'60%', left:'97%', dur:'3.0s', delay:'1.9s' },
+            { top:'72%', left:'2%',  dur:'3.5s', delay:'1.0s' },
+          ].map((s, i) => (
             <div
               key={i}
-              className="absolute rounded-full animate-twinkle"
+              className="micro-star absolute rounded-full"
               style={{
-                backgroundColor: i % 2 === 0 ? '#d4af37' : '#ff6692',
-                width: '2px',
-                height: '2px',
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                opacity: Math.random() * 0.5 + 0.3,
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${2 + Math.random() * 2}s`
+                top: s.top, left: s.left,
+                width: '2px', height: '2px',
+                background: '#d4af37',
+                animationDuration: s.dur,
+                animationDelay: s.delay,
               }}
             />
           ))}
-        </div>
 
-        <div className="relative p-6 sm:p-8">
-
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-amber-400/40 blur-xl rounded-full animate-pulse"></div>
-              <span className="relative text-5xl animate-bounce-slow">⭐</span>
+          <div className="relative px-6 pt-7 pb-5">
+            {/* Icon */}
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div
+                  className="gold-orb absolute rounded-full pointer-events-none"
+                  style={{
+                    inset: '-16px',
+                    background: 'radial-gradient(circle, rgba(212,175,55,0.18) 0%, transparent 70%)',
+                    filter: 'blur(14px)',
+                  }}
+                />
+                <div
+                  className="relative flex items-center justify-center"
+                  style={{
+                    width: '64px', height: '64px', borderRadius: '50%',
+                    background: 'linear-gradient(145deg, rgba(212,175,55,0.14) 0%, rgba(212,175,55,0.04) 100%)',
+                    border: '1px solid rgba(212,175,55,0.28)',
+                    boxShadow: 'inset 0 1px 0 rgba(212,175,55,0.18)',
+                  }}
+                >
+                  <span style={{ fontSize: '28px' }}>⭐</span>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold text-center mb-3 bg-gradient-to-r from-pink-300 via-purple-300 to-amber-200 bg-clip-text text-transparent drop-shadow-[0_2px_20px_rgba(236,72,153,0.6)]">
-            {t('rating.title')}
-          </h2>
-
-          <p className="text-purple-100/80 text-center text-sm sm:text-base mb-6 leading-relaxed">
-            {t('rating.subtitle')}
-          </p>
-
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="w-12 h-px bg-gradient-to-r from-transparent via-pink-400/60 to-purple-400/50"></div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-amber-400/40 blur-md rounded-full"></div>
-              <span className="relative text-amber-300 text-sm">✦</span>
+            {/* Ornament divider */}
+            <div className="divider-ornament mb-4">
+              <span style={{ color: 'rgba(212,175,55,0.45)', fontSize: '9px', letterSpacing: '3px' }}>✦ ✦ ✦</span>
             </div>
-            <div className="w-12 h-px bg-gradient-to-l from-transparent via-pink-400/60 to-purple-400/50"></div>
-          </div>
 
-          <div className="flex justify-center gap-3 mb-8">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                onClick={() => setStars(star)}
-                onMouseEnter={() => setHoveredStar(star)}
-                onMouseLeave={() => setHoveredStar(0)}
-                className="relative group transition-transform duration-200 hover:scale-125 focus:outline-none"
-              >
-                <div className={`absolute inset-0 blur-lg rounded-full transition-opacity duration-300 ${
-                  star <= (hoveredStar || stars) ? 'opacity-100 bg-amber-400/60' : 'opacity-0'
-                }`}></div>
-                <span className={`relative text-4xl transition-all duration-300 ${
-                  star <= (hoveredStar || stars)
-                    ? 'text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.8)] scale-110'
-                    : 'text-purple-300/40'
-                }`}>
-                  {star <= (hoveredStar || stars) ? '⭐' : '☆'}
-                </span>
-              </button>
-            ))}
-          </div>
+            {/* Title */}
+            <h2
+              className="text-center font-bold mb-2"
+              style={{
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                fontSize: '20px',
+                color: '#d4af37',
+                textShadow: '0 2px 16px rgba(212,175,55,0.32)',
+                letterSpacing: '0.02em',
+              }}
+            >
+              {t('rating.title')}
+            </h2>
 
-          {stars > 0 && (
-            <p className="text-center text-pink-200/80 text-sm mb-6 animate-fade-in">
-              {stars >= 4 ? t('rating.thanksGood') : t('rating.feedback')}
+            {/* Subtitle */}
+            <p
+              className="text-center mb-6"
+              style={{ fontSize: '13px', color: 'rgba(220,210,255,0.60)', lineHeight: '1.6' }}
+            >
+              {t('rating.subtitle')}
             </p>
-          )}
 
-          <div className="space-y-3">
+            {/* Stars */}
+            <div className="flex justify-center gap-2 mb-3">
+              {[1, 2, 3, 4, 5].map(star => {
+                const isActive = star <= activeStars;
+                return (
+                  <button
+                    key={star}
+                    onClick={() => setStars(star)}
+                    onMouseEnter={() => setHoveredStar(star)}
+                    onMouseLeave={() => setHoveredStar(0)}
+                    className="relative focus:outline-none transition-transform duration-150"
+                    style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer' }}
+                  >
+                    {isActive && (
+                      <div
+                        className="absolute inset-0 rounded-full pointer-events-none"
+                        style={{
+                          background: 'radial-gradient(circle, rgba(212,175,55,0.50) 0%, transparent 70%)',
+                          filter: 'blur(8px)',
+                          transform: 'scale(1.5)',
+                        }}
+                      />
+                    )}
+                    <span
+                      className="relative"
+                      style={{
+                        fontSize: '34px',
+                        display: 'inline-block',
+                        transform: isActive ? 'scale(1.08)' : 'scale(0.95)',
+                        transition: 'transform 0.15s ease',
+                        filter: isActive
+                          ? 'drop-shadow(0 0 8px rgba(212,175,55,0.70))'
+                          : 'none',
+                        opacity: isActive ? 1 : 0.35,
+                      }}
+                    >
+                      {isActive ? '⭐' : '☆'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Emoji feedback */}
+            <div
+              className="text-center mb-5"
+              style={{
+                fontSize: '13px',
+                color: 'rgba(212,175,55,0.70)',
+                minHeight: '20px',
+                transition: 'opacity 0.2s',
+                opacity: activeStars > 0 ? 1 : 0,
+              }}
+            >
+              {activeStars > 0 && (
+                <span>
+                  {starLabels[activeStars]}&nbsp;
+                  {activeStars >= 4 ? t('rating.thanksGood') : t('rating.feedback')}
+                </span>
+              )}
+            </div>
+
+            {/* CTA Button */}
             <button
               onClick={handleRate}
               disabled={stars === 0}
-              className="relative w-full px-6 py-3.5 rounded-full font-semibold text-white
-                         bg-gradient-to-r from-pink-600 via-purple-600 to-violet-600
-                         border-2 border-pink-400/70
-                         shadow-[0_0_30px_rgba(236,72,153,0.5),inset_0_2px_15px_rgba(255,255,255,0.2)]
-                         hover:shadow-[0_0_50px_rgba(236,72,153,0.7),inset_0_2px_20px_rgba(255,255,255,0.3)]
-                         hover:border-pink-300/90 hover:scale-105
-                         disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100
-                         transition-all duration-300 overflow-hidden group"
+              className="gold-btn w-full font-bold flex items-center justify-center gap-2"
+              style={{
+                height: '50px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                letterSpacing: '0.04em',
+                color: '#0a0818',
+                border: 'none',
+                cursor: stars === 0 ? 'not-allowed' : 'pointer',
+              }}
             >
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-12"></div>
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                <span>{t('rating.rate')}</span>
-                <span className="text-amber-200 group-hover:scale-125 transition-transform duration-300">⭐</span>
-              </span>
-              <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent rounded-t-full pointer-events-none"></div>
+              <span className="relative z-10">{t('rating.rate')} ⭐</span>
             </button>
 
+            {/* Later */}
             <button
               onClick={handleLater}
-              className="relative w-full px-6 py-3 rounded-full font-medium text-purple-200
-                         bg-violet-900/40 hover:bg-violet-800/50
-                         border-2 border-purple-500/40 hover:border-pink-500/60
-                         backdrop-blur-sm transition-all duration-300 hover:scale-105"
+              className="ghost-btn w-full mt-3 font-medium flex items-center justify-center"
+              style={{
+                height: '44px',
+                borderRadius: '10px',
+                fontSize: '13px',
+                cursor: 'pointer',
+              }}
             >
-              <span className="flex items-center justify-center gap-2">
-                <span>{t('rating.later')}</span>
-              </span>
+              {t('rating.later')}
             </button>
 
+            {/* Never */}
             <button
               onClick={handleNever}
-              className="w-full py-2 text-purple-300/50 hover:text-purple-200/80 text-sm transition-colors duration-300"
+              className="w-full mt-2 py-2 text-center transition-colors duration-200"
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '12px',
+                color: 'rgba(212,175,55,0.28)',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'rgba(212,175,55,0.55)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(212,175,55,0.28)')}
             >
               {t('rating.never')}
             </button>
           </div>
+
+          {/* Bottom ornament line */}
+          <div
+            className="absolute bottom-0 left-10 right-10"
+            style={{
+              height: '1px',
+              background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.18), transparent)',
+            }}
+          />
         </div>
       </div>
-
-      <style>{`
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes scale-in {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.3; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.4); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out;
-        }
-        .animate-scale-in {
-          animation: scale-in 0.3s ease-out;
-        }
-        .animate-bounce-slow {
-          animation: bounce-slow 2s ease-in-out infinite;
-        }
-        .animate-twinkle {
-          animation: twinkle ease-in-out infinite;
-        }
-      `}</style>
-    </div>
+    </>
   );
 }

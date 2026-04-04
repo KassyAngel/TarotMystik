@@ -1,7 +1,7 @@
 // client/src/pages/LunarPhasePage.tsx
-// 🔧 VERSION OPTIMISÉE ANDROID - Pas de flash de transition
+// ✅ REDESIGN v4 — Mystic pro, spacing optimisé, animations fluides
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { UserSession } from '@shared/schema';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSound } from '@/hooks/useSound';
@@ -15,199 +15,342 @@ interface LunarPhasePageProps {
 export default function LunarPhasePage({
   user,
   onPhaseSelect,
-  onBack
+  onBack,
 }: LunarPhasePageProps) {
   const { t } = useLanguage();
-  const [selectedPhase, setSelectedPhase] = useState('');
-  const playFlipSound = useSound('Flip-card.wav');
-
-  // 🔧 FIX ANDROID: État pour empêcher le flash
   const [isNavigating, setIsNavigating] = useState(false);
+  const [activePhase, setActivePhase] = useState<string | null>(null);
+  const playFlipSound = useSound('Flip-card.wav');
 
   const phases = [
     {
       id: 'newMoon',
-      emoji: '🌑',
+      image: '/Image/luneOracle/nouvelle-lune.webp',
       name: t('lunar.phases.newMoon.name') || 'Nouvelle Lune',
-      description: t('lunar.phases.newMoon.description') || 'Nouveaux départs et intentions',
-      color: 'from-slate-900 via-slate-800 to-slate-900',
-      glow: 'shadow-[0_0_40px_rgba(100,116,139,0.3)]'
+      description: t('lunar.phases.newMoon.description') || 'Intentions & nouveaux départs',
+      keyword: t('lunar.phases.newMoon.keyword') || 'Début',
+      accent: '#a3b4c6',
+      glow: 'rgba(163,180,198,0.15)',
+      gradient: 'linear-gradient(135deg, rgba(163,180,198,0.06) 0%, transparent 60%)',
     },
     {
       id: 'firstQuarter',
-      emoji: '🌓',
+      image: '/Image/luneOracle/premier-quartier.webp',
       name: t('lunar.phases.firstQuarter.name') || 'Premier Quartier',
-      description: t('lunar.phases.firstQuarter.description') || 'Action et décisions',
-      color: 'from-indigo-900 via-indigo-700 to-indigo-900',
-      glow: 'shadow-[0_0_40px_rgba(99,102,241,0.3)]'
+      description: t('lunar.phases.firstQuarter.description') || 'Action & décisions',
+      keyword: t('lunar.phases.firstQuarter.keyword') || 'Élan',
+      accent: '#a5b4fc',
+      glow: 'rgba(165,180,252,0.15)',
+      gradient: 'linear-gradient(135deg, rgba(165,180,252,0.06) 0%, transparent 60%)',
     },
     {
       id: 'fullMoon',
-      emoji: '🌕',
+      image: '/Image/luneOracle/pleine-lune.webp',
       name: t('lunar.phases.fullMoon.name') || 'Pleine Lune',
-      description: t('lunar.phases.fullMoon.description') || 'Culmination et révélation',
-      color: 'from-amber-900 via-yellow-700 to-amber-900',
-      glow: 'shadow-[0_0_40px_rgba(245,158,11,0.4)]'
+      description: t('lunar.phases.fullMoon.description') || 'Culmination & révélation',
+      keyword: t('lunar.phases.fullMoon.keyword') || 'Clarté',
+      accent: '#fcd34d',
+      glow: 'rgba(252,211,77,0.15)',
+      gradient: 'linear-gradient(135deg, rgba(252,211,77,0.06) 0%, transparent 60%)',
     },
     {
       id: 'lastQuarter',
-      emoji: '🌗',
+      image: '/Image/luneOracle/dernier-quartier.webp',
       name: t('lunar.phases.lastQuarter.name') || 'Dernier Quartier',
-      description: t('lunar.phases.lastQuarter.description') || 'Libération et introspection',
-      color: 'from-purple-900 via-violet-800 to-purple-900',
-      glow: 'shadow-[0_0_40px_rgba(139,92,246,0.3)]'
-    }
+      description: t('lunar.phases.lastQuarter.description') || 'Libération & introspection',
+      keyword: t('lunar.phases.lastQuarter.keyword') || 'Lâcher',
+      accent: '#c4b5fd',
+      glow: 'rgba(196,181,253,0.15)',
+      gradient: 'linear-gradient(135deg, rgba(196,181,253,0.06) 0%, transparent 60%)',
+    },
   ];
 
   const handlePhaseClick = (phaseId: string) => {
+    if (isNavigating) return;
+    setActivePhase(phaseId);
     playFlipSound();
-    setSelectedPhase(phaseId);
-
-    // 🔧 FIX ANDROID: Marquer comme en navigation pour cacher le contenu
     setIsNavigating(true);
-
-    // Navigation avec délai minimal pour fluidité
-    requestAnimationFrame(() => {
-      onPhaseSelect(phaseId);
-    });
+    setTimeout(() => requestAnimationFrame(() => onPhaseSelect(phaseId)), 180);
   };
 
   return (
-    <div 
-      className={`min-h-screen flex flex-col p-4 pt-20 sm:pt-24 pb-24 bg-gradient-to-b from-[#0a0e1a] via-[#0f1420] to-[#0a0e1a] relative overflow-hidden transition-opacity duration-300 ${
-        isNavigating ? 'opacity-0' : 'opacity-100'
-      }`}
+    <div
+      className="min-h-screen flex flex-col bg-[#060810] relative overflow-hidden"
       style={{
-        willChange: 'opacity',
-        transform: 'translateZ(0)',
+        opacity: isNavigating ? 0 : 1,
+        transition: 'opacity 0.35s ease',
       }}
     >
-
-      {/* Étoiles */}
+      {/* ── Fond nébuleuse ── */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(50)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-white animate-twinkle"
-            style={{
-              width: Math.random() > 0.7 ? '2px' : '1px',
-              height: Math.random() > 0.7 ? '2px' : '1px',
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 2}s`,
-              opacity: 0.6
-            }}
-          />
-        ))}
+        <div style={{
+          position: 'absolute', top: '-10%', left: '50%', transform: 'translateX(-50%)',
+          width: '480px', height: '320px',
+          background: 'radial-gradient(ellipse, rgba(100,110,180,0.07) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: '10%', right: '-10%',
+          width: '300px', height: '300px',
+          background: 'radial-gradient(circle, rgba(196,181,253,0.04) 0%, transparent 70%)',
+          filter: 'blur(50px)',
+        }} />
       </div>
 
-      {/* Header */}
-      <div className="text-center mb-8 relative z-10">
-        <div className="flex justify-center mb-4">
-          <div className="relative w-16 h-16">
-            <div className="absolute inset-0 bg-slate-400/20 rounded-full blur-2xl animate-pulse"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-5xl animate-float">🌙</span>
-            </div>
-          </div>
+      {/* ── Étoiles ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {[...Array(70)].map((_, i) => {
+          const big = i % 7 === 0;
+          const med = i % 3 === 0;
+          return (
+            <div
+              key={i}
+              className="absolute rounded-full bg-white"
+              style={{
+                width: big ? '2.5px' : med ? '1.5px' : '1px',
+                height: big ? '2.5px' : med ? '1.5px' : '1px',
+                top: `${(i * 137.508) % 100}%`,
+                left: `${(i * 97.3) % 100}%`,
+                opacity: big ? 0.35 : med ? 0.2 : 0.1,
+                animationName: 'lp-twinkle',
+                animationDuration: `${2.5 + (i % 4) * 0.8}s`,
+                animationDelay: `${(i % 7) * 0.4}s`,
+                animationIterationCount: 'infinite',
+                animationTimingFunction: 'ease-in-out',
+              }}
+            />
+          );
+        })}
+      </div>
+
+      {/* ── Header ── */}
+      <div className="text-center pt-14 pb-2 px-5 relative z-10">
+        {/* Ornement supérieur */}
+        <div className="flex items-center justify-center gap-3 mb-5">
+          <div style={{ width: '40px', height: '0.5px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15))' }} />
+          <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', boxShadow: '0 0 6px rgba(255,255,255,0.15)' }} />
+          <div style={{ width: '60px', height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
+          <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', boxShadow: '0 0 6px rgba(255,255,255,0.15)' }} />
+          <div style={{ width: '40px', height: '0.5px', background: 'linear-gradient(270deg, transparent, rgba(255,255,255,0.15))' }} />
         </div>
 
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif text-slate-200 mb-3 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+        <h1
+          style={{
+            fontFamily: "'Cinzel', serif",
+            fontSize: '20px',
+            fontWeight: 600,
+            color: '#e8e0cc',
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            margin: '0 0 8px',
+            textShadow: '0 0 30px rgba(200,180,140,0.2)',
+          }}
+        >
           {t('lunar.phaseSelection.title') || 'Oracle Lunaire'}
-        </h2>
+        </h1>
 
-        <div className="h-px w-32 mx-auto bg-gradient-to-r from-transparent via-slate-400/40 to-transparent mb-4"></div>
-
-        <p className="text-slate-300/80 text-sm sm:text-base max-w-md mx-auto font-light leading-relaxed">
-          {t('lunar.phaseSelection.subtitle') || 'Choisissez la phase lunaire qui résonne avec votre état d\'esprit actuel'}
+        <p
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12px',
+            fontWeight: 300,
+            color: '#7a8494',
+            letterSpacing: '0.05em',
+            lineHeight: 1.6,
+            margin: '0 auto',
+            maxWidth: '260px',
+          }}
+        >
+          {t('lunar.phaseSelection.subtitle') || "Choisissez la phase qui résonne avec votre énergie"}
         </p>
       </div>
 
-      {/* Grille des phases */}
-      <div className="flex-1 flex items-center justify-center relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 w-full max-w-3xl px-2">
-          {phases.map((phase) => (
-            <button
-              key={phase.id}
-              onClick={() => handlePhaseClick(phase.id)}
-              disabled={isNavigating}
-              className={`relative p-6 sm:p-8 rounded-2xl bg-gradient-to-br ${phase.color} 
-                border-2 border-slate-500/30 hover:border-slate-400/60
-                ${phase.glow}
-                hover:scale-105 transform transition-all duration-300
-                ${selectedPhase === phase.id ? 'scale-105 border-slate-300/70' : ''}
-                ${isNavigating ? 'pointer-events-none opacity-50' : ''}
-                group overflow-hidden`}
-              style={{
-                willChange: 'transform',
-                transform: 'translateZ(0)',
-              }}
-            >
-              {/* Effet de brillance */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+      {/* ── Liste des phases ── */}
+      <div className="flex flex-col gap-[7px] px-4 pt-4 pb-3 relative z-10 w-full">
+        {phases.map((phase, idx) => (
+          <button
+            key={phase.id}
+            onClick={() => handlePhaseClick(phase.id)}
+            disabled={isNavigating}
+            className="w-full text-left relative overflow-hidden disabled:pointer-events-none"
+            style={{
+              height: '64px',
+              borderRadius: '14px',
+              background: activePhase === phase.id
+                ? phase.gradient
+                : 'rgba(255,255,255,0.025)',
+              border: activePhase === phase.id
+                ? `0.5px solid ${phase.accent}55`
+                : '0.5px solid rgba(255,255,255,0.06)',
+              display: 'flex',
+              alignItems: 'center',
+              transition: 'all 0.2s ease',
+              animationName: 'lp-slide-in',
+              animationDuration: '0.4s',
+              animationDelay: `${idx * 0.06}s`,
+              animationFillMode: 'both',
+              animationTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+            }}
+            onTouchStart={(e) => {
+              e.currentTarget.style.background = phase.glow;
+              e.currentTarget.style.borderColor = `${phase.accent}55`;
+              e.currentTarget.style.transform = 'scale(0.98)';
+            }}
+            onTouchEnd={(e) => {
+              const el = e.currentTarget;
+              setTimeout(() => {
+                if (el) {
+                  el.style.background = 'rgba(255,255,255,0.025)';
+                  el.style.borderColor = 'rgba(255,255,255,0.06)';
+                  el.style.transform = '';
+                }
+              }, 250);
+            }}
+          >
+            {/* Barre latérale */}
+            <div style={{
+              width: '2.5px',
+              alignSelf: 'stretch',
+              borderRadius: '0 2px 2px 0',
+              background: `linear-gradient(180deg, ${phase.accent}cc 0%, ${phase.accent}44 100%)`,
+              flexShrink: 0,
+            }} />
 
-              {/* Contenu */}
-              <div className="relative flex flex-col items-center text-center gap-3">
-                <div className="text-6xl sm:text-7xl mb-2 transform group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
-                  {phase.emoji}
-                </div>
+            {/* Image lune */}
+            <div style={{ width: '54px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img
+                src={phase.image}
+                alt={phase.name}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  objectFit: 'contain',
+                  filter: `drop-shadow(0 0 8px ${phase.accent}70) brightness(0.9)`,
+                }}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fb = e.currentTarget.nextElementSibling as HTMLElement;
+                  if (fb) fb.style.display = 'flex';
+                }}
+              />
+              <div style={{ display: 'none', width: '36px', height: '36px', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>🌙</div>
+            </div>
 
-                <h3 className="text-xl sm:text-2xl font-bold text-slate-100 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
-                  {phase.name}
-                </h3>
+            {/* Texte */}
+            <div style={{ flex: 1, minWidth: 0, paddingRight: '4px' }}>
+              <span style={{
+                display: 'block',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                fontFamily: "'Cinzel', serif",
+                fontSize: '12px',
+                fontWeight: 600,
+                color: '#ddd6c4',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                marginBottom: '3px',
+              }}>
+                {phase.name}
+              </span>
+              <span style={{
+                display: 'block',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '10.5px',
+                fontWeight: 300,
+                color: '#525c68',
+                letterSpacing: '0.02em',
+              }}>
+                {phase.description}
+              </span>
+            </div>
 
-                <p className="text-slate-300/80 text-sm sm:text-base font-light leading-snug">
-                  {phase.description}
-                </p>
-              </div>
+            {/* Badge keyword */}
+            <div style={{
+              flexShrink: 0,
+              fontFamily: "'Cinzel', serif",
+              fontSize: '7.5px',
+              fontWeight: 600,
+              padding: '3px 9px',
+              borderRadius: '20px',
+              border: `0.5px solid ${phase.accent}55`,
+              color: phase.accent,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              whiteSpace: 'nowrap',
+              marginRight: '6px',
+            }}>
+              {phase.keyword}
+            </div>
 
-              {/* Décorations */}
-              <div className="absolute top-3 left-3 w-6 h-px bg-gradient-to-r from-slate-400/30 to-transparent"></div>
-              <div className="absolute bottom-3 right-3 w-6 h-px bg-gradient-to-l from-slate-400/30 to-transparent"></div>
-            </button>
-          ))}
-        </div>
+            {/* Flèche */}
+            <div style={{
+              flexShrink: 0,
+              paddingRight: '12px',
+              fontSize: '20px',
+              color: phase.accent,
+              opacity: 0.6,
+              lineHeight: 1,
+            }}>
+              ›
+            </div>
+          </button>
+        ))}
       </div>
 
-      {/* Bouton retour */}
-      <div className="text-center pt-6 relative z-10">
+      {/* Label discret */}
+      <div className="text-center px-5 pb-2 relative z-10">
+        <p style={{
+          fontFamily: "'Cinzel', serif",
+          fontSize: '8.5px',
+          fontWeight: 400,
+          color: '#2d3340',
+          letterSpacing: '0.2em',
+          textTransform: 'uppercase',
+        }}>
+          {t('lunar.phaseSelection.cta') || "Quelle énergie résonne aujourd'hui"}
+        </p>
+      </div>
+
+      <div className="flex-1" />
+
+      {/* ── Bouton retour ── */}
+      <div className="px-4 pb-10 relative z-10">
         <button
           onClick={onBack}
           disabled={isNavigating}
-          className="px-6 py-3 bg-slate-800/60 border-2 border-slate-600/40 text-slate-200 rounded-xl hover:bg-slate-700/60 hover:border-slate-500/60 transition-all duration-300 backdrop-blur-sm disabled:opacity-50 disabled:pointer-events-none"
+          className="w-full py-3 rounded-xl disabled:opacity-30"
+          style={{
+            background: 'transparent',
+            border: '0.5px solid rgba(255,255,255,0.06)',
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '12px',
+            fontWeight: 300,
+            color: '#4b5563',
+            letterSpacing: '0.06em',
+            transition: 'all 0.2s ease',
+          }}
         >
           ← {t('common.back') || 'Retour'}
         </button>
       </div>
 
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0) translateZ(0); }
-          50% { transform: translateY(-10px) translateZ(0); }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
+        @keyframes lp-twinkle {
+          0%, 100% { opacity: var(--base-op, 0.1); }
+          50%       { opacity: calc(var(--base-op, 0.1) * 3.5); }
         }
-        @keyframes twinkle {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 1; }
-        }
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-        .animate-twinkle {
-          animation: twinkle ease-in-out infinite;
+        @keyframes lp-slide-in {
+          from { opacity: 0; transform: translateX(-12px); }
+          to   { opacity: 1; transform: translateX(0); }
         }
 
-        /* 🔧 ANDROID: GPU acceleration */
-        * {
-          -webkit-tap-highlight-color: transparent;
-        }
-
-        [class*="animate-"] {
-          -webkit-backface-visibility: hidden;
-          backface-visibility: hidden;
-          -webkit-perspective: 1000;
-          perspective: 1000;
-        }
+        * { -webkit-tap-highlight-color: transparent; }
       `}</style>
     </div>
   );
