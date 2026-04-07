@@ -125,9 +125,9 @@ export default function SummaryCard({
             {/* Badge titre - ✅ PLUS PETIT */}
             <div className="text-center mb-2.5 sm:mb-3">
               <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-[#ff6692]/15 via-[#c9a87f]/15 to-[#ff6692]/15 rounded-full border border-[#ff6692]/30 shadow-[0_0_20px_rgba(255,102,146,0.2)]">
-                <span className="text-[#ff6692] text-sm sm:text-base">✨</span>
+                <span className="text-[#ff6692] text-sm sm:text-base"></span>
                 <span className="text-[#e8d4b8] font-serif text-xs sm:text-base md:text-lg font-semibold">{t('revelation.personalAdvice')}</span>
-                <span className="text-[#c9a87f] text-sm sm:text-base">✨</span>
+                <span className="text-[#c9a87f] text-sm sm:text-base"></span>
               </div>
             </div>
 

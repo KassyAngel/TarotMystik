@@ -1,5 +1,5 @@
 // client/src/components/WizardAnimation.tsx
-// ✅ v12 — Crossfade vidéo loop + fade-out fluide en fin de wizard-video (zéro coupure nette)
+// ✅ v13 — Son unique wizard-sound + crossfade vidéo loop + fade-out fluide
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -8,23 +8,12 @@ const WIZARD_MUSIC            = '/sounds/wizard-sound.mp3';
 const WIZARD_VIDEO_IDLE       = '/Image/wizard.webm';
 const WIZARD_VIDEO_CHANNELING = '/Image/wizard-video.webm';
 
-const WIZARD_SOUNDS: Record<string, string> = {
-  fr: '/sounds/soundswizard-fr.mp3',
-  en: '/sounds/soundswizard-en.mp3',
-  es: '/sounds/soundswizard-es.mp3',
-  de: '/sounds/soundswizard-de.mp3',
-  it: '/sounds/soundswizard-it.mp3',
-};
-
 // Crossfade : commence 1200ms avant la fin, dure 800ms
 const XFADE_BEFORE_END_MS = 1200;
 const XFADE_DURATION_MS   = 800;
 
-// Fade-out sur la vidéo active : commence 900ms avant la fin, dure 700ms
-// Doit commencer APRÈS le crossfade pour ne pas interférer avec lui
-// (en pratique on applique le fade uniquement sur la vidéo SORTANTE pendant le crossfade)
-const FADEOUT_BEFORE_END_MS = XFADE_BEFORE_END_MS + 200; // légèrement avant le crossfade
-const FADEOUT_DURATION_MS   = XFADE_DURATION_MS;         // même durée que le crossfade
+const FADEOUT_BEFORE_END_MS = XFADE_BEFORE_END_MS + 200;
+const FADEOUT_DURATION_MS   = XFADE_DURATION_MS;
 
 interface WizardAnimationProps {
   isChanneling?: boolean;
@@ -32,46 +21,37 @@ interface WizardAnimationProps {
 }
 
 export default function WizardAnimation({ isChanneling = false, onChannelingEnd }: WizardAnimationProps) {
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
 
-  // Deux slots vidéo pour le crossfade sans coupure visible
   const videoARef  = useRef<HTMLVideoElement>(null);
   const videoBRef  = useRef<HTMLVideoElement>(null);
   const activeSlot = useRef<'A' | 'B'>('A');
 
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const musicRef = useRef<HTMLAudioElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const xfadeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const musicRef   = useRef<HTMLAudioElement>(null);
+  const timerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const xfadeRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fadeOutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Opacité individuelle des deux vidéos, gérée manuellement pour le fade-out
   const [opacityA, setOpacityA] = useState(1);
   const [opacityB, setOpacityB] = useState(0);
-
   const [videoReady, setVideoReady] = useState(false);
   const [progress,   setProgress]   = useState(0);
 
-  // ── Planifie le fade-out de la vidéo sortante pendant le crossfade ──
-  // Pour wizard-video (channeling), on applique un fade-out sur l'outgoing
-  // pendant la transition pour éviter la coupure nette.
   const scheduleFadeOut = useCallback((
     outgoingSlot: 'A' | 'B',
     isChannelingVideo: boolean,
     delay: number,
   ) => {
-    if (!isChannelingVideo) return; // pas nécessaire pour la vidéo idle qui loop naturellement
+    if (!isChannelingVideo) return;
     if (fadeOutRef.current) clearTimeout(fadeOutRef.current);
 
     fadeOutRef.current = setTimeout(() => {
-      // Réduit progressivement l'opacité de la vidéo sortante via un rAF
       const startTime = performance.now();
       const setOpacity = outgoingSlot === 'A' ? setOpacityA : setOpacityB;
 
       const tick = (now: number) => {
         const elapsed = now - startTime;
         const ratio   = Math.min(elapsed / FADEOUT_DURATION_MS, 1);
-        // Commence à 1 et descend à 0
         setOpacity(1 - ratio);
         if (ratio < 1) requestAnimationFrame(tick);
         else setOpacity(0);
@@ -80,7 +60,6 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
     }, delay);
   }, []);
 
-  // ── Planifie le prochain crossfade sur une vidéo active ──
   const scheduleXfade = useCallback((activeVideo: HTMLVideoElement, src: string) => {
     if (xfadeRef.current) clearTimeout(xfadeRef.current);
 
@@ -89,9 +68,7 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
     const doSchedule = (duration: number) => {
       if (!isFinite(duration) || duration <= 0) return;
 
-      const delay = Math.max(0, duration * 1000 - XFADE_BEFORE_END_MS);
-
-      // Déclenche le fade-out de la vidéo courante légèrement avant le crossfade
+      const delay     = Math.max(0, duration * 1000 - XFADE_BEFORE_END_MS);
       const fadeDelay = Math.max(0, duration * 1000 - FADEOUT_BEFORE_END_MS);
       scheduleFadeOut(activeSlot.current, isChannelingVideo, fadeDelay);
 
@@ -101,7 +78,6 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
         const outgoing = outgoingSlotSnapshot === 'A' ? videoARef.current : videoBRef.current;
         if (!incoming || !outgoing) return;
 
-        // Prépare la vidéo entrante
         if (incoming.src !== src || incoming.readyState < 2) {
           incoming.src   = src;
           incoming.muted = true;
@@ -117,33 +93,21 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
 
           incoming.play().catch(() => {});
 
-          // La vidéo entrante part de l'opacité cible = 1, sortante = 0
-          // On bascule via les deux opacités individuelles
-          const nextIsA = outgoingSlotSnapshot === 'B'; // si sortant=B, entrant=A
-          if (nextIsA) {
-            setOpacityA(1);
-            setOpacityB(0);
-          } else {
-            setOpacityA(0);
-            setOpacityB(1);
-          }
+          const nextIsA = outgoingSlotSnapshot === 'B';
+          if (nextIsA) { setOpacityA(1); setOpacityB(0); }
+          else         { setOpacityA(0); setOpacityB(1); }
           activeSlot.current = nextIsA ? 'A' : 'B';
 
-          // Planifie le crossfade suivant
           scheduleXfade(incoming, src);
 
-          // Arrête et remet à zéro l'ancienne vidéo après la transition
           setTimeout(() => {
             outgoing.pause();
             outgoing.currentTime = 0;
           }, XFADE_DURATION_MS + 100);
         };
 
-        if (incoming.readyState >= 4) {
-          startCrossfade();
-        } else {
-          incoming.addEventListener('canplaythrough', startCrossfade, { once: true });
-        }
+        if (incoming.readyState >= 4) startCrossfade();
+        else incoming.addEventListener('canplaythrough', startCrossfade, { once: true });
       }, delay);
     };
 
@@ -154,7 +118,7 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
     }
   }, [scheduleFadeOut]);
 
-  // ── Chargement initial / changement idle↔channeling ──
+  // ── Chargement vidéo ──
   useEffect(() => {
     if (xfadeRef.current)  clearTimeout(xfadeRef.current);
     if (fadeOutRef.current) clearTimeout(fadeOutRef.current);
@@ -180,13 +144,10 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
     const onReady = () => {
       setVideoReady(true);
       vA.play().catch(() => {});
-
-      // Précharge B immédiatement
       vB.src   = src;
       vB.muted = true;
       vB.loop  = false;
       vB.load();
-
       scheduleXfade(vA, src);
     };
 
@@ -199,30 +160,18 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
     };
   }, [isChanneling, scheduleXfade]);
 
-  // ── Audio voix + musique de fond + barre de progression ──
+  // ── Audio + progression ──
   useEffect(() => {
-    const a = audioRef.current;
     const m = musicRef.current;
     if (timerRef.current) clearTimeout(timerRef.current);
     setProgress(0);
 
     if (isChanneling) {
-      if (a) {
-        a.pause();
-        a.src = WIZARD_SOUNDS[language] ?? WIZARD_SOUNDS.fr;
-        a.load();
-        a.currentTime = 0;
-        a.volume = 1;
-        a.play().catch(() => {});
-      }
-
       if (m) {
         m.pause();
-        m.src         = WIZARD_MUSIC;
         m.loop        = true;
         m.volume      = 0.30;
         m.currentTime = 0;
-        m.load();
         m.play().catch(() => {});
       }
 
@@ -230,14 +179,12 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
       const tick = () => {
         const pct = Math.min(((Date.now() - start) / 4000) * 100, 100);
         setProgress(pct);
-        if (pct < 100) { timerRef.current = setTimeout(tick, 50); }
-        else { onChannelingEnd?.(); }
+        if (pct < 100) timerRef.current = setTimeout(tick, 50);
+        else onChannelingEnd?.();
       };
       timerRef.current = setTimeout(tick, 50);
 
     } else {
-      if (a) { a.pause(); a.currentTime = 0; }
-
       if (m && !m.paused) {
         const fade = setInterval(() => {
           if (m.volume > 0.04) {
@@ -253,16 +200,14 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
     }
 
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [isChanneling, language]);
+  }, [isChanneling]);
 
-  // ── Styles vidéo avec opacité individuelle (fade-out contrôlé) ──
   const videoStyle = (opacity: number): React.CSSProperties => ({
     position: 'absolute', inset: 0,
     width: '100%', height: '100%',
     objectFit: 'cover',
     objectPosition: 'center center',
     opacity,
-    // La transition CSS gère le crossfade ; le fade-out est piloté par rAF (plus précis)
     transition: `opacity ${XFADE_DURATION_MS}ms ease`,
     WebkitMaskImage: `radial-gradient(
       ellipse 74% 72% at 50% 44%,
@@ -310,23 +255,16 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
           from { background-position: 0% 0%; }
           to   { background-position: 200% 0%; }
         }
-        .wiz-float {
-          animation: wiz-float 6s ease-in-out infinite;
-          will-change: transform;
-        }
-        .wiz-reveal {
-          animation: wiz-reveal 0.9s ease-out forwards;
-        }
+        .wiz-float  { animation: wiz-float 6s ease-in-out infinite; will-change: transform; }
+        .wiz-reveal { animation: wiz-reveal 0.9s ease-out forwards; }
       `}</style>
 
-      <audio ref={audioRef} preload="none" style={{ display: 'none' }} />
-      <audio ref={musicRef} preload="none" style={{ display: 'none' }} />
+      <audio ref={musicRef} src={WIZARD_MUSIC} preload="none" style={{ display: 'none' }} />
 
       <div style={{
         position: 'relative', width: '320px', margin: '0 auto',
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
       }}>
-        {/* Conteneur flottant */}
         <div
           className={`wiz-float${videoReady ? ' wiz-reveal' : ''}`}
           style={{ position: 'relative', width: '320px', height: '420px', opacity: videoReady ? 1 : 0 }}
@@ -348,7 +286,7 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
             filter: 'blur(20px)', transition: 'background 1.8s ease',
           }} />
 
-          {/* ── Les deux vidéos superposées — opacité individuelle ── */}
+          {/* Vidéos */}
           <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
             <video ref={videoARef} playsInline muted preload="auto" style={videoStyle(opacityA)} />
             <video ref={videoBRef} playsInline muted preload="auto" style={videoStyle(opacityB)} />
@@ -411,7 +349,7 @@ export default function WizardAnimation({ isChanneling = false, onChannelingEnd 
           ))}
         </div>
 
-        {/* ── Barre de progression ── */}
+        {/* Barre de progression */}
         {isChanneling && (
           <div style={{ width: '240px', marginTop: '-6px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>

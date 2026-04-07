@@ -1,18 +1,15 @@
-// src/pages/CardGame.tsx
-// ✅ FIX ANDROID : Alignement PARFAIT des cartes quelle que soit la langue
-// ✅ FIX TOUCH : touch-action pan-y uniquement (bloque mouvements circulaires)
+// client/src/components/CardGame.tsx
+// ✅ v5 — Éventail compact 7 cartes, textes lisibles, cartes agrandies
 
-import { useState, useEffect } from 'react';
-import TarotCard from '@/components/TarotCard';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import MysticalButton from '@/components/MysticalButton';
 import CardRevealModal from '@/components/CardRevealModal';
 import { OracleData, UserSession, OracleCard } from '@shared/schema';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSound } from '@/hooks/useSound';
-import { 
-  selectRandomCardsWithoutRepeat, 
+import {
+  selectRandomCardsWithoutRepeat,
   saveTirageToHistory,
-  getSecureRandomInt
 } from '@/lib/utils';
 
 type CardBasedOracleType = 'loveOracle' | 'lunar' | 'runes';
@@ -28,433 +25,651 @@ interface CardGameProps {
   onReadingComplete?: (oracleType: string) => void;
 }
 
-export default function CardGame({ 
+// ✅ Réduit de 9 à 7 — éventail plus lisible sur mobile
+const FAN_COUNT = 7;
+const MAX_SELECTION = 3;
+
+export default function CardGame({
   user,
-  oracle, 
-  oracleType, 
-  onCardsSelected, 
+  oracle,
+  oracleType,
+  onCardsSelected,
   onSaveReading,
   onBack,
   shouldShowAdBeforeReading,
-  onReadingComplete
+  onReadingComplete,
 }: CardGameProps) {
-  const [randomCards, setRandomCards] = useState<number[]>([]);
-  const [flippedCards, setFlippedCards] = useState<boolean[]>([]);
-  const [selectedCardsIndices, setSelectedCardsIndices] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [revealedCard, setRevealedCard] = useState<{ card: any; index: number; originalName: string } | null>(null);
-  const [adShownForSession, setAdShownForSession] = useState(false);
   const { t, language } = useLanguage();
-
   const playFlip = useSound('Flip-card.wav');
   const playReveal = useSound('Bouton-reveal.wav');
 
-  const displayCards = 3;
-  const maxSelection = 3;
+  const [fanCards, setFanCards] = useState<number[]>([]);
+  const [removedFromFan, setRemovedFromFan] = useState<number[]>([]);
+  const [slots, setSlots] = useState<(number | null)[]>([null, null, null]);
+  const [revealedCard, setRevealedCard] = useState<{
+    card: any;
+    slotIndex: number;
+    originalName: string;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [adShownForSession, setAdShownForSession] = useState(false);
 
-  const normalizeForTranslation = (name: string): string => {
-    return name
-      .toLowerCase()
-      .trim()
-      .replace(/[''\s-]/g, '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
-  };
+  const selectedCount = slots.filter((s) => s !== null).length;
 
-  const translateCardName = (cardName: string | undefined): string | undefined => {
+  // ── Normalisation ──
+  const normalizeForTranslation = (name: string) =>
+    name.toLowerCase().trim().replace(/[''\s-]/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  const translateCardName = (cardName: string | undefined) => {
     if (!cardName) return undefined;
-    const normalizedName = normalizeForTranslation(cardName);
-    const translationKey = `cards.${oracleType}.${normalizedName}.name`;
-    const translated = t(translationKey);
-
-    if (translated !== translationKey) {
-      return translated;
-    }
-    return cardName;
+    const key = `cards.${oracleType}.${normalizeForTranslation(cardName)}.name`;
+    const translated = t(key);
+    return translated !== key ? translated : cardName;
   };
 
-  const getEnergyLabel = (cardIndex: number): string => {
-    const energyNumber = cardIndex + 1;
-    return t(`interpretation.${oracleType}.energy${energyNumber}.label`);
-  };
+  const getEnergyLabel = (slotIndex: number) =>
+    t(`interpretation.${oracleType}.energy${slotIndex + 1}.label`);
 
+  // ── Génération initiale ──
   useEffect(() => {
-    const generateCards = async () => {
+    const generate = async () => {
       setIsLoading(true);
-
       if (!adShownForSession && shouldShowAdBeforeReading) {
-        console.log('🎯 [CARD_GAME] Vérification pub avant génération des cartes...');
         await shouldShowAdBeforeReading(oracleType);
         setAdShownForSession(true);
       }
-
       try {
-        const selectedCards = selectRandomCardsWithoutRepeat(
-          oracle.cards.length,
-          displayCards,
-          oracleType
-        );
-        setRandomCards(selectedCards);
-        setFlippedCards(new Array(displayCards).fill(false));
-      } catch (error) {
-        console.error('Erreur génération cartes:', error);
-        const fallbackCards = Array.from({length: oracle.cards.length}, (_, i) => i)
+        const cards = selectRandomCardsWithoutRepeat(oracle.cards.length, FAN_COUNT, oracleType);
+        setFanCards(cards);
+      } catch {
+        const fallback = Array.from({ length: oracle.cards.length }, (_, i) => i)
           .sort(() => Math.random() - 0.5)
-          .slice(0, displayCards);
-        setRandomCards(fallbackCards);
-        setFlippedCards(new Array(displayCards).fill(false));
+          .slice(0, FAN_COUNT);
+        setFanCards(fallback);
       } finally {
         setIsLoading(false);
       }
     };
-    generateCards();
-  }, [oracle.cards.length, displayCards, oracleType, shouldShowAdBeforeReading, adShownForSession]);
+    generate();
+  }, [oracle.cards.length, oracleType]);
 
-  const handleCardClick = (cardIndex: number) => {
-    if (flippedCards[cardIndex]) return;
-    if (selectedCardsIndices.length >= maxSelection) return;
+  // ── Clic sur une carte du fan ──
+  const handleFanCardClick = useCallback(
+    (fanIndex: number) => {
+      if (removedFromFan.includes(fanIndex)) return;
+      if (selectedCount >= MAX_SELECTION) return;
 
-    playFlip();
+      playFlip();
 
-    const newFlippedCards = [...flippedCards];
-    newFlippedCards[cardIndex] = true;
-    setFlippedCards(newFlippedCards);
+      const actualIndex = fanCards[fanIndex];
+      const cardData = oracle.cards[actualIndex];
+      const originalName = cardData.name;
+      const displayName = translateCardName(cardData.name) || cardData.name;
+      const slotIndex = selectedCount;
 
-    const actualIndex = randomCards[cardIndex];
-    const cardData = oracle.cards[actualIndex];
-    const originalName = cardData.name;
-    const displayName = translateCardName(cardData.name) || cardData.name;
+      setRemovedFromFan((prev) => [...prev, fanIndex]);
+      setSlots((prev) => {
+        const next = [...prev];
+        next[slotIndex] = fanIndex;
+        return next;
+      });
 
-    const translatedCardData = {
-      ...cardData,
-      name: displayName
-    };
+      setRevealedCard({
+        card: { ...cardData, name: displayName },
+        slotIndex,
+        originalName,
+      });
+    },
+    [fanCards, removedFromFan, selectedCount, oracle.cards]
+  );
 
-    setRevealedCard({ 
-      card: translatedCardData, 
-      index: cardIndex,
-      originalName: originalName
-    });
-
-    const newSelected = [...selectedCardsIndices, cardIndex];
-    setSelectedCardsIndices(newSelected);
-  };
-
-  const generateFullInterpretation = (selectedCards: OracleCard[]): string => {
-    return "Interprétation...";
-  };
-
+  // ── Fermeture modale ──
   const handleCloseModal = async () => {
     setRevealedCard(null);
 
-    if (selectedCardsIndices.length === maxSelection) {
+    if (selectedCount === MAX_SELECTION) {
       playReveal();
-      const selectedCards = selectedCardsIndices.map(idx => randomCards[idx]);
-      const selectedCardsData = selectedCards.map(idx => oracle.cards[idx]);
-      const fullInterpretation = generateFullInterpretation(selectedCardsData);
+      const selectedActual = slots
+        .filter((s): s is number => s !== null)
+        .map((fanIdx) => fanCards[fanIdx]);
+
+      const selectedCardsData = selectedActual.map((idx) => oracle.cards[idx]);
 
       if (onSaveReading) {
         try {
           await onSaveReading({
             type: oracleType,
-            cards: selectedCardsData.map(card => card.name),
+            cards: selectedCardsData.map((c) => c.name),
             date: new Date(),
-            answer: fullInterpretation
+            answer: 'Interprétation...',
           });
-        } catch (error) {
-          console.error('❌ Erreur sauvegarde:', error);
+        } catch (e) {
+          console.error('❌ Erreur sauvegarde:', e);
         }
       }
 
-      if (onReadingComplete) {
-        console.log(`✅ [CARD_GAME] Tirage ${oracleType} terminé, incrémentation compteur`);
-        onReadingComplete(oracleType);
-      }
+      if (onReadingComplete) onReadingComplete(oracleType);
+      saveTirageToHistory(oracleType, selectedActual);
 
-      saveTirageToHistory(oracleType, selectedCards);
-      setTimeout(() => {
-        onCardsSelected(selectedCards);
-      }, 300);
+      setTimeout(() => onCardsSelected(selectedActual), 300);
     }
   };
 
+  // ── Loading screen ──
   if (isLoading) {
     return (
-      <div className="game-area w-full text-center min-h-screen flex flex-col justify-center p-4 bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420]">
-        <div className="flex flex-col items-center space-y-6">
-          <div className="relative w-20 h-20">
-            <div className="absolute inset-0 border-2 border-[#c9a87f]/20 rounded-full animate-spin-elegant">
-              <div className="absolute inset-0 border-t-2 border-[#c9a87f] rounded-full"></div>
-            </div>
-            <div className="absolute inset-2 border-2 border-[#a8896f]/15 rounded-full animate-spin-reverse-elegant">
-              <div className="absolute inset-0 border-b-2 border-[#a8896f] rounded-full"></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-2xl text-[#c9a87f] animate-pulse-soft">✦</span>
-            </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420]">
+        <div className="relative w-16 h-16 mb-6">
+          <div
+            className="absolute inset-0 border-2 border-[#c9a87f]/30 rounded-full animate-spin"
+            style={{ animationDuration: '3s' }}
+          >
+            <div className="absolute inset-0 border-t-2 border-[#c9a87f] rounded-full" />
           </div>
-
-          <div className="bg-gradient-to-br from-[#152238]/80 to-[#1a2d45]/80 rounded-2xl p-8 border border-[#c9a87f]/20 backdrop-blur-sm">
-            <h2 className="text-[#e8d4b8] text-xl font-serif mb-3">
-              {t(`oracle.${oracleType}.title`)}
-            </h2>
-            <p className="text-[#c9a87f]/70 text-sm">
-              {t('cardgame.loading')}
-            </p>
-            <div className="flex justify-center gap-1.5 mt-4">
-              <span className="w-1.5 h-1.5 bg-[#c9a87f] rounded-full animate-bounce"></span>
-              <span className="w-1.5 h-1.5 bg-[#c9a87f] rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
-              <span className="w-1.5 h-1.5 bg-[#c9a87f] rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
-            </div>
-          </div>
+          <div className="absolute inset-0 flex items-center justify-center text-[#c9a87f] text-xl">✦</div>
         </div>
+        <p className="text-[#c9a87f] text-sm tracking-widest font-light">
+          {t('cardgame.loading')}
+        </p>
       </div>
     );
   }
 
+  const remainingFan = fanCards
+    .map((_, i) => i)
+    .filter((i) => !removedFromFan.includes(i));
+
   return (
     <>
       <div
-        className="game-area w-full text-center min-h-screen flex flex-col justify-between p-2 sm:p-4 pt-20 sm:pt-24 bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420] relative overflow-hidden"
-        style={{ touchAction: 'pan-y' }}
+        className="min-h-screen flex flex-col bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420] relative overflow-hidden"
+        style={{
+          touchAction: 'pan-y',
+          paddingTop: 'max(64px, env(safe-area-inset-top, 0px) + 64px)',
+        }}
       >
-
-        <div className="absolute inset-0 pointer-events-none opacity-20">
-          <div className="absolute top-20 left-10 w-40 h-40 bg-[#2d3e57]/30 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-40 right-20 w-48 h-48 bg-[#1a2d45]/40 rounded-full blur-3xl"></div>
-        </div>
-
+        {/* Fond étoilé */}
         <div className="absolute inset-0 pointer-events-none">
-          {[...Array(15)].map((_, i) => (
+          {Array.from({ length: 24 }).map((_, i) => (
             <div
               key={i}
-              className="absolute w-0.5 h-0.5 bg-[#c9a87f] rounded-full"
+              className="absolute rounded-full bg-[#c9a87f]"
               style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                 opacity: 0.5, 
-                 }}
+                width: i % 5 === 0 ? '2px' : '1.5px',
+                height: i % 5 === 0 ? '2px' : '1.5px',
+                top: `${(i * 37 + 11) % 100}%`,
+                left: `${(i * 61 + 7) % 100}%`,
+                opacity: 0.25,
+                animation: `twinkle ${2 + (i % 3)}s ease-in-out infinite`,
+                animationDelay: `${(i * 0.4) % 3}s`,
+              }}
             />
           ))}
         </div>
 
-        <div className="flex-1 flex flex-col justify-center space-y-6 sm:space-y-8 relative z-10">
-          <div className="reading-type">
-            <h2 className="text-[#e8d4b8] text-2xl sm:text-3xl md:text-4xl font-serif mb-3 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] leading-tight">
+        {/* Lueur décorative haut */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
+          style={{
+            width: '60%',
+            height: '200px',
+            background: 'radial-gradient(ellipse at top, rgba(180,100,200,0.08) 0%, transparent 70%)',
+          }}
+        />
+
+        {/* ── TITRE ── */}
+        <div className="text-center px-4 mb-5 relative z-10">
+          <div
+            className="inline-flex items-center gap-2 px-5 py-2 mb-3 rounded-full"
+            style={{
+              background: 'rgba(255,255,255,0.07)',
+              border: '1px solid rgba(201,168,127,0.35)',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            <span className="text-[#c9a87f] text-xs">♥</span>
+            <span className="text-[#f0dfc0] font-serif text-sm tracking-wide font-medium">
               {t(`oracle.${oracleType}.title`)}
-            </h2>
-
-            <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-[#c9a87f]/40 to-transparent mb-3"></div>
-
-            <p className="text-[#c9a87f]/80 text-base sm:text-lg max-w-2xl mx-auto font-light">
-              {t(`oracle.${oracleType}.description`)}
-            </p>
-
-            <p className="text-[#e8d4b8]/60 text-sm sm:text-base mt-4">
-              {t('cardgame.reading.instruction')}
-            </p>
+            </span>
+            <span className="text-[#c9a87f] text-xs">✦</span>
           </div>
 
-          {/* ✅ FIX ANDROID : ALIGNEMENT PARFAIT DES CARTES */}
-          <div className="cards-container flex flex-col items-center gap-6 max-w-5xl mx-auto">
-            <div className="cards-grid-wrapper">
-              <div className="cards-grid">
-                {Array.from({length: displayCards}, (_, cardIndex) => {
-                  const actualIndex = randomCards[cardIndex];
-                  const isCardFlipped = flippedCards[cardIndex];
-                  const isSelected = selectedCardsIndices.includes(cardIndex);
-                  const canClick = !isCardFlipped && selectedCardsIndices.length < maxSelection;
-                  const cardData = oracle.cards[actualIndex];
-                  const energyLabel = getEnergyLabel(cardIndex);
+          <div className="h-px w-24 mx-auto bg-gradient-to-r from-transparent via-[#c9a87f]/60 to-transparent mb-3" />
 
-                  return (
-                    <div key={`${oracleType}-${cardIndex}-${actualIndex}`} className="card-column">
-                      {/* ✅ LABEL AVEC HAUTEUR FIXE */}
-                      <div className="card-label-container">
-                        <p className="card-label">
-                          {energyLabel}
-                        </p>
-                      </div>
+          {/* ✅ Texte instruction plus lisible — couleur plus lumineuse */}
+          <p
+            className="text-sm tracking-wider font-light"
+            style={{
+              color: '#e8d4b8',
+              textShadow: '0 1px 12px rgba(201,168,127,0.5)',
+            }}
+          >
+            {t('cardgame.reading.instruction')}
+          </p>
+        </div>
 
-                      {/* CARTE */}
-                      <div className="card-wrapper">
-                        <TarotCard
-                          number={isCardFlipped ? actualIndex + 1 : 0}
-                          isSelected={isSelected}
-                          isSelectable={canClick}
-                          onClick={() => handleCardClick(cardIndex)}
-                          cardName={isCardFlipped ? cardData?.name : undefined}
-                          oracleType={oracleType}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+        {/* ── SLOTS RÉCEPTION ── */}
+        <div className="flex justify-center gap-3 sm:gap-4 px-4 mb-5 relative z-10">
+          {Array.from({ length: MAX_SELECTION }).map((_, slotIdx) => {
+            const fanIdx = slots[slotIdx];
+            const filled = fanIdx !== null;
+            const actualIdx = filled ? fanCards[fanIdx] : null;
+            const cardData = actualIdx !== null ? oracle.cards[actualIdx] : null;
+            const isNext = slotIdx === selectedCount;
 
-          <div className="controls">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              {Array.from({length: maxSelection}).map((_, i) => (
-                <div 
-                  key={i}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    i < selectedCardsIndices.length 
-                      ? 'bg-[#c9a87f] shadow-[0_0_8px_rgba(201,168,127,0.6)]' 
-                      : 'bg-[#152238] border border-[#c9a87f]/20'
+            return (
+              <div key={slotIdx} className="flex flex-col items-center gap-2">
+                <div
+                  className={`relative rounded-xl transition-all duration-500 overflow-hidden ${
+                    filled
+                      ? 'shadow-[0_4px_24px_rgba(201,168,127,0.28)]'
+                      : isNext
+                      ? 'shadow-[0_0_16px_rgba(201,168,127,0.15)]'
+                      : ''
                   }`}
-                />
-              ))}
-            </div>
+                  style={{
+                    width: 'clamp(78px, 23vw, 100px)',
+                    height: 'clamp(116px, 34vw, 150px)',
+                    border: filled
+                      ? '1px solid rgba(201,168,127,0.6)'
+                      : isNext
+                      ? '1px dashed rgba(201,168,127,0.65)'
+                      : '1px dashed rgba(201,168,127,0.28)',
+                    background: filled ? 'transparent' : 'rgba(21,34,56,0.55)',
+                    backdropFilter: 'blur(4px)',
+                  }}
+                >
+                  {filled && cardData ? (
+                    <SlotCardFace
+                      cardData={cardData}
+                      oracleType={oracleType}
+                      displayName={translateCardName(cardData.name) || cardData.name}
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+                      <span
+                        className="font-serif"
+                        style={{
+                          // ✅ Chiffres romains bien visibles
+                          color: isNext ? 'rgba(201,168,127,0.95)' : 'rgba(201,168,127,0.4)',
+                          fontSize: '1.15rem',
+                        }}
+                      >
+                        {['I', 'II', 'III'][slotIdx]}
+                      </span>
+                      {isNext && (
+                        <div
+                          style={{
+                            width: 5,
+                            height: 5,
+                            borderRadius: '50%',
+                            background: 'rgba(201,168,127,0.75)',
+                            animation: 'pulse-dot 1.5s ease-in-out infinite',
+                          }}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
 
-            <p className="text-[#c9a87f]/70 text-sm sm:text-base mb-4">
-              {t('cardgame.selected')
-                .replace('{current}', selectedCardsIndices.length.toString())
-                .replace('{max}', maxSelection.toString())}
-            </p>
+                {/* ✅ Label énergie — contraste amélioré */}
+                <p
+                  className="text-center font-light leading-tight"
+                  style={{
+                    fontSize: 'clamp(11px, 2.8vw, 13px)',
+                    maxWidth: 'clamp(78px, 23vw, 100px)',
+                    color: filled ? '#f0dfc0' : '#d4b896',
+                    textShadow: filled
+                      ? '0 1px 10px rgba(201,168,127,0.4)'
+                      : '0 1px 8px rgba(201,168,127,0.25)',
+                    transition: 'color 0.3s',
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  {getEnergyLabel(slotIdx)}
+                </p>
+              </div>
+            );
+          })}
+        </div>
 
-            <MysticalButton 
-              variant="secondary" 
-              onClick={onBack} 
-              className="px-6 py-3 text-sm min-h-[44px] bg-gradient-to-r from-[#152238]/70 to-[#1a2d45]/70 border border-[#c9a87f]/30 text-[#e8d4b8] hover:border-[#c9a87f]/50"
-            >
-              ← {t('cardgame.back')}
-            </MysticalButton>
+        {/* ── SÉPARATEUR ── */}
+        <div className="relative z-10 flex items-center justify-center mb-4 px-8">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#c9a87f]/25 to-transparent" />
+          <span className="mx-3 text-[#c9a87f]/50 text-xs">✦</span>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#c9a87f]/25 to-transparent" />
+        </div>
+
+        {/* ── FAN DE CARTES ── */}
+        <div className="flex flex-col items-center relative z-10">
+          {/* Lueur douce sous le fan */}
+          <div
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 pointer-events-none"
+            style={{
+              width: '260px',
+              height: '70px',
+              background: 'radial-gradient(ellipse at bottom, rgba(100,50,160,0.18) 0%, transparent 70%)',
+              filter: 'blur(8px)',
+            }}
+          />
+
+          <div
+            className="relative flex items-end justify-center"
+            style={{
+              width: '100%',
+              // ✅ Hauteur ajustée aux cartes plus grandes
+              height: 'clamp(148px, 38vw, 192px)',
+            }}
+          >
+            {remainingFan.map((fanIdx, posInFan) => (
+              <FanCard
+                key={fanIdx}
+                fanIndex={fanIdx}
+                posInFan={posInFan}
+                totalInFan={remainingFan.length}
+                oracleType={oracleType}
+                onClick={() => handleFanCardClick(fanIdx)}
+                disabled={selectedCount >= MAX_SELECTION}
+              />
+            ))}
+
+            {remainingFan.length === 0 && selectedCount >= MAX_SELECTION && (
+              <p className="text-[#e8d4b8]/90 text-sm font-light tracking-widest animate-pulse self-center">
+                ✦ Tirage complet ✦
+              </p>
+            )}
           </div>
+        </div>
+
+        {/* ── INDICATEURS + BOUTON ── */}
+        <div
+          className="flex flex-col items-center gap-3 relative z-10 px-4 mt-4"
+          style={{ paddingBottom: 'calc(90px + env(safe-area-inset-bottom, 0px))' }}
+        >
+          {/* Dots indicateurs */}
+          <div className="flex items-center gap-3">
+            {Array.from({ length: MAX_SELECTION }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: i < selectedCount ? '11px' : '9px',
+                  height: i < selectedCount ? '11px' : '9px',
+                  borderRadius: '50%',
+                  background: i < selectedCount ? '#c9a87f' : 'transparent',
+                  border: i < selectedCount ? 'none' : '1px solid rgba(201,168,127,0.45)',
+                  boxShadow: i < selectedCount ? '0 0 10px rgba(201,168,127,0.7)' : 'none',
+                  transition: 'all 0.35s cubic-bezier(.34,1.56,.64,1)',
+                }}
+              />
+            ))}
+          </div>
+
+          {/* ✅ Texte compteur bien visible */}
+          <p
+            style={{
+              color: '#d4b896',
+              fontSize: '0.78rem',
+              letterSpacing: '0.1em',
+              textShadow: '0 1px 8px rgba(201,168,127,0.35)',
+            }}
+          >
+            {t('cardgame.selected')
+              .replace('{current}', selectedCount.toString())
+              .replace('{max}', MAX_SELECTION.toString())}
+          </p>
+
+          <MysticalButton
+            variant="secondary"
+            onClick={onBack}
+            className="px-6 py-2.5 text-sm bg-[#152238]/70 border border-[#c9a87f]/35 text-[#e8d4b8] hover:border-[#c9a87f]/60 hover:bg-[#1a2d45]/70"
+          >
+            ← {t('cardgame.back')}
+          </MysticalButton>
         </div>
       </div>
 
+      {/* Modale */}
       {revealedCard && (
         <CardRevealModal
           card={revealedCard.card}
           oracleType={oracleType}
           onClose={handleCloseModal}
-          cardNumber={selectedCardsIndices.length}
-          totalCards={maxSelection}
+          cardNumber={selectedCount}
+          totalCards={MAX_SELECTION}
           originalCardName={revealedCard.originalName}
         />
       )}
 
       <style>{`
-        @keyframes spin-elegant {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.12; }
+          50% { opacity: 0.55; }
         }
-        @keyframes spin-reverse-elegant {
-          from { transform: rotate(360deg); }
-          to { transform: rotate(0deg); }
+        @keyframes pulse-dot {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.5); }
         }
-        @keyframes pulse-soft {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 1; }
+        @keyframes slot-fill {
+          from { transform: scale(0.72) translateY(8px); opacity: 0; }
+          to   { transform: scale(1) translateY(0); opacity: 1; }
         }
-        .animate-spin-elegant {
-          animation: spin-elegant 3s linear infinite;
+        @keyframes card-enter {
+          from { opacity: 0; transform: var(--base-t) translateY(40px) scale(0.9); }
+          to   { opacity: 1; transform: var(--base-t); }
         }
-        .animate-spin-reverse-elegant {
-          animation: spin-reverse-elegant 4s linear infinite;
-        }
-        .animate-pulse-soft {
-          animation: pulse-soft 2s ease-in-out infinite;
-        }
-
-        /* ✅ FIX TOUCH : scroll vertical uniquement sur tout le jeu */
-        .game-area {
-          touch-action: pan-y;
-        }
-
-        /* ✅ FIX ANDROID CRITIQUE : ALIGNEMENT PARFAIT */
-        .cards-grid-wrapper {
-          display: flex;
-          justify-content: center;
-          width: 100%;
-        }
-
-        .cards-grid {
-          display: flex;
-          gap: 1.5rem;
-          align-items: flex-start; /* Alignement en haut */
-        }
-
-        @media (min-width: 640px) {
-          .cards-grid {
-            gap: 2rem;
-          }
-        }
-
-        @media (min-width: 768px) {
-          .cards-grid {
-            gap: 2.5rem;
-          }
-        }
-
-        /* Colonne de carte */
-        .card-column {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        /* ✅ HAUTEUR FIXE POUR LES LABELS = Alignement garanti */
-        .card-label-container {
-          min-height: 40px;
-          max-height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-        }
-
-        @media (min-width: 640px) {
-          .card-label-container {
-            min-height: 44px;
-            max-height: 44px;
-          }
-        }
-
-        /* Label du texte */
-        .card-label {
-          text-align: center;
-          color: rgba(201, 168, 127, 1);
-          font-size: 0.75rem;
-          font-weight: 300;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
-          line-height: 1.2;
-          padding: 0 0.5rem;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          word-break: break-word;
-        }
-
-        @media (min-width: 640px) {
-          .card-label {
-            font-size: 0.875rem;
-          }
-        }
-
-        /* Wrapper de carte */
-        .card-wrapper {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        /* Accélération GPU */
-        .cards-grid,
-        .card-column,
-        .card-label-container,
-        .card-wrapper {
-          -webkit-backface-visibility: hidden;
-          backface-visibility: hidden;
-          -webkit-perspective: 1000;
-          perspective: 1000;
-          transform: translateZ(0);
+        .slot-fill-anim {
+          animation: slot-fill 0.45s cubic-bezier(.34,1.56,.64,1) forwards;
         }
       `}</style>
     </>
+  );
+}
+
+// ── Sous-composant : carte dans le fan ──
+function FanCard({
+  fanIndex,
+  posInFan,
+  totalInFan,
+  oracleType,
+  onClick,
+  disabled,
+}: {
+  fanIndex: number;
+  posInFan: number;
+  totalInFan: number;
+  oracleType: CardBasedOracleType;
+  onClick: () => void;
+  disabled: boolean;
+}) {
+  const [hovered, setHovered] = useState(false);
+
+  // ✅ Arc réduit + spread plus serré = éventail lisible sur mobile
+  // Avec 7 cartes : arcDeg ≈ 33°, spreadPx ≈ 91px — compact mais bien visible
+  const arcDeg = Math.min(36, 5 + totalInFan * 4.2);
+  const spreadPx = Math.min(100, totalInFan * 14);
+
+  const rot = totalInFan > 1 ? -arcDeg + (posInFan / (totalInFan - 1)) * arcDeg * 2 : 0;
+  const tx = totalInFan > 1 ? -spreadPx + (posInFan / (totalInFan - 1)) * spreadPx * 2 : 0;
+
+  // Décalage vertical naturel
+  const centerOffset = totalInFan > 1 ? posInFan / (totalInFan - 1) : 0.5;
+  const verticalDip = Math.abs(centerOffset - 0.5) * 2;
+  const baseY = verticalDip * 12;
+
+  const baseTransform = `translateX(${tx}px) rotate(${rot}deg) translateY(${baseY}px)`;
+  const hoverTransform = `translateX(${tx}px) rotate(${rot}deg) translateY(${baseY - 24}px) scale(1.1)`;
+
+  const getBackImage = () => {
+    switch (oracleType) {
+      case 'lunar': return '/Image/luneOracle/card-verso-luna.webp';
+      case 'runes': return '/Image/runes/card-back.webp';
+      default: return '/Image/card-back.webp';
+    }
+  };
+
+  return (
+    <div
+      onClick={disabled ? undefined : onClick}
+      onMouseEnter={() => !disabled && setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onTouchStart={() => !disabled && setHovered(true)}
+      onTouchEnd={() => setHovered(false)}
+      style={{
+        position: 'absolute',
+        bottom: 0,
+        // ✅ Cartes plus grandes — bien visibles sur mobile
+        width: 'clamp(58px, 15vw, 72px)',
+        height: 'clamp(87px, 22vw, 108px)',
+        transform: hovered ? hoverTransform : baseTransform,
+        zIndex: hovered ? 60 : posInFan + 1,
+        transition: 'transform 0.32s cubic-bezier(.34,1.56,.64,1), z-index 0s',
+        cursor: disabled ? 'default' : 'pointer',
+        willChange: 'transform',
+        transformOrigin: 'bottom center',
+        WebkitTapHighlightColor: 'transparent',
+        touchAction: 'manipulation',
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          borderRadius: 9,
+          overflow: 'hidden',
+          boxShadow: hovered
+            ? '0 18px 36px rgba(0,0,0,0.8), 0 0 22px rgba(201,168,127,0.28)'
+            : '0 6px 20px rgba(0,0,0,0.65), 0 2px 6px rgba(0,0,0,0.45)',
+          transition: 'box-shadow 0.32s',
+          position: 'relative',
+        }}
+      >
+        <img
+          src={getBackImage()}
+          alt="Carte"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+            borderRadius: 9,
+          }}
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
+
+        {/* Bordure intérieure subtile */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 3,
+            borderRadius: 6,
+            border: '1px solid rgba(201,168,127,0.32)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        {/* Reflet hover */}
+        {hovered && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: 9,
+              background:
+                'linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(201,168,127,0.07) 40%, transparent 70%)',
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+
+        {/* Bordure extérieure glow hover */}
+        {hovered && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: -1,
+              borderRadius: 10,
+              border: '1px solid rgba(201,168,127,0.6)',
+              boxShadow: '0 0 12px rgba(201,168,127,0.25)',
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Sous-composant : carte dans un slot ──
+function SlotCardFace({
+  cardData,
+  oracleType,
+  displayName,
+}: {
+  cardData: OracleCard;
+  oracleType: CardBasedOracleType;
+  displayName: string;
+}) {
+  const [imgError, setImgError] = useState(false);
+
+  const normalize = (n: string) =>
+    n
+      .toLowerCase()
+      .trim()
+      .replace(/[''\s-]/g, '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+  const folder =
+    oracleType === 'lunar'
+      ? 'luneOracle'
+      : oracleType === 'runes'
+      ? 'runes'
+      : 'loveOracle';
+  const imgPath = `/Image/${folder}/${normalize(cardData.name)}.webp`;
+
+  return (
+    <div className="slot-fill-anim absolute inset-0">
+      {!imgError ? (
+        <img
+          src={imgPath}
+          alt={displayName}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: 10,
+          }}
+          onError={() => setImgError(true)}
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center p-2 rounded-xl"
+          style={{
+            background: 'linear-gradient(135deg, #1a2d45 0%, #152238 100%)',
+          }}
+        >
+          <span className="text-[#c9a87f] text-base mb-1">✦</span>
+          <span
+            className="text-[#f0dfc0] font-serif text-center leading-tight"
+            style={{ fontSize: '10px' }}
+          >
+            {displayName}
+          </span>
+        </div>
+      )}
+
+      {/* Overlay dégradé subtil */}
+      <div
+        className="absolute inset-0 rounded-xl pointer-events-none"
+        style={{
+          background:
+            'linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 50%)',
+        }}
+      />
+    </div>
   );
 }

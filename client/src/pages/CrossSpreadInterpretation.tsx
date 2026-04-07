@@ -45,11 +45,11 @@ export default function CrossSpreadInterpretation({
   const [expandedCard, setExpandedCard] = useState<number | null>(0);
 
   const positions = [
-    { key: 'present', label: t('crossSpread.positions.present') || 'Le Présent', icon: '🌟' },
-    { key: 'obstacle', label: t('crossSpread.positions.obstacle') || 'L\'Obstacle', icon: '⚠️' },
-    { key: 'past', label: t('crossSpread.positions.past') || 'Le Passé', icon: '🕰️' },
-    { key: 'future', label: t('crossSpread.positions.future') || 'L\'Avenir', icon: '🔮' },
-    { key: 'synthesis', label: t('crossSpread.positions.synthesis') || 'La Synthèse', icon: '💫' }
+    { key: 'present', label: t('crossSpread.positions.present') || 'Le Présent', icon: '' },
+    { key: 'obstacle', label: t('crossSpread.positions.obstacle') || 'L\'Obstacle', icon: '' },
+    { key: 'past', label: t('crossSpread.positions.past') || 'Le Passé', icon: '' },
+    { key: 'future', label: t('crossSpread.positions.future') || 'L\'Avenir', icon: '' },
+    { key: 'synthesis', label: t('crossSpread.positions.synthesis') || 'La Synthèse', icon: '' }
   ];
 
   const normalizeCardName = (cardName: string): string => {
@@ -193,8 +193,8 @@ export default function CrossSpreadInterpretation({
 
                 {/* Pour - Aspects Positifs */}
                 <div>
-                  <h4 className="text-[#ffd700] text-sm font-semibold mb-2 flex items-center gap-2">
-                    <span>✨</span> {t('crossSpread.interpretation.sections.positive') || 'Aspects Positifs'}
+                  <h4 className="text-[#ffd700] text-sm font-semibold mb-2 pl-3 border-l-2 border-[#ffd700]/60">
+                    {t('crossSpread.interpretation.sections.positive') || 'Aspects Positifs'}
                   </h4>
                   <p className="text-[#e8d4b8]/90 text-sm leading-relaxed">
                     {interp.pour}
@@ -203,8 +203,8 @@ export default function CrossSpreadInterpretation({
 
                 {/* Contre - Points d'Attention */}
                 <div>
-                  <h4 className="text-[#ff6692] text-sm font-semibold mb-2 flex items-center gap-2">
-                    <span>⚠️</span> {t('crossSpread.interpretation.sections.attention') || 'Points d\'Attention'}
+                  <h4 className="text-[#ff6692] text-sm font-semibold mb-2 pl-3 border-l-2 border-[#ff6692]/60">
+                    {t('crossSpread.interpretation.sections.attention') || 'Points d\'Attention'}
                   </h4>
                   <p className="text-[#e8d4b8]/90 text-sm leading-relaxed">
                     {interp.contre}
@@ -213,8 +213,8 @@ export default function CrossSpreadInterpretation({
 
                 {/* Synthèse - Conseil */}
                 <div className="pt-2">
-                  <h4 className="text-[#c9a87f] text-sm font-semibold mb-2 flex items-center gap-2">
-                    <span>💫</span> {t('crossSpread.interpretation.sections.advice') || 'Conseil'}
+                  <h4 className="text-[#c9a87f] text-sm font-semibold mb-2 pl-3 border-l-2 border-[#c9a87f]/60">
+                    {t('crossSpread.interpretation.sections.advice') || 'Conseil'}
                   </h4>
                   <p className="text-[#e8d4b8] text-sm leading-relaxed font-light italic">
                     {interp.synthese}

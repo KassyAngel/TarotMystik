@@ -208,7 +208,7 @@ export default function RevelationPage({
               <div className="h-px w-12 sm:w-16 bg-gradient-to-r from-transparent via-[#ff6692]/60 to-[#ff6692]/30"></div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[#ffd700]/60 text-xs drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]">✦</span>
-                <span className="text-[#ff6692]/70 text-sm drop-shadow-[0_0_10px_rgba(255,102,146,0.7)]">♥</span>
+                <span className="text-[#ff6692]/70 text-sm drop-shadow-[0_0_10px_rgba(255,102,146,0.7)]">✦</span>
                 <span className="text-[#ffd700]/60 text-xs drop-shadow-[0_0_8px_rgba(255,215,0,0.6)]">✦</span>
               </div>
               <div className="h-px w-12 sm:w-16 bg-gradient-to-l from-transparent via-[#c9a87f]/60 to-[#c9a87f]/30"></div>
