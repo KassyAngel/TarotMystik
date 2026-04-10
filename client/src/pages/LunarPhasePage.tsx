@@ -1,5 +1,5 @@
 // client/src/pages/LunarPhasePage.tsx
-// ✅ REDESIGN v4 — Mystic pro, spacing optimisé, animations fluides
+// ✅ REDESIGN v6 — CTA visible, typographies renforcées, bouton retour repositionné
 
 import { useState } from 'react';
 import { UserSession } from '@shared/schema';
@@ -125,7 +125,6 @@ export default function LunarPhasePage({
 
       {/* ── Header ── */}
       <div className="text-center pt-14 pb-2 px-5 relative z-10">
-        {/* Ornement supérieur */}
         <div className="flex items-center justify-center gap-3 mb-5">
           <div style={{ width: '40px', height: '0.5px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15))' }} />
           <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', boxShadow: '0 0 6px rgba(255,255,255,0.15)' }} />
@@ -134,33 +133,29 @@ export default function LunarPhasePage({
           <div style={{ width: '40px', height: '0.5px', background: 'linear-gradient(270deg, transparent, rgba(255,255,255,0.15))' }} />
         </div>
 
-        <h1
-          style={{
-            fontFamily: "'Cinzel', serif",
-            fontSize: '20px',
-            fontWeight: 600,
-            color: '#e8e0cc',
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            margin: '0 0 8px',
-            textShadow: '0 0 30px rgba(200,180,140,0.2)',
-          }}
-        >
+        <h1 style={{
+          fontFamily: "'Cinzel', serif",
+          fontSize: '20px',
+          fontWeight: 700,
+          color: '#ede8da',
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          margin: '0 0 8px',
+          textShadow: '0 0 30px rgba(200,180,140,0.3)',
+        }}>
           {t('lunar.phaseSelection.title') || 'Oracle Lunaire'}
         </h1>
 
-        <p
-          style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px',
-            fontWeight: 300,
-            color: '#7a8494',
-            letterSpacing: '0.05em',
-            lineHeight: 1.6,
-            margin: '0 auto',
-            maxWidth: '260px',
-          }}
-        >
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '12.5px',
+          fontWeight: 400,
+          color: '#8a95a4',
+          letterSpacing: '0.05em',
+          lineHeight: 1.6,
+          margin: '0 auto',
+          maxWidth: '260px',
+        }}>
           {t('lunar.phaseSelection.subtitle') || "Choisissez la phase qui résonne avec votre énergie"}
         </p>
       </div>
@@ -176,9 +171,7 @@ export default function LunarPhasePage({
             style={{
               height: '64px',
               borderRadius: '14px',
-              background: activePhase === phase.id
-                ? phase.gradient
-                : 'rgba(255,255,255,0.025)',
+              background: activePhase === phase.id ? phase.gradient : 'rgba(255,255,255,0.025)',
               border: activePhase === phase.id
                 ? `0.5px solid ${phase.accent}55`
                 : '0.5px solid rgba(255,255,255,0.06)',
@@ -222,9 +215,7 @@ export default function LunarPhasePage({
                 src={phase.image}
                 alt={phase.name}
                 style={{
-                  width: '36px',
-                  height: '36px',
-                  objectFit: 'contain',
+                  width: '36px', height: '36px', objectFit: 'contain',
                   filter: `drop-shadow(0 0 8px ${phase.accent}70) brightness(0.9)`,
                 }}
                 onError={(e) => {
@@ -239,30 +230,18 @@ export default function LunarPhasePage({
             {/* Texte */}
             <div style={{ flex: 1, minWidth: 0, paddingRight: '4px' }}>
               <span style={{
-                display: 'block',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+                display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 fontFamily: "'Cinzel', serif",
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#ddd6c4',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                marginBottom: '3px',
+                fontSize: '12.5px', fontWeight: 700,
+                color: '#e8e0cc', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '3px',
               }}>
                 {phase.name}
               </span>
               <span style={{
-                display: 'block',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+                display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: '10.5px',
-                fontWeight: 300,
-                color: '#525c68',
-                letterSpacing: '0.02em',
+                fontSize: '11px', fontWeight: 400,
+                color: '#7a8494', letterSpacing: '0.02em',
               }}>
                 {phase.description}
               </span>
@@ -272,65 +251,63 @@ export default function LunarPhasePage({
             <div style={{
               flexShrink: 0,
               fontFamily: "'Cinzel', serif",
-              fontSize: '7.5px',
-              fontWeight: 600,
-              padding: '3px 9px',
-              borderRadius: '20px',
+              fontSize: '8px', fontWeight: 700,
+              padding: '3px 9px', borderRadius: '20px',
               border: `0.5px solid ${phase.accent}55`,
-              color: phase.accent,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              whiteSpace: 'nowrap',
-              marginRight: '6px',
+              color: phase.accent, letterSpacing: '0.1em', textTransform: 'uppercase',
+              whiteSpace: 'nowrap', marginRight: '6px',
             }}>
               {phase.keyword}
             </div>
 
             {/* Flèche */}
             <div style={{
-              flexShrink: 0,
-              paddingRight: '12px',
-              fontSize: '20px',
-              color: phase.accent,
-              opacity: 0.6,
-              lineHeight: 1,
-            }}>
-              ›
-            </div>
+              flexShrink: 0, paddingRight: '12px',
+              fontSize: '20px', color: phase.accent, opacity: 0.6, lineHeight: 1,
+            }}>›</div>
           </button>
         ))}
       </div>
 
-      {/* Label discret */}
-      <div className="text-center px-5 pb-2 relative z-10">
-        <p style={{
-          fontFamily: "'Cinzel', serif",
-          fontSize: '8.5px',
-          fontWeight: 400,
-          color: '#2d3340',
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
+      {/* ── CTA Label — bien visible ── */}
+      <div className="text-center px-5 pb-3 relative z-10">
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '6px 16px',
+          borderRadius: '20px',
+          background: 'rgba(255,255,255,0.04)',
+          border: '0.5px solid rgba(255,255,255,0.1)',
         }}>
-          {t('lunar.phaseSelection.cta') || "Quelle énergie résonne aujourd'hui"}
-        </p>
+          <div style={{ width: '16px', height: '0.5px', background: 'rgba(255,255,255,0.25)' }} />
+          <p style={{
+            fontFamily: "'Cinzel', serif",
+            fontSize: '9px',
+            fontWeight: 600,
+            color: '#8a95a8',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            margin: 0,
+          }}>
+            {t('lunar.phaseSelection.cta') || "Quelle énergie résonne aujourd'hui"}
+          </p>
+          <div style={{ width: '16px', height: '0.5px', background: 'rgba(255,255,255,0.25)' }} />
+        </div>
       </div>
 
-      <div className="flex-1" />
-
-      {/* ── Bouton retour ── */}
-      <div className="px-4 pb-10 relative z-10">
+      {/* ── Bouton retour — collé juste après les cartes ── */}
+      <div className="px-4 pb-6 relative z-10">
         <button
           onClick={onBack}
           disabled={isNavigating}
           className="w-full py-3 rounded-xl disabled:opacity-30"
           style={{
             background: 'transparent',
-            border: '0.5px solid rgba(255,255,255,0.06)',
+            border: '0.5px solid rgba(255,255,255,0.09)',
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: '12px',
-            fontWeight: 300,
-            color: '#4b5563',
-            letterSpacing: '0.06em',
+            fontSize: '13px', fontWeight: 400,
+            color: '#6b7280', letterSpacing: '0.06em',
             transition: 'all 0.2s ease',
           }}
         >
@@ -340,7 +317,6 @@ export default function LunarPhasePage({
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
-
         @keyframes lp-twinkle {
           0%, 100% { opacity: var(--base-op, 0.1); }
           50%       { opacity: calc(var(--base-op, 0.1) * 3.5); }
@@ -349,7 +325,6 @@ export default function LunarPhasePage({
           from { opacity: 0; transform: translateX(-12px); }
           to   { opacity: 1; transform: translateX(0); }
         }
-
         * { -webkit-tap-highlight-color: transparent; }
       `}</style>
     </div>

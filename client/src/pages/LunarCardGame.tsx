@@ -1,5 +1,5 @@
 // client/src/pages/LunarCardGame.tsx
-// ✅ REDESIGN v10 — Clés i18n pour messages oracle, lune non coupée, texte oracle plus visible
+// ✅ FIX: bouton Retour collé sous les cartes (plus de minHeight 100vh qui crée un vide)
 
 import { useState, useEffect } from 'react';
 import CardRevealModal from '@/components/CardRevealModal';
@@ -32,75 +32,6 @@ const PHASE_ACCENT: Record<string, string> = {
   lastQuarter:  '#c4b5fd',
 };
 
-// ── Clés de traduction pour les messages oracle ──
-// Ajoutez ces clés dans vos fichiers de traduction :
-//
-// FR : lunar.cardGame.oracle.newMoon.1   = "Intentions naissantes..."
-//      lunar.cardGame.oracle.newMoon.2   = "Le voile se lève..."
-//      lunar.cardGame.oracle.newMoon.3   = "L'obscurité révèle..."
-//      lunar.cardGame.oracle.firstQuarter.1 = "L'élan se forme..."
-//      lunar.cardGame.oracle.firstQuarter.2 = "L'action appelle..."
-//      lunar.cardGame.oracle.firstQuarter.3 = "Choisissez votre chemin..."
-//      lunar.cardGame.oracle.fullMoon.1  = "La lumière illumine..."
-//      lunar.cardGame.oracle.fullMoon.2  = "La vérité se montre..."
-//      lunar.cardGame.oracle.fullMoon.3  = "Le mystère s'ouvre..."
-//      lunar.cardGame.oracle.lastQuarter.1 = "Le lâcher-prise guide..."
-//      lunar.cardGame.oracle.lastQuarter.2 = "La sagesse parle..."
-//      lunar.cardGame.oracle.lastQuarter.3 = "L'âme se libère..."
-//
-// EN : lunar.cardGame.oracle.newMoon.1   = "Rising intentions..."
-//      lunar.cardGame.oracle.newMoon.2   = "The veil lifts..."
-//      lunar.cardGame.oracle.newMoon.3   = "Darkness reveals..."
-//      lunar.cardGame.oracle.firstQuarter.1 = "Momentum builds..."
-//      lunar.cardGame.oracle.firstQuarter.2 = "Action calls..."
-//      lunar.cardGame.oracle.firstQuarter.3 = "Choose your path..."
-//      lunar.cardGame.oracle.fullMoon.1  = "The light illuminates..."
-//      lunar.cardGame.oracle.fullMoon.2  = "Truth reveals itself..."
-//      lunar.cardGame.oracle.fullMoon.3  = "The mystery opens..."
-//      lunar.cardGame.oracle.lastQuarter.1 = "Release guides you..."
-//      lunar.cardGame.oracle.lastQuarter.2 = "Wisdom speaks..."
-//      lunar.cardGame.oracle.lastQuarter.3 = "The soul is freed..."
-//
-// ES : lunar.cardGame.oracle.newMoon.1   = "Intenciones nacientes..."
-//      lunar.cardGame.oracle.newMoon.2   = "El velo se levanta..."
-//      lunar.cardGame.oracle.newMoon.3   = "La oscuridad revela..."
-//      lunar.cardGame.oracle.firstQuarter.1 = "El impulso se forma..."
-//      lunar.cardGame.oracle.firstQuarter.2 = "La acción llama..."
-//      lunar.cardGame.oracle.firstQuarter.3 = "Elige tu camino..."
-//      lunar.cardGame.oracle.fullMoon.1  = "La luz ilumina..."
-//      lunar.cardGame.oracle.fullMoon.2  = "La verdad se muestra..."
-//      lunar.cardGame.oracle.fullMoon.3  = "El misterio se abre..."
-//      lunar.cardGame.oracle.lastQuarter.1 = "El soltar te guía..."
-//      lunar.cardGame.oracle.lastQuarter.2 = "La sabiduría habla..."
-//      lunar.cardGame.oracle.lastQuarter.3 = "El alma se libera..."
-//
-// DE : lunar.cardGame.oracle.newMoon.1   = "Aufkeimende Absichten..."
-//      lunar.cardGame.oracle.newMoon.2   = "Der Schleier hebt sich..."
-//      lunar.cardGame.oracle.newMoon.3   = "Die Dunkelheit enthüllt..."
-//      lunar.cardGame.oracle.firstQuarter.1 = "Der Schwung entsteht..."
-//      lunar.cardGame.oracle.firstQuarter.2 = "Die Tat ruft..."
-//      lunar.cardGame.oracle.firstQuarter.3 = "Wähle deinen Weg..."
-//      lunar.cardGame.oracle.fullMoon.1  = "Das Licht erleuchtet..."
-//      lunar.cardGame.oracle.fullMoon.2  = "Die Wahrheit zeigt sich..."
-//      lunar.cardGame.oracle.fullMoon.3  = "Das Geheimnis öffnet sich..."
-//      lunar.cardGame.oracle.lastQuarter.1 = "Das Loslassen führt..."
-//      lunar.cardGame.oracle.lastQuarter.2 = "Die Weisheit spricht..."
-//      lunar.cardGame.oracle.lastQuarter.3 = "Die Seele befreit sich..."
-//
-// IT : lunar.cardGame.oracle.newMoon.1   = "Intenzioni nascenti..."
-//      lunar.cardGame.oracle.newMoon.2   = "Il velo si solleva..."
-//      lunar.cardGame.oracle.newMoon.3   = "L'oscurità rivela..."
-//      lunar.cardGame.oracle.firstQuarter.1 = "Lo slancio si forma..."
-//      lunar.cardGame.oracle.firstQuarter.2 = "L'azione chiama..."
-//      lunar.cardGame.oracle.firstQuarter.3 = "Scegli il tuo cammino..."
-//      lunar.cardGame.oracle.fullMoon.1  = "La luce illumina..."
-//      lunar.cardGame.oracle.fullMoon.2  = "La verità si mostra..."
-//      lunar.cardGame.oracle.fullMoon.3  = "Il mistero si apre..."
-//      lunar.cardGame.oracle.lastQuarter.1 = "Il lasciar andare guida..."
-//      lunar.cardGame.oracle.lastQuarter.2 = "La saggezza parla..."
-//      lunar.cardGame.oracle.lastQuarter.3 = "L'anima si libera..."
-
-// Fallbacks FR pour chaque phase (utilisés si la clé i18n n'est pas encore définie)
 const PHASE_MESSAGES_FALLBACK: Record<string, string[]> = {
   newMoon:      ["Intentions naissantes...", "Le voile se lève...", "L'obscurité révèle..."],
   firstQuarter: ["L'élan se forme...", "L'action appelle...", "Choisissez votre chemin..."],
@@ -117,7 +48,7 @@ const FAN = [
 ];
 
 const CARD_W = 85;
-const CARD_H = Math.round(CARD_W * 1.618); // ~137px
+const CARD_H = Math.round(CARD_W * 1.618);
 
 function CardBack({
   accent,
@@ -192,7 +123,6 @@ function CardBack({
   );
 }
 
-// ── Oracle mystique animé — SVG lunaire qui tourne ──
 function MysticOracle({ accent, visible }: { accent: string; visible: boolean }) {
   return (
     <div style={{
@@ -206,66 +136,39 @@ function MysticOracle({ accent, visible }: { accent: string; visible: boolean })
       transition: 'opacity 0.6s ease',
       pointerEvents: 'none',
     }}>
-      <svg
-        width="80" height="80"
-        viewBox="0 0 80 80"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ display: 'block', marginBottom: '10px' }}
-      >
-        {/* Anneau extérieur tournant */}
-        <circle cx="40" cy="40" r="36"
-          fill="none"
-          stroke={accent}
-          strokeWidth="0.6"
-          strokeOpacity="0.4"
-          strokeDasharray="4 8"
-          style={{ animation: 'mo-spin-cw 12s linear infinite', transformOrigin: '40px 40px' }}
-        />
-        {/* Anneau moyen tournant inverse */}
-        <circle cx="40" cy="40" r="28"
-          fill="none"
-          stroke={accent}
-          strokeWidth="0.5"
-          strokeOpacity="0.35"
-          strokeDasharray="2 6"
-          style={{ animation: 'mo-spin-ccw 8s linear infinite', transformOrigin: '40px 40px' }}
-        />
-        {/* Anneau intérieur */}
-        <circle cx="40" cy="40" r="20"
-          fill="none"
-          stroke={accent}
-          strokeWidth="0.4"
-          strokeOpacity="0.28"
-        />
-        {/* Croix diagonale fine */}
+      <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"
+        style={{ display: 'block', marginBottom: '10px' }}>
+        <circle cx="40" cy="40" r="36" fill="none" stroke={accent} strokeWidth="0.6"
+          strokeOpacity="0.4" strokeDasharray="4 8"
+          style={{ animation: 'mo-spin-cw 12s linear infinite', transformOrigin: '40px 40px' }} />
+        <circle cx="40" cy="40" r="28" fill="none" stroke={accent} strokeWidth="0.5"
+          strokeOpacity="0.35" strokeDasharray="2 6"
+          style={{ animation: 'mo-spin-ccw 8s linear infinite', transformOrigin: '40px 40px' }} />
+        <circle cx="40" cy="40" r="20" fill="none" stroke={accent} strokeWidth="0.4" strokeOpacity="0.28" />
         <line x1="10" y1="10" x2="70" y2="70" stroke={accent} strokeWidth="0.3" strokeOpacity="0.18" />
         <line x1="70" y1="10" x2="10" y2="70" stroke={accent} strokeWidth="0.3" strokeOpacity="0.18" />
-        {/* 4 points cardinaux sur l'anneau ext */}
-        <circle cx="40" cy="4" r="1.5" fill={accent} fillOpacity="0.75" style={{ animation: 'mo-pulse 2s ease-in-out infinite', transformOrigin: '40px 4px' }} />
-        <circle cx="76" cy="40" r="1.5" fill={accent} fillOpacity="0.75" style={{ animation: 'mo-pulse 2s ease-in-out 0.5s infinite', transformOrigin: '76px 40px' }} />
-        <circle cx="40" cy="76" r="1.5" fill={accent} fillOpacity="0.75" style={{ animation: 'mo-pulse 2s ease-in-out 1s infinite', transformOrigin: '40px 76px' }} />
-        <circle cx="4"  cy="40" r="1.5" fill={accent} fillOpacity="0.75" style={{ animation: 'mo-pulse 2s ease-in-out 1.5s infinite', transformOrigin: '4px 40px' }} />
-        {/* Lune croissant centrale */}
-        <circle cx="40" cy="40" r="10"
-          fill="none" stroke={accent} strokeWidth="1.2" strokeOpacity="0.8"
-          style={{ animation: 'mo-glow 3s ease-in-out infinite' }}
-        />
+        <circle cx="40" cy="4" r="1.5" fill={accent} fillOpacity="0.75"
+          style={{ animation: 'mo-pulse 2s ease-in-out infinite', transformOrigin: '40px 4px' }} />
+        <circle cx="76" cy="40" r="1.5" fill={accent} fillOpacity="0.75"
+          style={{ animation: 'mo-pulse 2s ease-in-out 0.5s infinite', transformOrigin: '76px 40px' }} />
+        <circle cx="40" cy="76" r="1.5" fill={accent} fillOpacity="0.75"
+          style={{ animation: 'mo-pulse 2s ease-in-out 1s infinite', transformOrigin: '40px 76px' }} />
+        <circle cx="4"  cy="40" r="1.5" fill={accent} fillOpacity="0.75"
+          style={{ animation: 'mo-pulse 2s ease-in-out 1.5s infinite', transformOrigin: '4px 40px' }} />
+        <circle cx="40" cy="40" r="10" fill="none" stroke={accent} strokeWidth="1.2" strokeOpacity="0.8"
+          style={{ animation: 'mo-glow 3s ease-in-out infinite' }} />
         <circle cx="44" cy="40" r="8" fill="#060810" />
-        {/* Point central */}
         <circle cx="40" cy="40" r="2" fill={accent} fillOpacity="0.95"
-          style={{ animation: 'mo-pulse 1.5s ease-in-out infinite', transformOrigin: '40px 40px' }}
-        />
+          style={{ animation: 'mo-pulse 1.5s ease-in-out infinite', transformOrigin: '40px 40px' }} />
       </svg>
     </div>
   );
 }
 
-// ── Message rotatif animé avec clés i18n ──
 function RotatingMessage({ accent, phase, t }: { accent: string; phase: string; t: (key: string) => string }) {
   const [idx, setIdx] = useState(0);
   const [fade, setFade] = useState(true);
 
-  // Récupère les 3 messages via clés i18n, avec fallback FR
   const fallbacks = PHASE_MESSAGES_FALLBACK[phase] ?? PHASE_MESSAGES_FALLBACK.fullMoon;
   const messages = [
     t(`lunar.cardGame.oracle.${phase}.1`) || fallbacks[0],
@@ -287,12 +190,9 @@ function RotatingMessage({ accent, phase, t }: { accent: string; phase: string; 
   return (
     <p style={{
       fontFamily: "'Cinzel', serif",
-      fontSize: '12px',
-      fontWeight: 500,
-      color: accent,
-      letterSpacing: '0.14em',
-      textTransform: 'uppercase',
-      margin: 0,
+      fontSize: '12px', fontWeight: 500,
+      color: accent, letterSpacing: '0.14em',
+      textTransform: 'uppercase', margin: 0,
       opacity: fade ? 0.92 : 0,
       transition: 'opacity 0.4s ease',
       textAlign: 'center',
@@ -312,14 +212,14 @@ export default function LunarCardGame({
   onReadingComplete,
 }: LunarCardGameProps) {
   const { t } = useLanguage();
-  const [phaseCards, setPhaseCards]     = useState<number[]>([]);
-  const [selectedIdx, setSelectedIdx]   = useState<number | null>(null);
-  const [revealedCard, setRevealedCard] = useState<{
+  const [phaseCards, setPhaseCards]         = useState<number[]>([]);
+  const [selectedIdx, setSelectedIdx]       = useState<number | null>(null);
+  const [revealedCard, setRevealedCard]     = useState<{
     card: OracleCard; index: number; originalName: string;
   } | null>(null);
-  const [isVisible, setIsVisible]         = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [isFullyLoaded, setIsFullyLoaded] = useState(false);
+  const [isVisible, setIsVisible]           = useState(false);
+  const [isInitialized, setIsInitialized]   = useState(false);
+  const [isFullyLoaded, setIsFullyLoaded]   = useState(false);
 
   const playFlip   = useSound('Flip-card.wav');
   const playReveal = useSound('Bouton-reveal.wav');
@@ -388,7 +288,6 @@ export default function LunarCardGame({
     setTimeout(() => onCardSelected({ card: selectedCard, phase: selectedPhase }), 100);
   };
 
-  // Carte monte DANS la zone cartes — max 110px vers le haut
   const RISE = 110;
 
   const getCardStyle = (localIndex: number): React.CSSProperties => {
@@ -449,15 +348,34 @@ export default function LunarCardGame({
     );
   }
 
-  // Zone cartes = RISE(110) + CARD_H(137) + marge(28) = 275px
   const CARD_ZONE_H = RISE + CARD_H + 28;
 
   return (
     <>
+      {/*
+        ✅ FIX PRINCIPAL : 
+        - Suppression de minHeight:'100vh' qui créait un grand vide sous les cartes
+        - Le conteneur s'adapte maintenant à son contenu (height auto)
+        - On garde le fond plein écran via un pseudo-élément fixed séparé
+      */}
       <div
         className="bg-[#060810] relative overflow-hidden"
-        style={{ minHeight: '100vh', opacity: isVisible ? 1 : 0, transition: 'opacity 500ms ease-out' }}
+        style={{
+          // ✅ height:auto au lieu de minHeight:100vh
+          // Le fond plein écran est géré par le div fixe ci-dessous
+          opacity: isVisible ? 1 : 0,
+          transition: 'opacity 500ms ease-out',
+        }}
       >
+        {/* Fond plein écran fixe — indépendant du flow du contenu */}
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: '#060810',
+          zIndex: -1,
+          pointerEvents: 'none',
+        }} />
+
         {/* Halo phase */}
         <div style={{
           position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
@@ -483,14 +401,14 @@ export default function LunarCardGame({
         <div style={{
           position: 'relative', zIndex: 10,
           display: 'flex', flexDirection: 'column', alignItems: 'center',
-          // ✅ paddingTop augmenté : 72px pour que la lune ne soit plus coupée
-          paddingTop: '72px', paddingBottom: '32px',
+          // ✅ paddingTop safe area + 72px de respiration pour la lune
+          paddingTop: 'max(72px, calc(env(safe-area-inset-top, 0px) + 72px))',
+          // ✅ paddingBottom minimal — le bouton Retour n'est plus chassé vers le bas
+          paddingBottom: 'max(24px, env(safe-area-inset-bottom, 0px))',
         }}>
 
           {/* ═══ ZONE 1 — HEADER ═══ */}
           <div style={{ textAlign: 'center', width: '100%', padding: '0 20px 14px' }}>
-
-            {/* ✅ Lune grande — marginBottom augmenté pour respiration */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '18px' }}>
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 <div style={{
@@ -507,7 +425,6 @@ export default function LunarCardGame({
               </div>
             </div>
 
-            {/* Titre */}
             <h2 style={{
               fontFamily: "'Cinzel', serif", fontSize: '22px', fontWeight: 700,
               color: '#f0e8d4', letterSpacing: '0.18em', textTransform: 'uppercase',
@@ -517,14 +434,12 @@ export default function LunarCardGame({
               {phaseName}
             </h2>
 
-            {/* Séparateur */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '12px' }}>
               <div style={{ width: '40px', height: '0.5px', background: `linear-gradient(90deg, transparent, ${accent}65)` }} />
               <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: accent, opacity: 0.8, boxShadow: `0 0 8px ${accent}` }} />
               <div style={{ width: '40px', height: '0.5px', background: `linear-gradient(270deg, transparent, ${accent}65)` }} />
             </div>
 
-            {/* Instruction */}
             <p style={{
               fontFamily: "'Cinzel', serif", fontSize: '13px', fontWeight: 600,
               color: '#d8cdb8', letterSpacing: '0.07em', textTransform: 'uppercase', margin: '0 0 5px',
@@ -539,7 +454,7 @@ export default function LunarCardGame({
             </p>
           </div>
 
-          {/* ═══ ZONE 2 — ORACLE MYSTIQUE (comble l'espace, disparaît après tirage) ═══ */}
+          {/* ═══ ZONE 2 — ORACLE MYSTIQUE ═══ */}
           <div style={{
             width: '100%',
             height: selectedIdx !== null ? '0px' : '110px',
@@ -551,11 +466,10 @@ export default function LunarCardGame({
             justifyContent: 'center',
           }}>
             <MysticOracle accent={accent} visible={selectedIdx === null} />
-            {/* ✅ RotatingMessage reçoit désormais `t` pour les clés i18n */}
             <RotatingMessage accent={accent} phase={selectedPhase} t={t} />
           </div>
 
-          {/* ═══ ZONE 3 — ÉVENTAIL DE CARTES (hauteur fixe, overflow visible) ═══ */}
+          {/* ═══ ZONE 3 — ÉVENTAIL DE CARTES ═══ */}
           <div style={{
             position: 'relative',
             width: '100%',
@@ -589,7 +503,6 @@ export default function LunarCardGame({
               </div>
             ))}
 
-            {/* "Écoutez votre intuition" — bas de zone cartes, avant tirage */}
             {selectedIdx === null && (
               <p style={{
                 position: 'absolute', bottom: '2px', left: 0, right: 0,
@@ -603,30 +516,31 @@ export default function LunarCardGame({
             )}
           </div>
 
-          {/* ═══ ZONE 4 — BOUTON RETOUR (toujours juste sous les cartes) ═══ */}
-          <div style={{ width: '100%', padding: '28px 24px 0', textAlign: 'center' }}>
+          {/* ═══ ZONE 4 — BOUTON RETOUR ═══
+              ✅ FIX: marginTop fixe de 24px — le bouton suit immédiatement les cartes
+              sans être chassé vers le bas par un minHeight 100vh
+          */}
+          <div style={{
+            width: '100%',
+            padding: '24px 24px 0',
+            textAlign: 'center',
+          }}>
             <button
               onClick={onBack}
               style={{
                 background: 'transparent',
                 border: 'none',
                 fontFamily: "'DM Sans', sans-serif",
-                fontSize: '13px',
-                fontWeight: 400,
-                color: '#c8d4e0',
-                letterSpacing: '0.08em',
+                fontSize: '13px', fontWeight: 400,
+                color: '#c8d4e0', letterSpacing: '0.08em',
                 padding: '12px 24px',
                 cursor: 'pointer',
                 transition: 'color 0.2s ease',
               }}
-              onTouchStart={(e) => {
-                e.currentTarget.style.color = '#ffffff';
-              }}
+              onTouchStart={(e) => { e.currentTarget.style.color = '#ffffff'; }}
               onTouchEnd={(e) => {
                 const el = e.currentTarget;
-                setTimeout(() => {
-                  if (el) el.style.color = '#c8d4e0';
-                }, 200);
+                setTimeout(() => { if (el) el.style.color = '#c8d4e0'; }, 200);
               }}
             >
               ← {t('cardgame.back') || 'Retour'}

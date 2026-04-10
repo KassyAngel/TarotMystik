@@ -1,5 +1,5 @@
 // client/src/pages/WheelPage.tsx
-// 🎡 Page Roue - VERSION SCROLLABLE
+// 🎡 Page Roue - bouton Retour au-dessus de la bannière pub (safe-area corrigé)
 
 import { useState, useEffect } from 'react';
 import Wheel from '@/components/Wheel';
@@ -17,6 +17,9 @@ interface WheelPageProps {
   onWheelComplete?: () => void;
   onReadingComplete?: (oracleType: string) => void;
 }
+
+// Hauteur estimée de la bannière pub AdMob (50px standard + safe-area)
+const AD_BANNER_HEIGHT = 60;
 
 const getRandomVariation = () => {
   const variations = ['1', '2', '3'];
@@ -113,7 +116,6 @@ export default function WheelPage({
 
   if (wheelUnlocked) {
     return (
-      // ✅ SCROLLABLE : la page entière défile, fond fixe derrière
       <div className="fixed inset-0" style={{ background: '#080808' }}>
 
         {/* ── FOND CONSTELLATION DORÉE — fixe derrière ── */}
@@ -127,7 +129,7 @@ export default function WheelPage({
           <div className="wp-orb wp-orb-2" />
         </div>
 
-        {/* ✅ ZONE SCROLLABLE au-dessus du fond */}
+        {/* ✅ ZONE SCROLLABLE — padding-bottom = hauteur bannière pub + safe-area */}
         <div
           className="absolute inset-0"
           style={{
@@ -135,8 +137,10 @@ export default function WheelPage({
             overflowY: 'auto',
             overflowX: 'hidden',
             WebkitOverflowScrolling: 'touch',
-            paddingTop: '60px',
-            paddingBottom: '24px',
+            paddingTop: '56px',
+            // ✅ Clé : on réserve exactement la hauteur de la bannière pub
+            // pour que le bouton Retour reste toujours visible au-dessus
+            paddingBottom: `${AD_BANNER_HEIGHT}px`,
           }}
         >
           <Wheel
@@ -146,12 +150,12 @@ export default function WheelPage({
             onReset={() => setVariation(getRandomVariation())}
           />
 
-          {/* ✅ BOUTON RETOUR dans le scroll — pas fixed */}
-          <div className="px-4 mt-3 pb-6">
+          {/* ✅ BOUTON RETOUR — dans le scroll, au-dessus de la bannière */}
+          <div className="px-4 mt-2 mb-2">
             <div className="max-w-lg mx-auto">
               <button
                 onClick={onBack}
-                className="w-full min-h-[52px] text-base font-bold px-4 border-2 border-amber-500/40 text-amber-100 rounded-xl transition-all duration-300 active:scale-[0.97]"
+                className="w-full min-h-[50px] text-base font-bold px-4 border-2 border-amber-500/40 text-amber-100 rounded-xl transition-all duration-300 active:scale-[0.97]"
                 style={{ background: 'rgba(8,8,8,0.85)' }}
               >
                 {isComplete
@@ -185,9 +189,6 @@ export default function WheelPage({
           @keyframes wp-float {
             0%   { transform: translateX(-50%) translateY(0) scale(1); }
             100% { transform: translateX(-50%) translateY(-20px) scale(1.08); }
-          }
-          .pb-safe-ios {
-            padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
           }
         `}</style>
 

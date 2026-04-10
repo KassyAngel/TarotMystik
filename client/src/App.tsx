@@ -1,12 +1,13 @@
 // src/App.tsx
+// ✅ v3 — Scroll fiable via data-scroll-root + lazy imports + nettoyage
 
-import { useState, useEffect } from "react";
-import PaymentSuccessPage from './pages/PaymentSuccessPage';
-import PaymentCancelPage from './pages/PaymentCancelPage';
+import { useState, useEffect, lazy, Suspense } from "react";
 import PremiumModal from './components/PremiumModal';
 import NotificationPermissionModal from './components/NotificationPermissionModal';
 import RatingModal from './components/RatingModal';
 import TopBar from './components/TopBar';
+import MenuDrawer from './components/MenuDrawer';
+import UserProfileModal from './components/UserProfileModal';
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -14,12 +15,21 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { UserProvider, useUser } from "@/contexts/UserContext";
-import OracleMystiqueApp from "@/pages/OracleMystiqueApp";
-import NotFound from "@/pages/not-found";
 import { initialize as initializeAdMob, showBanner, hideBanner, showInterstitialAd, preloadInterstitial } from './admobService';
 import { initializeRevenueCat, checkPremiumStatus } from './services/revenueCatService';
 import { getUserEmail } from './lib/userStorage';
 import { useRatingPrompt } from './hooks/useRatingPrompt';
+
+// ✅ LAZY LOADING — pages lourdes chargées à la demande, pas au démarrage
+const OracleMystiqueApp = lazy(() => import("@/pages/OracleMystiqueApp"));
+const PaymentSuccessPage = lazy(() => import('./pages/PaymentSuccessPage'));
+const PaymentCancelPage = lazy(() => import('./pages/PaymentCancelPage'));
+const NotFound = lazy(() => import("@/pages/not-found"));
+
+// ✅ Fallback minimaliste pendant le chargement lazy
+const PageFallback = () => (
+  <div className="fixed inset-0 bg-[#080808]" />
+);
 
 type AppStep =
   | 'landing' | 'name' | 'date' | 'gender'
@@ -34,13 +44,30 @@ interface OracleCounters {
   wheel: number;
 }
 
+// ✅ Fonction utilitaire centralisée pour le scroll en haut
+// Appelée à chaque changement d'étape ET à l'ouverture des modaux
+export function scrollToTop() {
+  // Priorité 1 : le conteneur principal marqué data-scroll-root
+  const root = document.querySelector('[data-scroll-root]') as HTMLElement | null;
+  if (root) {
+    root.scrollTop = 0;
+    return;
+  }
+  // Priorité 2 : fallback window
+  window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+}
+
 function Router({
   onStepChange,
   shouldShowAdBeforeReading,
   onReadingComplete,
   isPremium,
   wheelCounter,
-  onWheelComplete
+  onWheelComplete,
+  onOpenPremium,
+  onOpenMenu,
+  onOpenProfile,
+  bannerHeight,
 }: {
   onStepChange: (step: AppStep) => void;
   shouldShowAdBeforeReading: (oracleType: string) => Promise<boolean>;
@@ -48,23 +75,33 @@ function Router({
   isPremium: boolean;
   wheelCounter: number;
   onWheelComplete: () => void;
+  onOpenPremium: () => void;
+  onOpenMenu: () => void;
+  onOpenProfile: () => void;
+  bannerHeight: number;
 }) {
   return (
-    <Switch>
-      <Route path="/success" component={PaymentSuccessPage} />
-      <Route path="/cancel" component={PaymentCancelPage} />
-      <Route path="/">
-        <OracleMystiqueApp
-          onStepChange={onStepChange as any}
-          shouldShowAdBeforeReading={shouldShowAdBeforeReading}
-          onReadingComplete={onReadingComplete}
-          isPremium={isPremium}
-          wheelCounter={wheelCounter}
-          onWheelComplete={onWheelComplete}
-        />
-      </Route>
-      <Route component={NotFound} />
-    </Switch>
+    <Suspense fallback={<PageFallback />}>
+      <Switch>
+        <Route path="/success" component={PaymentSuccessPage} />
+        <Route path="/cancel" component={PaymentCancelPage} />
+        <Route path="/">
+          <OracleMystiqueApp
+            onStepChange={onStepChange as any}
+            shouldShowAdBeforeReading={shouldShowAdBeforeReading}
+            onReadingComplete={onReadingComplete}
+            isPremium={isPremium}
+            wheelCounter={wheelCounter}
+            onWheelComplete={onWheelComplete}
+            onOpenPremium={onOpenPremium}
+            onOpenMenu={onOpenMenu}
+            onOpenProfile={onOpenProfile}
+            bannerHeight={bannerHeight}
+          />
+        </Route>
+        <Route component={NotFound} />
+      </Switch>
+    </Suspense>
   );
 }
 
@@ -74,6 +111,8 @@ function AppContent() {
   const [currentStep, setCurrentStep] = useState<AppStep>('landing');
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [bannerShown, setBannerShown] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const { updatePremiumStatus } = useUser();
 
@@ -82,114 +121,92 @@ function AppContent() {
     wizard: 0,
     loveCalculator: 0,
     cardDrawing: 0,
-    wheel: 0
+    wheel: 0,
   });
 
   const { showRating, handleRate, handleClose } = useRatingPrompt({
     minUsageCount: 2,
     postponeDays: 3,
-    daysAfterInstall: 2
+    daysAfterInstall: 2,
   });
 
+  // ── Init services ──
   useEffect(() => {
     const initServices = async () => {
       await Promise.allSettled([
         initializeAdMob(),
-        initializeRevenueCat()
+        initializeRevenueCat(),
       ]);
-      console.log('✅ Services AdMob + RevenueCat initialisés');
 
       const savedEmail = await getUserEmail();
-
       if (savedEmail) {
         try {
-          console.log(`🔍 Vérification statut Premium pour: ${savedEmail}`);
           const status = await checkPremiumStatus(savedEmail);
           setIsPremium(status);
           updatePremiumStatus(status);
-          console.log(`👑 Statut Premium au démarrage: ${status ? 'ACTIF ✅' : 'INACTIF ❌'}`);
-        } catch (error) {
-          console.error('❌ Erreur vérification Premium au démarrage:', error);
+        } catch {
           const cached = localStorage.getItem(`tarotmystik_premium_${savedEmail.toLowerCase().trim()}`);
           if (cached) {
             const data = JSON.parse(cached);
             let premiumStatus = data.isPremium;
             if (data.expirationDate) {
-              const isExpired = new Date(data.expirationDate) < new Date();
-              premiumStatus = !isExpired && data.isPremium;
+              premiumStatus = new Date(data.expirationDate) >= new Date() && data.isPremium;
             }
             setIsPremium(premiumStatus);
             updatePremiumStatus(premiumStatus);
-            console.log('💾 Statut Premium récupéré depuis le cache local');
           }
         }
-      } else {
-        console.log('ℹ️ Aucun email sauvegardé, utilisateur non Premium');
       }
     };
-
     initServices();
   }, []);
 
+  // ── Bannière AdMob ──
   useEffect(() => {
     if (isPremium) {
-      console.log('👑 Premium actif : bannière cachée');
-      if (bannerShown) {
-        hideBanner();
-        setBannerShown(false);
-      }
+      if (bannerShown) { hideBanner(); setBannerShown(false); }
       return;
     }
-
     const noBannerPages = ['landing', 'name', 'date', 'gender'];
-    const shouldShowBanner = !noBannerPages.includes(currentStep);
-
-    if (shouldShowBanner && !bannerShown) {
-      console.log(`🎯 Page "${currentStep}" atteinte → Affichage de la bannière permanente`);
-      const timer = setTimeout(() => {
-        showBanner();
-        setBannerShown(true);
-      }, 2500);
+    const shouldShow = !noBannerPages.includes(currentStep);
+    if (shouldShow && !bannerShown) {
+      const timer = setTimeout(() => { showBanner(); setBannerShown(true); }, 2500);
       return () => clearTimeout(timer);
     }
-
-    if (!shouldShowBanner && bannerShown) {
-      console.log('👋 Retour à l\'onboarding → Masquer la bannière');
-      hideBanner();
-      setBannerShown(false);
-    }
+    if (!shouldShow && bannerShown) { hideBanner(); setBannerShown(false); }
   }, [currentStep, isPremium, bannerShown]);
 
-  const showTopBar = !['landing', 'name', 'date', 'gender'].includes(currentStep);
-
-  // ✅ Scroll en haut à chaque changement de page
+  // ✅ SCROLL FIABLE — data-scroll-root est l'attribut cible
+  // Déclenché à chaque changement d'étape, avec double rAF pour laisser React finir le rendu
   useEffect(() => {
-    const scrollContainer = document.querySelector('.overflow-y-auto');
-    if (scrollContainer) {
-      scrollContainer.scrollTop = 0;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        scrollToTop();
+      });
+    });
+  }, [currentStep]);
+
+  // ── Notification modal ──
+  useEffect(() => {
+    if (!localStorage.getItem('notificationPermission') && currentStep === 'oracle') {
+      setShowNotificationModal(true);
     }
   }, [currentStep]);
 
+  // ── Ferme menu/profil quand on quitte oracle ──
   useEffect(() => {
-    const checkNotificationPermission = () => {
-      const permission = localStorage.getItem('notificationPermission');
-      if (!permission && currentStep === 'oracle') {
-        setShowNotificationModal(true);
-      }
-    };
-    checkNotificationPermission();
+    if (currentStep !== 'oracle') {
+      setIsMenuOpen(false);
+      setIsProfileOpen(false);
+    }
   }, [currentStep]);
 
+  const showTopBar = !['landing', 'name', 'date', 'gender', 'oracle'].includes(currentStep);
+
+  // ── Pub avant tirage ──
   const shouldShowAdBeforeReading = async (oracleType: string): Promise<boolean> => {
-    if (isPremium) {
-      console.log('👑 Utilisateur Premium - Pas de pub');
-      return false;
-    }
-
-    if (oracleType === 'wheel') {
-      console.log(`⏭️ "wheel" : pub récompensée gérée dans WheelPage`);
-      return false;
-    }
+    if (isPremium) return false;
+    if (oracleType === 'wheel') return false;
 
     let counterKey: keyof OracleCounters;
     let shouldShowPub = false;
@@ -225,32 +242,23 @@ function AppContent() {
     }
 
     if (shouldShowPub) {
-      try {
-        await showInterstitialAd(`before_${oracleType}`);
-      } catch (error) {
-        console.error('❌ Erreur pub interstitielle:', error);
-      }
+      try { await showInterstitialAd(`before_${oracleType}`); } catch {}
     }
 
+    // Précharge la prochaine pub en idle
     const followingCount = nextCount + 1;
-    let shouldPreloadNext = false;
+    let shouldPreload = false;
     switch (counterKey!) {
-      case 'lunar':
-      case 'wizard':
-      case 'cardDrawing':
-        shouldPreloadNext = followingCount === 2 || (followingCount > 2 && (followingCount - 2) % 3 === 0);
+      case 'lunar': case 'wizard': case 'cardDrawing':
+        shouldPreload = followingCount === 2 || (followingCount > 2 && (followingCount - 2) % 3 === 0);
         break;
       case 'loveCalculator':
-        shouldPreloadNext = followingCount % 2 === 0;
+        shouldPreload = followingCount % 2 === 0;
         break;
     }
-
-    if (shouldPreloadNext) {
-      if ('requestIdleCallback' in window) {
-        (window as any).requestIdleCallback(() => preloadInterstitial());
-      } else {
-        setTimeout(() => preloadInterstitial(), 2000);
-      }
+    if (shouldPreload) {
+      if ('requestIdleCallback' in window) (window as any).requestIdleCallback(() => preloadInterstitial());
+      else setTimeout(() => preloadInterstitial(), 2000);
     }
 
     return shouldShowPub;
@@ -258,27 +266,45 @@ function AppContent() {
 
   const handleReadingComplete = (oracleType: string) => {
     setOracleCounters(prev => {
-      const newCounters = { ...prev };
+      const n = { ...prev };
       switch (oracleType) {
-        case 'lunar':          newCounters.lunar += 1; break;
-        case 'wizard':         newCounters.wizard += 1; break;
-        case 'loveCalculator': newCounters.loveCalculator += 1; break;
-        case 'loveOracle':
-        case 'threeCards':
-        case 'crossSpread':    newCounters.cardDrawing += 1; break;
-        case 'wheel':          newCounters.wheel += 1; break;
+        case 'lunar':          n.lunar += 1; break;
+        case 'wizard':         n.wizard += 1; break;
+        case 'loveCalculator': n.loveCalculator += 1; break;
+        case 'loveOracle': case 'threeCards': case 'crossSpread': n.cardDrawing += 1; break;
+        case 'wheel':          n.wheel += 1; break;
       }
-      return newCounters;
+      return n;
     });
   };
 
   const handleWheelComplete = () => handleReadingComplete('wheel');
 
   const handlePremiumActivated = () => {
-    console.log('👑 Premium activé !');
     setIsPremium(true);
     updatePremiumStatus(true);
     setIsPremiumModalOpen(false);
+  };
+
+  const handleOpenPremium = () => {
+    setIsMenuOpen(false);
+    setIsProfileOpen(false);
+    setIsPremiumModalOpen(true);
+  };
+
+  const handleOpenMenu = () => {
+    setIsProfileOpen(false);
+    setIsMenuOpen(true);
+  };
+
+  const handleOpenProfile = () => {
+    setIsMenuOpen(false);
+    setIsProfileOpen(true);
+  };
+
+  const handleCloseAll = () => {
+    setIsMenuOpen(false);
+    setIsProfileOpen(false);
   };
 
   return (
@@ -306,15 +332,24 @@ function AppContent() {
 
       {showTopBar && (
         <TopBar
-          onOpenPremium={() => setIsPremiumModalOpen(true)}
+          onOpenPremium={handleOpenPremium}
           isPremium={isPremium}
         />
       )}
 
+      <MenuDrawer
+        isOpen={isMenuOpen}
+        onClose={handleCloseAll}
+        onOpenPremium={handleOpenPremium}
+        isPremium={isPremium}
+      />
+
+      {!isMenuOpen && isProfileOpen && (
+        <UserProfileModal isOpen={isProfileOpen} onClose={handleCloseAll} />
+      )}
+
       {showNotificationModal && (
-        <NotificationPermissionModal
-          onClose={() => setShowNotificationModal(false)}
-        />
+        <NotificationPermissionModal onClose={() => setShowNotificationModal(false)} />
       )}
 
       {isPremiumModalOpen && (
@@ -325,15 +360,15 @@ function AppContent() {
         />
       )}
 
-      <RatingModal
-        isOpen={showRating}
-        onClose={handleClose}
-        onRate={handleRate}
-      />
-
+      <RatingModal isOpen={showRating} onClose={handleClose} onRate={handleRate} />
       <Toaster />
 
+      {/*
+        ✅ data-scroll-root — attribut ciblé par scrollToTop()
+        Toujours présent, jamais renommé. Plus fragile que .overflow-y-auto
+      */}
       <div
+        data-scroll-root
         className={`w-full h-full overflow-y-auto ${!isPremium && bannerShown ? 'main-content' : ''}`}
         style={{ overscrollBehavior: 'none' }}
       >
@@ -344,6 +379,10 @@ function AppContent() {
           isPremium={isPremium}
           wheelCounter={oracleCounters.wheel}
           onWheelComplete={handleWheelComplete}
+          onOpenPremium={handleOpenPremium}
+          onOpenMenu={handleOpenMenu}
+          onOpenProfile={handleOpenProfile}
+          bannerHeight={bannerShown ? 60 : 0}
         />
       </div>
     </div>

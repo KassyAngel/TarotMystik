@@ -1,5 +1,5 @@
 // client/src/components/Wheel.tsx
-// 🎡 Roue de la Destinée - VERSION SCROLLABLE (compatible tous écrans)
+// 🎡 Roue de la Destinée - boutons rapprochés, padding réduit
 
 import React, { useState, useEffect } from 'react';
 import { showInterstitialAd } from '@/admobService';
@@ -83,7 +83,6 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
 
   const segmentAngle = 360 / wheelSegments.length;
 
-  // ✅ Taille roue basée sur vw : fiable sur TOUS les écrans, pas de calcul vh
   const wheelSizePx = Math.min(
     typeof window !== 'undefined' ? Math.floor(window.innerWidth * 0.82) : 300,
     380
@@ -92,21 +91,20 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
   const transitionStyle = isTransitioning ? 'none' : 'all 600ms ease-in-out';
 
   return (
-    // ✅ SCROLLABLE : overflow-y auto, pas de hauteur fixe, pas de marginTop
     <div
       className="w-full flex flex-col items-center"
       style={{
-        paddingTop: '20px',
-        paddingBottom: '140px', // espace pour le bouton Retour fixe en bas
+        paddingTop: '16px',
+        paddingBottom: '16px', // ✅ réduit — le WheelPage gère le safe-area
         overflowY: 'auto',
         overflowX: 'hidden',
-        WebkitOverflowScrolling: 'touch', // scroll fluide iOS
+        WebkitOverflowScrolling: 'touch',
       }}
     >
 
       {/* TITRE — uniquement avant le spin */}
       {!hasSpun && (
-        <div className="text-center w-full px-4 mb-5">
+        <div className="text-center w-full px-4 mb-4">
           <h3 className="text-2xl sm:text-3xl font-bold text-amber-100 font-serif drop-shadow-[0_2px_10px_rgba(212,175,55,0.6)]">
             {t('oracle.wheel.title') || 'Roue de la Destinée'}
           </h3>
@@ -117,13 +115,10 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
       )}
 
       {/* ROUE */}
-      <div className="flex items-center justify-center w-full px-2 mb-5" style={{ paddingTop: hasSpun ? '24px' : '8px' }}>
+      <div className="flex items-center justify-center w-full px-2 mb-4" style={{ paddingTop: hasSpun ? '16px' : '4px' }}>
         <div
           className="relative flex-shrink-0"
-          style={{
-            width: `${wheelSizePx}px`,
-            height: `${wheelSizePx}px`,
-          }}
+          style={{ width: `${wheelSizePx}px`, height: `${wheelSizePx}px` }}
         >
           {/* Cadre doré */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none z-30" viewBox="0 0 100 100">
@@ -177,13 +172,11 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
                 willChange: 'transform',
               }}
             >
-              {/* Triple bordure dorée */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#d4af37] via-[#c9a234] to-[#d4af37] p-[4px]">
                 <div className="w-full h-full rounded-full bg-slate-950/60 p-[3px]">
                   <div className="w-full h-full rounded-full bg-gradient-to-br from-[#d4af37] via-[#b8942d] to-[#d4af37] p-[3px]">
                     <div className="w-full h-full rounded-full relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0e0c06 0%, #130f08 50%, #0e0c06 100%)' }}>
 
-                      {/* Points dorés animés */}
                       <svg viewBox="0 0 400 400" className="absolute inset-0 w-full h-full">
                         <circle cx="200" cy="200" r="190" fill="none" stroke="#b8942d" strokeWidth="0.8" opacity="0.3"/>
                         {[...Array(24)].map((_, i) => {
@@ -196,7 +189,6 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
                         })}
                       </svg>
 
-                      {/* Segments */}
                       <svg viewBox="0 0 400 400" className="w-full h-full">
                         <defs>
                           {wheelSegments.map((seg, i) => (
@@ -234,7 +226,6 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
                           );
                         })}
 
-                        {/* Centre */}
                         <defs>
                           <radialGradient id="centerGlow">
                             <stop offset="0%" stopColor="#2a1f00" stopOpacity="0.9"/>
@@ -246,7 +237,6 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
                         <circle cx="200" cy="200" r="48" fill="none" stroke="#b8942d" strokeWidth="1.5"/>
                         <circle cx="200" cy="200" r="44" fill="none" stroke="#d4af37" strokeWidth="0.8" opacity="0.5"/>
 
-                        {/* Rayons */}
                         <g opacity="0.7">
                           {[0, 45, 90, 135, 180, 225, 270, 315].map(deg => {
                             const r = (deg * Math.PI) / 180;
@@ -260,7 +250,6 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
                         </g>
                       </svg>
 
-                      {/* Mandala central */}
                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 flex items-center justify-center">
                         <div className="absolute inset-0 rounded-full blur-2xl animate-pulse" style={{ background: 'rgba(212,175,55,0.30)' }}></div>
                         <svg viewBox="0 0 100 100" className="w-full h-full animate-spin-slow">
@@ -295,7 +284,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
       {/* INTERPRÉTATION */}
       {hasSpun && interpretation && (
         <div
-          className="px-4 w-full flex justify-center mb-4"
+          className="px-4 w-full flex justify-center mb-3"
           style={{ transition: transitionStyle, opacity: isTransitioning ? 0 : 1 }}
         >
           <div className="w-full max-w-md p-3 rounded-lg border-2 border-amber-600/50 shadow-[0_4px_15px_rgba(212,175,55,0.25)] backdrop-blur-sm"
@@ -321,7 +310,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
         </div>
       )}
 
-      {/* BOUTONS */}
+      {/* BOUTONS — compacts, sans gap excessif */}
       <div
         className="px-4 w-full flex justify-center"
         style={{ transition: transitionStyle, opacity: isTransitioning ? 0 : 1 }}
@@ -329,17 +318,17 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
         <div className="w-full max-w-md">
           {!hasSpun && !isSpinning && !isLoadingAd && (
             <button onClick={spinWheel}
-              className="w-full text-base sm:text-lg font-bold min-h-[54px] bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600
+              className="w-full text-base sm:text-lg font-bold min-h-[52px] bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600
                          hover:from-amber-500 hover:via-amber-400 hover:to-amber-500
                          shadow-[0_4px_25px_rgba(212,175,55,0.5)]
                          border-2 border-amber-400
                          text-slate-900 rounded-xl transition-all duration-300 active:scale-[0.98]">
-              ✨ {t('oracle.wheel.spinButton') || 'Tourner la Roue'} ✨
+              {t('oracle.wheel.spinButton') || 'Tourner la Roue'}
             </button>
           )}
 
           {isSpinning && (
-            <div className="w-full text-center py-3 min-h-[54px] flex items-center justify-center bg-slate-900/90 border-2 border-amber-500/50 rounded-xl">
+            <div className="w-full text-center py-3 min-h-[52px] flex items-center justify-center bg-slate-900/90 border-2 border-amber-500/50 rounded-xl">
               <p className="text-amber-500 font-bold text-base sm:text-lg animate-pulse">
                 ✦ {t('oracle.wheel.spinning') || 'La roue tourne...'} ✦
               </p>
@@ -356,7 +345,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
                 if (onReset) onReset();
                 setTimeout(() => setIsTransitioning(false), 50);
               }}
-              className="w-full text-base sm:text-lg font-bold min-h-[54px] bg-gradient-to-r from-amber-600/90 via-amber-500/90 to-amber-600/90
+              className="w-full text-base sm:text-lg font-bold min-h-[52px] bg-gradient-to-r from-amber-600/90 via-amber-500/90 to-amber-600/90
                          hover:from-amber-600 hover:via-amber-500 hover:to-amber-600
                          border-2 border-amber-500/70
                          text-slate-900 shadow-[0_4px_25px_rgba(212,175,55,0.4)]
@@ -366,7 +355,7 @@ export default function Wheel({ onComplete, variation, onReset, isPremium = fals
           )}
 
           {isLoadingAd && (
-            <div className="w-full text-center py-2 min-h-[54px] flex flex-col items-center justify-center bg-slate-900/90 border-2 border-amber-500/50 rounded-xl">
+            <div className="w-full text-center py-2 min-h-[52px] flex flex-col items-center justify-center bg-slate-900/90 border-2 border-amber-500/50 rounded-xl">
               <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-amber-500"></div>
               <p className="text-amber-500 text-xs mt-1">{t('oracle.wheel.loadingAd') || 'Chargement...'}</p>
             </div>

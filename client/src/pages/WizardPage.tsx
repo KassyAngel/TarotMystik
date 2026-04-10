@@ -1,5 +1,5 @@
 // client/src/pages/WizardPage.tsx
-// ✅ v2 — Fluidité maximale : préchargement anticipé, transition immédiate, WizardAnimation monté tôt
+// ✅ v3 — Scroll forcé en haut à chaque phase, fluidité maximale, préchargement anticipé
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import MysticalInput from '@/components/MysticalInput';
@@ -35,7 +35,6 @@ const wizardAnswers = [
   { key: 'trustIntuition', icon: '◈',  color: 'text-pink-400'    },
 ];
 
-// Sons à précharger dès le montage de la page
 const SOUNDS_TO_PRELOAD = [
   '/sounds/soundswizard-fr.mp3',
   '/sounds/soundswizard-en.mp3',
@@ -52,57 +51,64 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
   const [isProcessing, setIsProcessing]   = useState(false);
   const { t, language } = useLanguage();
 
-  // Référence pour la réponse calculée pendant le channeling
-  // (évite le recalcul au moment du callback)
   const pendingAnswerRef = useRef<{ key: string; icon: string; color: string } | null>(null);
   const adPromiseRef     = useRef<Promise<boolean> | null>(null);
 
-  // ── Préchargement anticipé des sons dès le montage ──
-  // On crée des éléments Audio silencieux pour forcer le navigateur
-  // à mettre en cache les fichiers avant qu'ils soient nécessaires.
+  // ✅ Ref sur le conteneur scrollable pour forcer scrollTop = 0
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // ✅ Scroll en haut à chaque changement de phase
   useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+    // Aussi scroller le conteneur parent de App.tsx (overflow-y:auto)
+    const parentScroll = document.querySelector('.overflow-y-auto');
+    if (parentScroll) {
+      parentScroll.scrollTop = 0;
+    }
+  }, [phase]);
+
+  // ✅ Scroll en haut au premier montage (cas connexion directe sur cette page)
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    const parentScroll = document.querySelector('.overflow-y-auto');
+    if (parentScroll) parentScroll.scrollTop = 0;
+  }, []);
+
+  // ── Préchargement sons ──
+  useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = [];
     const audios: HTMLAudioElement[] = [];
 
-    // Langue courante en priorité, puis les autres
     const prioritized = [
       `/sounds/soundswizard-${language}.mp3`,
       '/sounds/wizard-sound.mp3',
       ...SOUNDS_TO_PRELOAD.filter(s => !s.includes(`-${language}.`)),
     ];
-
-    // Filtre les doublons (Array.from requis pour compatibilité TS downlevel)
     const unique = Array.from(new Set(prioritized));
 
     unique.forEach((src, i) => {
-      // Décalage léger pour ne pas saturer la bande passante au démarrage
-      const delay = i * 120;
       const t = setTimeout(() => {
         const a = new Audio();
         a.preload = 'auto';
         a.src = src;
-        a.load(); // déclenche le téléchargement sans jouer
+        a.load();
         audios.push(a);
-      }, delay);
-      // On stocke aussi les timers pour le cleanup
-      audios.push({ _t: t } as any);
+      }, i * 120);
+      timers.push(t);
     });
 
     return () => {
-      audios.forEach(a => {
-        if ((a as any)._t !== undefined) {
-          clearTimeout((a as any)._t);
-        } else {
-          a.src = '';
-        }
-      });
+      timers.forEach(clearTimeout);
+      audios.forEach(a => { a.src = ''; });
     };
   }, [language]);
 
-  // ── Préchargement des vidéos via <link rel="preload"> ──
+  // ── Préchargement vidéos ──
   useEffect(() => {
     const links: HTMLLinkElement[] = [];
     ['/Image/wizard.webm', '/Image/wizard-video.webm'].forEach(href => {
-      // Vérifie qu'il n'existe pas déjà
       if (document.querySelector(`link[href="${href}"]`)) return;
       const link = document.createElement('link');
       link.rel  = 'preload';
@@ -126,15 +132,10 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
   const handleAskQuestion = async () => {
     if (!question.trim() || isProcessing) return;
     setIsProcessing(true);
-
-    // Calcule la réponse à l'avance (pendant le channeling)
     pendingAnswerRef.current = wizardAnswers[getSecureRandomInt(0, wizardAnswers.length - 1)];
-
-    // ── Bascule IMMÉDIATEMENT en channeling — pas d'await bloquant ──
+    // ✅ Transition immédiate vers channeling — pas d'await bloquant
     setPhase('channeling');
     setCurrentAnswer(null);
-
-    // Lance la vérification pub EN PARALLÈLE sans bloquer la transition
     if (shouldShowAdBeforeReading) {
       adPromiseRef.current = shouldShowAdBeforeReading('wizard').catch(() => false);
     }
@@ -150,16 +151,13 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
     adPromiseRef.current     = null;
   };
 
-  // Appelé par WizardAnimation quand la barre de progression atteint 100%
+  // Appelé par WizardAnimation quand la barre atteint 100%
   const handleChannelingEnd = useCallback(async () => {
-    // Attend la pub si elle était en cours (elle a eu 4s pour se résoudre)
     if (adPromiseRef.current) {
       await adPromiseRef.current.catch(() => {});
     }
-
     const answer = pendingAnswerRef.current
       ?? wizardAnswers[getSecureRandomInt(0, wizardAnswers.length - 1)];
-
     setCurrentAnswer(answer);
     setPhase('answer');
     saveReading(answer.key);
@@ -264,26 +262,18 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
           background: linear-gradient(160deg, rgba(7,5,28,0.99) 0%, rgba(12,9,42,0.99) 100%);
         }
 
-        /* Input : on écrase les styles ronds de MysticalInput pour ce contexte */
         .wiz-input-wrap { position: relative; }
         .wiz-input-wrap input {
-          width: 100% !important;
-          border-radius: 10px !important;
-          border: none !important;
-          background: transparent !important;
-          box-shadow: none !important;
-          padding: 14px 48px 14px 16px !important;
-          font-size: 15px !important;
-          font-family: 'EB Garamond', serif !important;
-          color: rgba(224,231,255,0.92) !important;
-          outline: none !important;
-          max-width: 100% !important;
-          text-align: left !important;
+          width: 100% !important; border-radius: 10px !important;
+          border: none !important; background: transparent !important;
+          box-shadow: none !important; padding: 14px 48px 14px 16px !important;
+          font-size: 15px !important; font-family: 'EB Garamond', serif !important;
+          color: rgba(224,231,255,0.92) !important; outline: none !important;
+          max-width: 100% !important; text-align: left !important;
         }
         .wiz-input-wrap input::placeholder { color: rgba(129,140,248,0.38) !important; }
         .input-shell {
-          border-radius: 10px;
-          border: 1px solid rgba(99,102,241,0.38);
+          border-radius: 10px; border: 1px solid rgba(99,102,241,0.38);
           background: rgba(8,6,28,0.85);
           box-shadow: inset 0 2px 10px rgba(0,0,0,0.45);
           transition: border-color 0.2s, box-shadow 0.2s;
@@ -295,8 +285,7 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
         .input-counter {
           position: absolute; bottom: 10px; right: 12px;
           font-size: 11px; font-family: 'EB Garamond', serif;
-          pointer-events: none;
-          transition: color 0.3s;
+          pointer-events: none; transition: color 0.3s;
         }
 
         .answer-icon {
@@ -305,11 +294,9 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
             glow-pulse 3.2s ease-in-out infinite 0.75s;
         }
 
-        /* WizardAnimation fantôme (monté mais invisible en phase question) */
         .wiz-ghost {
           position: absolute; inset: 0;
-          opacity: 0; pointer-events: none; z-index: -1;
-          visibility: hidden;
+          opacity: 0; pointer-events: none; z-index: -1; visibility: hidden;
         }
 
         .pb-safe { padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
@@ -329,10 +316,8 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
           {[...Array(28)].map((_, i) => (
             <div key={i} className="absolute rounded-full" style={{
               backgroundColor: i % 3 === 0 ? '#a5b4fc' : i % 3 === 1 ? '#93c5fd' : '#e2d9c8',
-              width: i % 5 === 0 ? '2px' : '1px',
-              height: i % 5 === 0 ? '2px' : '1px',
-              top:  `${(i * 3.57 + 11) % 100}%`,
-              left: `${(i * 7.13 +  5) % 100}%`,
+              width: i % 5 === 0 ? '2px' : '1px', height: i % 5 === 0 ? '2px' : '1px',
+              top: `${(i * 3.57 + 11) % 100}%`, left: `${(i * 7.13 + 5) % 100}%`,
               opacity: 0.35 + (i % 4) * 0.15,
             }} />
           ))}
@@ -356,15 +341,20 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
         </p>
       </header>
 
-      {/* ── CONTENU ── */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 relative z-10">
+      {/*
+        ✅ Conteneur scrollable avec ref — scrollTop forcé à 0 à chaque changement de phase
+        et au montage initial (cas connexion directe sur cette page)
+      */}
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto overflow-x-hidden px-4 relative z-10"
+      >
         <div className="max-w-2xl mx-auto w-full min-h-full pb-safe">
 
           {/* ══ HOME ══ */}
           {phase === 'home' && (
             <div className="flex flex-col min-h-full">
               <div className="flex-1 flex items-center justify-center py-4">
-                {/* Animation montée ici — pas de doublon, voir ghost ci-dessous */}
                 <WizardAnimation isChanneling={false} />
               </div>
               <div className="flex-shrink-0 space-y-3 pb-6">
@@ -381,17 +371,7 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
           {/* ══ QUESTION ══ */}
           {phase === 'question' && (
             <div className="py-8">
-
-              {/*
-                WizardAnimation en mode "fantôme" : monté et actif (vidéos chargées, décodées),
-                mais invisible. Quand on passe en channeling, React réutilise le même DOM node
-                (même position dans l'arbre → pas de démontage/remontage) et change juste
-                isChanneling=true → transition instantanée.
-
-                IMPORTANT : pour que React réutilise le node, il faut que le composant soit
-                rendu dans le même niveau que la phase channeling. On le sort donc du flux
-                conditionnel avec un portail léger (position absolute, visibility hidden).
-              */}
+              {/* Fantôme WizardAnimation — préchargé mais invisible */}
               <div className="wiz-ghost" aria-hidden>
                 <WizardAnimation isChanneling={false} />
               </div>
@@ -413,7 +393,6 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
                       <div className="ornament-line" />
                     </div>
 
-                    {/* Input corrigé : pas de conflit border/rounded */}
                     <div className="input-shell wiz-input-wrap">
                       <MysticalInput
                         placeholder={t('wizard.questionPlaceholder')}
@@ -436,10 +415,8 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
                     </div>
 
                     <div style={{
-                      marginTop: '16px', padding: '12px 16px',
-                      borderRadius: '10px',
-                      background: 'rgba(30,27,75,0.50)',
-                      border: '1px solid rgba(99,102,241,0.22)',
+                      marginTop: '16px', padding: '12px 16px', borderRadius: '10px',
+                      background: 'rgba(30,27,75,0.50)', border: '1px solid rgba(99,102,241,0.22)',
                     }}>
                       <p className="wiz-body" style={{ fontSize: '14px', color: 'rgba(199,210,254,0.72)', lineHeight: '1.6', margin: 0 }}>
                         <span className="wiz-serif" style={{ color: 'rgba(216,180,254,0.90)', fontWeight: 600 }}>
@@ -452,11 +429,7 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
                   </div>
                 </div>
 
-                <button
-                  className="btn-primary"
-                  onClick={handleAskQuestion}
-                  disabled={!question.trim() || isProcessing}
-                >
+                <button className="btn-primary" onClick={handleAskQuestion} disabled={!question.trim() || isProcessing}>
                   {isProcessing ? (t('wizard.processing') || '...') : t('wizard.consultAction')}
                 </button>
                 <button className="btn-ghost" onClick={() => !isProcessing && setPhase('home')} disabled={isProcessing}>
@@ -470,11 +443,6 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
           {phase === 'channeling' && (
             <div className="flex flex-col min-h-full">
               <div className="flex-1 flex items-center justify-center py-4">
-                {/*
-                  Ici WizardAnimation est remonté avec isChanneling=true.
-                  Les vidéos étaient déjà préchargées par le fantôme en phase question,
-                  donc la transition idle→channeling est quasi-instantanée.
-                */}
                 <WizardAnimation isChanneling={true} onChannelingEnd={handleChannelingEnd} />
               </div>
               <div className="flex-shrink-0 pb-6">
@@ -501,8 +469,7 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
                   <div className="card-inner">
                     <div style={{
                       padding: '12px 16px', borderRadius: '10px', marginBottom: '26px',
-                      background: 'rgba(30,27,75,0.45)',
-                      border: '1px solid rgba(99,102,241,0.22)',
+                      background: 'rgba(30,27,75,0.45)', border: '1px solid rgba(99,102,241,0.22)',
                     }}>
                       <p className="wiz-serif" style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.14em', color: 'rgba(129,140,248,0.65)', marginBottom: '6px' }}>
                         {t('wizard.yourQuestion')}
@@ -521,7 +488,6 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
                         {t('wizard.oracleResponse') ?? "Réponse d'Azraël"}
                       </p>
 
-                      {/* Texte réponse — grand, lumineux, sans symbole */}
                       <div style={{
                         padding: '28px 24px', borderRadius: '16px',
                         background: 'linear-gradient(160deg, rgba(30,27,75,0.60) 0%, rgba(49,46,129,0.35) 100%)',
@@ -557,10 +523,7 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
                   background: 'linear-gradient(to right, rgba(92,38,9,0.55), rgba(88,46,12,0.55), rgba(92,38,9,0.55))',
                   border: '1px solid rgba(180,83,9,0.40)',
                 }}>
-                  <p className="wiz-body text-center" style={{
-                    fontSize: '13px', lineHeight: '1.6',
-                    color: 'rgba(253,230,138,0.85)',
-                  }}>
+                  <p className="wiz-body text-center" style={{ fontSize: '13px', lineHeight: '1.6', color: 'rgba(253,230,138,0.85)' }}>
                     {t('wizard.disclaimer')}
                   </p>
                 </div>

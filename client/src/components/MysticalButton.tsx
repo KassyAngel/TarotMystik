@@ -1,76 +1,94 @@
+// components/MysticalButton.tsx
+// ✅ Fix : taille fixe, pas de min-h/min-w responsive qui changent après chargement
+
 import { Button, ButtonProps } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface MysticalButtonProps extends Omit<ButtonProps, 'variant'> {
-  variant?: 'primary' | 'secondary' | 'gold';
+  variant?: 'primary' | 'secondary' | 'gold' | 'danger';
 }
 
-export default function MysticalButton({ 
-  children, 
-  className, 
+export default function MysticalButton({
+  children,
+  className,
   variant = 'primary',
   disabled,
-  ...props 
+  ...props
 }: MysticalButtonProps) {
-  // Si className contient déjà des styles custom (bg-gradient, bg-[, etc), on ne met pas les styles par défaut
-  const hasCustomStyles = className?.includes('bg-gradient') || className?.includes('from-') || className?.includes('bg-[');
+  const hasCustomStyles =
+    className?.includes('bg-gradient') ||
+    className?.includes('from-') ||
+    className?.includes('bg-[');
 
   return (
     <Button
       className={cn(
-        // Styles de base communs
-        'rounded-2xl px-6 sm:px-8 lg:px-10 py-3 text-base sm:text-lg font-semibold min-w-[120px] sm:min-w-[150px] min-h-12 transition-all duration-300 backdrop-blur-md relative overflow-hidden group',
+        // ✅ Base : taille FIXE, pas de responsive qui change après chargement AdMob
+        'rounded-2xl px-7 py-3 text-sm font-semibold',
+        'transition-all duration-300 backdrop-blur-md relative overflow-hidden group',
+        // Pas de min-w/min-h responsive ici — on laisse le contenu définir la taille
+        'active:scale-95',
 
-        // PRIMARY: Dégradé cyan-bleu élégant
+        // PRIMARY — violet/améthyste
         !hasCustomStyles && variant === 'primary' && [
-          'bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-600',
-          'hover:from-cyan-500 hover:via-blue-500 hover:to-cyan-500',
-          'shadow-[0_4px_24px_rgba(6,182,212,0.4)]',
-          'hover:shadow-[0_6px_32px_rgba(6,182,212,0.6)]',
-          'border-2 border-cyan-400/50 hover:border-cyan-300/70',
+          'bg-gradient-to-r from-violet-700 via-purple-600 to-violet-700',
+          'hover:from-violet-600 hover:via-purple-500 hover:to-violet-600',
+          'border border-violet-400/40 hover:border-violet-300/60',
           'text-white',
-          'hover:scale-105',
-          // Effet de brillance au survol
-          'before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full before:transition-transform before:duration-700 hover:before:translate-x-full'
+          'shadow-[0_4px_20px_rgba(124,58,237,0.35)]',
+          'hover:shadow-[0_6px_28px_rgba(124,58,237,0.55)]',
+          'hover:scale-[1.03]',
+          // Shimmer
+          'before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/15 before:to-transparent',
+          'before:-translate-x-full before:transition-transform before:duration-700 hover:before:translate-x-full',
         ],
 
-        // SECONDARY: Style plus subtil cyan/slate
+        // SECONDARY — ardoise sombre avec accent cyan subtil
         !hasCustomStyles && variant === 'secondary' && [
-          'bg-gradient-to-r from-slate-800/80 via-slate-700/80 to-slate-800/80',
-          'hover:from-slate-700/90 hover:via-slate-600/90 hover:to-slate-700/90',
-          'border-2 border-cyan-500/30 hover:border-cyan-400/50',
-          'text-cyan-200',
-          'shadow-[0_4px_20px_rgba(34,211,238,0.2)]',
-          'hover:shadow-[0_6px_28px_rgba(34,211,238,0.3)]',
-          'hover:scale-105',
-          // Effet de brillance cyan au survol
-          'before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-cyan-300/10 before:to-transparent before:-translate-x-full before:transition-transform before:duration-700 hover:before:translate-x-full'
+          'bg-gradient-to-r from-slate-800/85 via-slate-700/85 to-slate-800/85',
+          'hover:from-slate-700/95 hover:via-slate-600/95 hover:to-slate-700/95',
+          'border border-slate-500/30 hover:border-violet-400/40',
+          'text-slate-200 hover:text-white',
+          'shadow-[0_4px_16px_rgba(0,0,0,0.3)]',
+          'hover:shadow-[0_6px_24px_rgba(124,58,237,0.2)]',
+          'hover:scale-[1.03]',
+          'before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-violet-300/8 before:to-transparent',
+          'before:-translate-x-full before:transition-transform before:duration-700 hover:before:translate-x-full',
         ],
 
-        // GOLD: Style doré élégant pour la roue (conservé tel quel)
+        // GOLD — pour la Roue du Destin
         !hasCustomStyles && variant === 'gold' && [
-          'bg-gradient-to-r from-slate-900/80 via-slate-800/80 to-slate-900/80',
-          'hover:from-slate-800/90 hover:via-slate-700/90 hover:to-slate-800/90',
-          'border-2 border-amber-300/40 hover:border-amber-200/60',
+          'bg-gradient-to-r from-amber-900/70 via-amber-800/70 to-amber-900/70',
+          'hover:from-amber-800/85 hover:via-amber-700/85 hover:to-amber-800/85',
+          'border border-amber-400/40 hover:border-amber-300/60',
           'text-amber-100',
-          'shadow-[0_4px_24px_rgba(251,191,36,0.3)]',
-          'hover:shadow-[0_6px_32px_rgba(251,191,36,0.5)]',
-          'hover:scale-105',
-          // Effet de brillance dorée au survol
-          'before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-amber-200/20 before:to-transparent before:-translate-x-full before:transition-transform before:duration-700 hover:before:translate-x-full'
+          'shadow-[0_4px_20px_rgba(245,158,11,0.25)]',
+          'hover:shadow-[0_6px_28px_rgba(245,158,11,0.45)]',
+          'hover:scale-[1.03]',
+          'before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-amber-200/15 before:to-transparent',
+          'before:-translate-x-full before:transition-transform before:duration-700 hover:before:translate-x-full',
         ],
 
-        // État désactivé
-        disabled && 'opacity-50 cursor-not-allowed hover:scale-100 before:hidden',
+        // DANGER — pour actions destructives (reset, etc.)
+        !hasCustomStyles && variant === 'danger' && [
+          'bg-gradient-to-r from-red-800/80 via-red-700/80 to-red-800/80',
+          'hover:from-red-700/90 hover:via-red-600/90 hover:to-red-700/90',
+          'border border-red-400/35 hover:border-red-300/55',
+          'text-red-100',
+          'shadow-[0_4px_20px_rgba(220,38,38,0.25)]',
+          'hover:shadow-[0_6px_28px_rgba(220,38,38,0.45)]',
+          'hover:scale-[1.03]',
+        ],
 
-        // Les classes custom écrasent les styles par défaut
-        className
+        // Désactivé
+        disabled && 'opacity-45 cursor-not-allowed hover:scale-100 before:hidden pointer-events-none',
+
+        className,
       )}
       disabled={disabled}
-      data-testid={`button-${children?.toString().toLowerCase().replace(/\s+/g, '-')}`}
       {...props}
     >
-      <span className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">{children}</span>
+      <span className="relative z-10">{children}</span>
     </Button>
   );
 }

@@ -1,8 +1,13 @@
+// client/src/pages/InterpretationPage.tsx
+// ✅ v2 — étoiles useMemo (plus de Math.random() à chaque render) + scroll haut au mount
+
+import { useMemo, useEffect } from 'react';
 import SummaryCard from '@/components/SummaryCard';
 import MysticalButton from '@/components/MysticalButton';
 import { OracleData, OracleCard, UserSession } from '@shared/schema';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getSecureRandomInt } from '@/lib/utils';
+import { scrollToTop } from '@/App';
 
 type CardBasedOracleType = 'loveOracle' | 'lunar' | 'runes';
 
@@ -22,9 +27,21 @@ interface InterpretationPageProps {
   onHome: () => void;
   onBackToMode: () => void;
   onSaveReading?: (reading: any) => Promise<void>;
-  shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>; // ✅ AJOUTÉ
-  onReadingComplete?: (oracleType: string) => void; // ✅ AJOUTÉ
+  shouldShowAdBeforeReading?: (oracleType: string) => Promise<boolean>;
+  onReadingComplete?: (oracleType: string) => void;
 }
+
+// ✅ Données des étoiles calculées UNE SEULE FOIS hors du composant
+// Pas de Math.random() dans le render — positions fixes, déterministes
+const STARS_DATA = Array.from({ length: 30 }, (_, i) => ({
+  // Positions pseudo-aléatoires mais stables (pas de Math.random())
+  top:      ((i * 137.508) % 100),          // distribution de Fibonacci — bien répartie
+  left:     ((i * 97.3 + 11) % 100),
+  isLarge:  i % 5 === 0,
+  isMedium: i % 3 === 0,
+  delay:    `${(i * 0.22) % 3}s`,
+  duration: `${2 + (i % 4) * 0.5}s`,
+}));
 
 export default function InterpretationPage({
   user,
@@ -36,255 +53,204 @@ export default function InterpretationPage({
   onHome,
   onBackToMode,
   onSaveReading,
-  shouldShowAdBeforeReading, // ✅ AJOUTÉ
-  onReadingComplete // ✅ AJOUTÉ
+  shouldShowAdBeforeReading,
+  onReadingComplete,
 }: InterpretationPageProps) {
   const { t } = useLanguage();
+
+  // ✅ Scroll en haut à l'affichage de la page d'interprétation
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        scrollToTop();
+      });
+    });
+  }, []);
+
+  // ── Helpers traduction ──────────────────────────────────────────────────
 
   const normalizeCardName = (cardName: string): string => {
     if (!cardName) return '';
     return cardName
-      .toLowerCase()
-      .trim()
+      .toLowerCase().trim()
       .replace(/[''\s-]/g, '')
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   };
 
   const getTranslatedCardName = (card: OracleCard): string => {
     if (!card?.name) return '';
-    const normalizedName = normalizeCardName(card.name);
-    const translationKey = `cards.${oracleType}.${normalizedName}.name`;
-    const translatedName = t(translationKey);
-
-    if (translatedName !== translationKey) {
-      return translatedName;
-    }
-    return card.name;
+    const key = `cards.${oracleType}.${normalizeCardName(card.name)}.name`;
+    const translated = t(key);
+    return translated !== key ? translated : card.name;
   };
 
   const getRandomCardMeaning = (
-    cardName: string, 
+    cardName: string,
     oType: CardBasedOracleType,
     energyNumber: number,
-    genderSuffix: string
+    genderSuffix: string,
   ): string => {
-    const normalizedName = normalizeCardName(cardName);
+    const norm = normalizeCardName(cardName);
     const energyKey = `energy${energyNumber}`;
+    const vars = [1, 2, 3]
+      .map(n => t(`cards.${oType}.${norm}.meaning.${energyKey}.var${n}`, { genderSuffix }))
+      .filter(v => !v.includes(`cards.${oType}`) && v.trim().length > 0);
+    if (vars.length > 0) return vars[getSecureRandomInt(0, vars.length - 1)];
 
-    const var1Key = `cards.${oType}.${normalizedName}.meaning.${energyKey}.var1`;
-    const var2Key = `cards.${oType}.${normalizedName}.meaning.${energyKey}.var2`;
-    const var3Key = `cards.${oType}.${normalizedName}.meaning.${energyKey}.var3`;
+    const fallbacks = [1, 2, 3]
+      .map(n => t(`cards.${oType}.${norm}.meaning.var${n}`, { genderSuffix }))
+      .filter(v => !v.includes(`cards.${oType}`) && v.trim().length > 0);
+    if (fallbacks.length > 0) return fallbacks[getSecureRandomInt(0, fallbacks.length - 1)];
 
-    const var1 = t(var1Key, { genderSuffix });
-    const var2 = t(var2Key, { genderSuffix });
-    const var3 = t(var3Key, { genderSuffix });
-
-    const variations = [var1, var2, var3].filter(v => {
-      const isValid = !v.includes(`cards.${oType}`) && v.trim().length > 0;
-      return isValid;
-    });
-
-    if (variations.length > 0) {
-      const selected = variations[getSecureRandomInt(0, variations.length - 1)];
-      return selected;
-    }
-
-    const fallbackVar1 = t(`cards.${oType}.${normalizedName}.meaning.var1`, { genderSuffix });
-    const fallbackVar2 = t(`cards.${oType}.${normalizedName}.meaning.var2`, { genderSuffix });
-    const fallbackVar3 = t(`cards.${oType}.${normalizedName}.meaning.var3`, { genderSuffix });
-
-    const fallbackVariations = [fallbackVar1, fallbackVar2, fallbackVar3].filter(v => 
-      !v.includes(`cards.${oType}`) && v.trim().length > 0
-    );
-
-    if (fallbackVariations.length > 0) {
-      return fallbackVariations[getSecureRandomInt(0, fallbackVariations.length - 1)];
-    }
-
-    const baseMeaning = t(`cards.${oType}.${normalizedName}.meaning`, { genderSuffix });
-    return baseMeaning;
+    return t(`cards.${oType}.${norm}.meaning`, { genderSuffix });
   };
 
   const getRandomGreeting = (oType: CardBasedOracleType): string => {
-    const greetingKeys = [
+    const params = { name: user.name, genderSuffix: user.gender === 'femme' ? 'e' : '' };
+    const keys = [
       `interpretation.${oType}.greeting`,
       `interpretation.${oType}.greeting.var1`,
       `interpretation.${oType}.greeting.var2`,
       `interpretation.${oType}.greeting.var3`,
-      `interpretation.${oType}.greeting.var4`
+      `interpretation.${oType}.greeting.var4`,
     ];
-
-    const variations = greetingKeys
-      .map(key => t(key, { name: user.name, genderSuffix: user.gender === 'femme' ? 'e' : '' }))
-      .filter(v => !v.includes('interpretation.'));
-
-    if (variations.length > 0) {
-      return variations[getSecureRandomInt(0, variations.length - 1)];
-    }
-
-    return t(`interpretation.${oType}.greeting`, { name: user.name });
+    const vars = keys.map(k => t(k, params)).filter(v => !v.includes('interpretation.'));
+    return vars.length > 0
+      ? vars[getSecureRandomInt(0, vars.length - 1)]
+      : t(`interpretation.${oType}.greeting`, params);
   };
 
-  const generateInterpretationSections = () => {
-    const genderText = t(`interpretation.gender.${user.gender || 'autre'}`);
+  // ── Génération du contenu d'interprétation ──────────────────────────────
+  // ✅ useMemo — recalculé uniquement si les cartes ou la langue changent,
+  // pas à chaque re-render provoqué par une animation parente
+  const { sections, finalMessage, greeting } = useMemo(() => {
+    const genderText   = t(`interpretation.gender.${user.gender || 'autre'}`);
     const genderSuffix = user.gender === 'femme' ? 'e' : '';
-
-    const getTranslatedZodiacName = (): string => {
-      if (!user.zodiacSign?.name) return '';
-      const signMapping: Record<string, string> = {
-        'Bélier': 'aries', 'Taureau': 'taurus', 'Gémeaux': 'gemini',
-        'Cancer': 'cancer', 'Lion': 'leo', 'Vierge': 'virgo',
-        'Balance': 'libra', 'Scorpion': 'scorpio', 'Sagittaire': 'sagittarius',
-        'Capricorne': 'capricorn', 'Verseau': 'aquarius', 'Poissons': 'pisces'
-      };
-      const englishKey = signMapping[user.zodiacSign.name];
-      return englishKey ? t(`zodiac.signs.${englishKey}`) : user.zodiacSign.name;
-    };
-
-    const zodiacName = getTranslatedZodiacName();
-    const fallbackZodiac = zodiacName || t('interpretation.fallback.zodiac');
-
-    const sections: CardSection[] = [];
-    let finalMessage = '';
-    let greeting = '';
 
     if (oracleType === 'lunar' || oracle.title === 'Oracle Lunaire') {
       return { sections: [], finalMessage: '', greeting: '' };
     }
 
-    if (oracle.title === 'Oracle de l\'Amour' || oracleType === 'loveOracle') {
-      const card1 = selectedCards[0];
-      const card2 = selectedCards[1];
-      const card3 = selectedCards[2];
+    const sections: CardSection[] = [];
+    let finalMessage = '';
+    let greeting = '';
 
-      const card1Name = getTranslatedCardName(card1);
-      const card2Name = getTranslatedCardName(card2);
-      const card3Name = getTranslatedCardName(card3);
+    if (oracle.title === "Oracle de l'Amour" || oracleType === 'loveOracle') {
+      const [card1, card2, card3] = selectedCards;
 
       sections.push({
         icon: '💫',
-        title: `${t('interpretation.loveOracle.energy1.label')} : ${card1Name}`,
-        content: getRandomCardMeaning(card1.name, 'loveOracle', 1, genderSuffix)
+        title: `${t('interpretation.loveOracle.energy1.label')} : ${getTranslatedCardName(card1)}`,
+        content: getRandomCardMeaning(card1.name, 'loveOracle', 1, genderSuffix),
       });
-
       sections.push({
         icon: '💕',
-        title: `${t('interpretation.loveOracle.energy2.label')} : ${card2Name}`,
-        content: getRandomCardMeaning(card2.name, 'loveOracle', 2, genderSuffix)
+        title: `${t('interpretation.loveOracle.energy2.label')} : ${getTranslatedCardName(card2)}`,
+        content: getRandomCardMeaning(card2.name, 'loveOracle', 2, genderSuffix),
       });
-
       sections.push({
         icon: '💖',
-        title: `${t('interpretation.loveOracle.energy3.label')} : ${card3Name}`,
-        content: getRandomCardMeaning(card3.name, 'loveOracle', 3, genderSuffix)
+        title: `${t('interpretation.loveOracle.energy3.label')} : ${getTranslatedCardName(card3)}`,
+        content: getRandomCardMeaning(card3.name, 'loveOracle', 3, genderSuffix),
       });
 
-      const templateKeys = [
-        'interpretation.loveOracle.template.advice.var1',
-        'interpretation.loveOracle.template.advice.var2',
-        'interpretation.loveOracle.template.advice.var3',
-        'interpretation.loveOracle.template.advice.var4',
-        'interpretation.loveOracle.template.advice.var5'
-      ];
+      // Signe du zodiaque
+      const signMapping: Record<string, string> = {
+        'Bélier': 'aries', 'Taureau': 'taurus', 'Gémeaux': 'gemini',
+        'Cancer': 'cancer', 'Lion': 'leo', 'Vierge': 'virgo',
+        'Balance': 'libra', 'Scorpion': 'scorpio', 'Sagittaire': 'sagittarius',
+        'Capricorne': 'capricorn', 'Verseau': 'aquarius', 'Poissons': 'pisces',
+      };
+      const zodiacName = user.zodiacSign?.name
+        ? (signMapping[user.zodiacSign.name]
+            ? t(`zodiac.signs.${signMapping[user.zodiacSign.name]}`)
+            : user.zodiacSign.name)
+        : t('interpretation.fallback.zodiac');
 
+      const templateKeys = [1, 2, 3, 4, 5].map(
+        n => `interpretation.loveOracle.template.advice.var${n}`,
+      );
       const templates = templateKeys
-        .map(key => t(key, { name: user.name, zodiacSign: fallbackZodiac, genderText }))
+        .map(k => t(k, { name: user.name, zodiacSign: zodiacName, genderText }))
         .filter(v => !v.includes('interpretation.loveOracle'));
-
-      const selectedTemplate = templates.length > 0 
+      const selectedTemplate = templates.length > 0
         ? templates[getSecureRandomInt(0, templates.length - 1)]
         : '';
 
-      const getThematicAdvice = (): string => {
-        const themes = [
-          'patience', 'openness', 'selfconfidence', 'clarity',
-          'lettinggo', 'authenticity', 'protection', 'action'
-        ];
+      const themes = ['patience', 'openness', 'selfconfidence', 'clarity',
+                      'lettinggo', 'authenticity', 'protection', 'action'];
+      const theme = themes[getSecureRandomInt(0, themes.length - 1)];
+      const adviceVars = [1, 2, 3]
+        .map(n => t(`interpretation.loveOracle.advice.${theme}.var${n}`, { genderSuffix }))
+        .filter(v => !v.includes('interpretation.loveOracle.advice') && v.trim().length > 0);
+      const fallbackAdvices = [1, 2, 3]
+        .map(n => t(`interpretation.loveOracle.advice.fallback.var${n}`, { genderSuffix }))
+        .filter(v => !v.includes('interpretation.loveOracle.advice'));
 
-        const selectedTheme = themes[getSecureRandomInt(0, themes.length - 1)];
+      const selectedAdvice = adviceVars.length > 0
+        ? adviceVars[getSecureRandomInt(0, adviceVars.length - 1)]
+        : (fallbackAdvices.length > 0
+            ? fallbackAdvices[getSecureRandomInt(0, fallbackAdvices.length - 1)]
+            : 'Fais confiance à ton cœur, il connaît le chemin.');
 
-        const var1 = t(`interpretation.loveOracle.advice.${selectedTheme}.var1`, { genderSuffix });
-        const var2 = t(`interpretation.loveOracle.advice.${selectedTheme}.var2`, { genderSuffix });
-        const var3 = t(`interpretation.loveOracle.advice.${selectedTheme}.var3`, { genderSuffix });
-
-        const variations = [var1, var2, var3].filter(v => 
-          !v.includes('interpretation.loveOracle.advice') && v.trim().length > 0
-        );
-
-        if (variations.length > 0) {
-          const selected = variations[getSecureRandomInt(0, variations.length - 1)];
-          return selected;
-        }
-
-        const fallbackAdvices = [
-          t('interpretation.loveOracle.advice.fallback.var1', { genderSuffix }),
-          t('interpretation.loveOracle.advice.fallback.var2', { genderSuffix }),
-          t('interpretation.loveOracle.advice.fallback.var3', { genderSuffix })
-        ].filter(v => !v.includes('interpretation.loveOracle.advice'));
-
-        return fallbackAdvices.length > 0 
-          ? fallbackAdvices[getSecureRandomInt(0, fallbackAdvices.length - 1)]
-          : 'Fais confiance à ton cœur, il connaît le chemin.';
-      };
-
-      const selectedAdvice = getThematicAdvice();
-
-      finalMessage = selectedTemplate + ' ' + selectedAdvice;
+      finalMessage = `${selectedTemplate} ${selectedAdvice}`;
       greeting = getRandomGreeting('loveOracle');
-    }
 
-    else if (oracleType === 'runes') {
+    } else if (oracleType === 'runes') {
       greeting = getRandomGreeting('runes');
     }
 
     return { sections, finalMessage, greeting };
-  };
-
-  const { sections, finalMessage, greeting } = generateInterpretationSections();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [oracleType, selectedCards, user.gender, user.name, user.zodiacSign]);
 
   return (
-      <div className="interpretation-page min-h-screen flex flex-col justify-between p-2 sm:p-3 pb-safe-banner bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420] relative overflow-hidden">
+    <div className="ip-page min-h-screen flex flex-col justify-between p-2 sm:p-3 pb-safe-banner relative overflow-hidden"
+      style={{ background: 'linear-gradient(to bottom, #0a1420, #0d1b2e, #0a1420)' }}>
 
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#1a2d45]/30 rounded-full blur-3xl animate-pulse-very-slow"></div>
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-[#2d3e57]/25 rounded-full blur-3xl animate-pulse-very-slow" style={{animationDelay: '2s'}}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#c9a87f]/5 rounded-full blur-3xl"></div>
+      {/* ── Halos de fond — pure CSS, aucun nœud DOM dynamique ── */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        <div className="ip-halo ip-halo-1" />
+        <div className="ip-halo ip-halo-2" />
+        <div className="ip-halo ip-halo-3" />
       </div>
 
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(40)].map((_, i) => (
+      {/* ✅ Étoiles — positions fixes via STARS_DATA, zéro Math.random() au render */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden>
+        {STARS_DATA.map((s, i) => (
           <div
             key={i}
-            className="absolute bg-[#c9a87f] rounded-full animate-twinkle-elegant"
+            className="absolute rounded-full bg-[#c9a87f]"
             style={{
-              width: Math.random() > 0.7 ? '2px' : '1px',
-              height: Math.random() > 0.7 ? '2px' : '1px',
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 2}s`
+              width:  s.isLarge ? '2px' : s.isMedium ? '1.5px' : '1px',
+              height: s.isLarge ? '2px' : s.isMedium ? '1.5px' : '1px',
+              top:    `${s.top}%`,
+              left:   `${s.left}%`,
+              animationDelay:    s.delay,
+              animationDuration: s.duration,
+              animation: `ip-twinkle ${s.duration} ease-in-out ${s.delay} infinite`,
             }}
           />
         ))}
       </div>
 
-      <div className="interpretation-header text-center pt-20 sm:pt-24 relative z-10">
+      {/* ── Header ── */}
+      <div className="text-center pt-20 sm:pt-24 relative z-10">
         <div className="mb-4">
-          <div className="inline-block px-6 py-2 bg-gradient-to-r from-[#152238]/60 via-[#1a2d45]/80 to-[#152238]/60 rounded-full border border-[#c9a87f]/30 backdrop-blur-sm">
+          <div className="inline-block px-6 py-2 rounded-full border border-[#c9a87f]/30 backdrop-blur-sm"
+            style={{ background: 'linear-gradient(to right, rgba(21,34,56,0.6), rgba(26,45,69,0.8), rgba(21,34,56,0.6))' }}>
             <h1 className="text-[#e8d4b8] text-lg sm:text-xl md:text-2xl font-serif leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
               {t('interpretation.title.reading', { name: user.name })}
             </h1>
           </div>
         </div>
-
-        <div className="h-px w-40 mx-auto bg-gradient-to-r from-transparent via-[#c9a87f]/50 to-transparent mb-3"></div>
-
+        <div className="h-px w-40 mx-auto bg-gradient-to-r from-transparent via-[#c9a87f]/50 to-transparent mb-3" />
         <p className="text-[#c9a87f]/80 text-sm sm:text-base italic font-light drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
           {greeting}
         </p>
       </div>
 
+      {/* ── Contenu ── */}
       <div className="flex-1 flex flex-col justify-center py-6 relative z-10">
         <SummaryCard
           title={t('revelation.summary.title')}
@@ -294,18 +260,19 @@ export default function InterpretationPage({
         />
       </div>
 
-        <div className="interpretation-controls flex flex-col gap-3 items-center pb-1 mb-safe-banner relative z-10">
-        <MysticalButton 
-          variant="primary" 
-          onClick={onBackToMode} 
+      {/* ── Boutons ── */}
+      <div className="flex flex-col gap-3 items-center pb-1 mb-safe-banner relative z-10">
+        <MysticalButton
+          variant="primary"
+          onClick={onBackToMode}
           className="min-h-[48px] w-full max-w-sm px-8 bg-gradient-to-r from-[#a8896f]/90 via-[#c9a87f] to-[#a8896f]/90 text-[#0a1420] font-semibold border-2 border-[#c9a87f]/40 shadow-[0_4px_20px_rgba(201,168,127,0.4)] hover:shadow-[0_6px_30px_rgba(201,168,127,0.6)] hover:scale-105 transition-all duration-300"
           data-testid="button-new-reading"
         >
-           {t('interpretation.newConsultation')}
+          {t('interpretation.newConsultation')}
         </MysticalButton>
 
-        <MysticalButton 
-          variant="secondary" 
+        <MysticalButton
+          variant="secondary"
           onClick={onHome}
           className="w-full max-w-sm px-6 py-3 bg-gradient-to-r from-[#152238]/70 to-[#1a2d45]/70 border border-[#c9a87f]/30 text-[#e8d4b8]"
         >
@@ -313,39 +280,45 @@ export default function InterpretationPage({
         </MysticalButton>
       </div>
 
-        <style>{`
-          @keyframes pulse-very-slow {
-            0%, 100% { opacity: 0.2; transform: scale(1); }
-            50% { opacity: 0.35; transform: scale(1.05); }
-          }
-          @keyframes twinkle-elegant {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 0.9; }
-          }
-          .animate-pulse-very-slow {
-            animation: pulse-very-slow 5s ease-in-out infinite;
-          }
-          .animate-twinkle-elegant {
-            animation: twinkle-elegant 3s ease-in-out infinite;
-          }
+      <style>{`
+        /* ── Halos ── */
+        .ip-halo {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(80px);
+          pointer-events: none;
+        }
+        .ip-halo-1 {
+          width: 384px; height: 384px;
+          top: 0; left: 25%;
+          background: rgba(26,45,69,0.30);
+          animation: ip-pulse 5s ease-in-out infinite;
+        }
+        .ip-halo-2 {
+          width: 320px; height: 320px;
+          bottom: 0; right: 25%;
+          background: rgba(45,62,87,0.25);
+          animation: ip-pulse 5s ease-in-out 2s infinite;
+        }
+        .ip-halo-3 {
+          width: 600px; height: 600px;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(201,168,127,0.05);
+        }
 
-          /* ✅ AJOUT pour bannière AdMob */
-          .pb-safe-banner {
-            padding-bottom: calc(110px + env(safe-area-inset-bottom)) !important;
-          }
-          .mb-safe-banner {
-            margin-bottom: calc(70px + env(safe-area-inset-bottom)) !important;
-          }
+        /* ── Animations ── */
+        @keyframes ip-pulse   { 0%,100%{opacity:.20;transform:scale(1);}    50%{opacity:.35;transform:scale(1.05);} }
+        @keyframes ip-twinkle { 0%,100%{opacity:.20;}                        50%{opacity:.90;} }
 
-          @media (min-width: 640px) {
-            .pb-safe-banner {
-              padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
-            }
-            .mb-safe-banner {
-              margin-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
-            }
-          }
-        `}</style>
+        /* ── Safe area bannière AdMob ── */
+        .pb-safe-banner  { padding-bottom: calc(110px + env(safe-area-inset-bottom)) !important; }
+        .mb-safe-banner  { margin-bottom:  calc(70px  + env(safe-area-inset-bottom)) !important; }
+        @media (min-width: 640px) {
+          .pb-safe-banner { padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important; }
+          .mb-safe-banner { margin-bottom:  calc(80px  + env(safe-area-inset-bottom)) !important; }
+        }
+      `}</style>
     </div>
   );
 }
