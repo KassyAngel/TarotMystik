@@ -68,7 +68,7 @@ export default function RevelationPage({
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden"
-      style={{ background: 'linear-gradient(to bottom, #0a1420, #0d1b2e, #0a1420)' }}>
+      style={{ background: 'transparent' }}>
 
       {/* ── Halos de fond ── */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden>

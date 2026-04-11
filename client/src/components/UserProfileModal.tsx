@@ -60,13 +60,20 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
     return map[signName] || signName.toLowerCase();
   };
 
-  const getZodiacDates = () => {
+  // ✅ FIX TypeScript : on cast en `any` une seule fois proprement
+  // pour éviter les erreurs "Property 'dates' does not exist"
+  const getZodiacDates = (): string => {
     if (!user.zodiacSign) return '';
     try {
-      if (typeof user.zodiacSign.dates === 'string') return user.zodiacSign.dates;
-      if (user.zodiacSign.dates && typeof user.zodiacSign.dates === 'object') {
-        const d = user.zodiacSign.dates as any;
+      const sign = user.zodiacSign as any;
+      if (typeof sign.dates === 'string') return sign.dates;
+      if (sign.dates && typeof sign.dates === 'object') {
+        const d = sign.dates;
         if (d.start && d.end) return `${d.start.day}/${d.start.month} - ${d.end.day}/${d.end.month}`;
+      }
+      // Fallback : startDate / endDate
+      if (sign.startDate && sign.endDate) {
+        return `${sign.startDate.day}/${sign.startDate.month} - ${sign.endDate.day}/${sign.endDate.month}`;
       }
     } catch { }
     return '';
@@ -77,6 +84,9 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
     e.stopPropagation();
     if (e.target === e.currentTarget && !showEditModal) onClose();
   };
+
+  const zodiacDates = getZodiacDates();
+  const zodiacKey = user.zodiacSign ? getZodiacKey(user.zodiacSign.name) : '';
 
   return (
     <>
@@ -112,7 +122,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               </svg>
             </button>
 
-            {/* Avatar — cercle violet */}
+            {/* Avatar */}
             <div
               className="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center text-5xl"
               style={{
@@ -123,15 +133,14 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               {user.zodiacSign?.symbol || '✨'}
             </div>
 
-            {/* Nom — blanc, pas jaune */}
             <h2 className="text-2xl font-bold font-serif mb-1" style={{ color: 'rgba(255,255,255,0.95)' }}>
               {user.name || 'Utilisateur'}
             </h2>
 
             {user.zodiacSign && (
               <p className="text-sm" style={{ color: 'rgba(167,139,250,0.75)' }}>
-                {t(`zodiac.signs.${getZodiacKey(user.zodiacSign.name)}`)}
-                {getZodiacDates() && ` • ${getZodiacDates()}`}
+                {t(`zodiac.signs.${zodiacKey}`)}
+                {zodiacDates && ` • ${zodiacDates}`}
               </p>
             )}
           </div>
@@ -152,8 +161,8 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               user.zodiacSign && {
                 icon: user.zodiacSign.symbol,
                 label: t('profile.zodiac') || 'Signe astrologique',
-                value: t(`zodiac.signs.${getZodiacKey(user.zodiacSign.name)}`),
-                sub: getZodiacDates(),
+                value: t(`zodiac.signs.${zodiacKey}`),
+                sub: zodiacDates,
               },
             ].filter(Boolean).map((item: any, i) => (
               <div
@@ -173,7 +182,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
             ))}
           </div>
 
-          {/* Bouton modifier — violet, pas jaune */}
+          {/* Bouton modifier */}
           <div className="px-6 pb-6">
             <button
               onClick={() => setShowEditModal(true)}

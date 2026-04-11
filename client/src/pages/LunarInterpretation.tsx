@@ -107,8 +107,8 @@ export default function LunarInterpretation({
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(180deg, #07091280 0%, #0b0f1e 40%, #060810 100%)',
-      backgroundColor: '#060810',
+      background: 'transparent',
+        backgroundColor: 'transparent',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',

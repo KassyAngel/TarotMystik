@@ -4,15 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>Oracle Mystique par Kassy Angel</title>
+
+    <!-- ✅ Préchargement de l'image de fond — démarre avant tout JS/CSS -->
+    <link rel="preload" as="image" href="/Image/background.webp" fetchpriority="high">
+
+    <!-- ✅ Fond défini ici pour s'afficher IMMÉDIATEMENT, avant React -->
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100dvh;
+        background-color: #060810; /* couleur de secours si image pas encore chargée */
+        background-image: url('/Image/background.webp');
+        background-size: cover;
+        background-position: center top;
+        background-repeat: no-repeat;
+        /* ✅ PAS de background-attachment:fixed — trop lent sur mobile */
+      }
+    </style>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-      <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
 </html>

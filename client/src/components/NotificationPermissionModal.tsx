@@ -104,177 +104,184 @@ export default function NotificationPermissionModal({ onClose }: NotificationPer
   return (
     <>
       <style>{`
-        @keyframes notif-backdrop-in {
+        @keyframes nm-backdrop-in {
           from { opacity: 0; }
           to   { opacity: 1; }
         }
-        @keyframes notif-card-in {
-          from { opacity: 0; transform: translateY(24px) scale(0.96); }
-          to   { opacity: 1; transform: translateY(0)    scale(1); }
+        @keyframes nm-card-in {
+          from { opacity: 0; transform: translateY(28px) scale(0.95); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes bell-ring {
-          0%,100% { transform: rotate(0deg); }
-          15%     { transform: rotate(14deg); }
-          30%     { transform: rotate(-10deg); }
-          45%     { transform: rotate(8deg); }
-          60%     { transform: rotate(-5deg); }
-          75%     { transform: rotate(3deg); }
+        @keyframes nm-bell {
+          0%,100% { transform: rotate(0deg) scale(1); }
+          15%     { transform: rotate(12deg) scale(1.05); }
+          30%     { transform: rotate(-8deg) scale(1.05); }
+          45%     { transform: rotate(6deg) scale(1.02); }
+          60%     { transform: rotate(-4deg); }
+          75%     { transform: rotate(2deg); }
         }
-        @keyframes gold-shimmer {
+        @keyframes nm-orb-pulse {
+          0%,100% { opacity: 0.4; transform: scale(1); }
+          50%     { opacity: 0.7; transform: scale(1.15); }
+        }
+        @keyframes nm-star {
+          0%   { opacity: 0.2; transform: scale(0.8); }
+          50%  { opacity: 0.8; transform: scale(1.2); }
+          100% { opacity: 0.2; transform: scale(0.8); }
+        }
+        @keyframes nm-shimmer {
           0%   { background-position: -200% center; }
           100% { background-position:  200% center; }
         }
-        @keyframes orb-pulse {
-          0%,100% { transform: scale(1);   opacity: 0.55; }
-          50%     { transform: scale(1.18); opacity: 0.80; }
+        .nm-backdrop {
+          animation: nm-backdrop-in 0.3s ease-out forwards;
         }
-        @keyframes star-drift {
-          0%   { transform: translateY(0px)   rotate(0deg);   opacity: 0.4; }
-          50%  { transform: translateY(-6px)  rotate(180deg); opacity: 0.9; }
-          100% { transform: translateY(0px)   rotate(360deg); opacity: 0.4; }
+        .nm-card {
+          animation: nm-card-in 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
         }
-        .notif-backdrop {
-          animation: notif-backdrop-in 0.25s ease-out forwards;
-        }
-        .notif-card {
-          animation: notif-card-in 0.35s cubic-bezier(0.16,1,0.3,1) forwards;
-        }
-        .bell-icon { animation: bell-ring 2.4s ease-in-out infinite; }
-        .gold-btn-text {
-          background: linear-gradient(
-            90deg,
-            #b8942a 0%, #f5d876 30%, #d4af37 50%, #f5d876 70%, #b8942a 100%
-          );
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: gold-shimmer 2.8s linear infinite;
-        }
-        .orb { animation: orb-pulse 3s ease-in-out infinite; }
-        .star-float { animation: star-drift ease-in-out infinite; }
-        .divider-line {
+        .nm-bell { animation: nm-bell 3s ease-in-out infinite; display: inline-block; }
+        .nm-orb  { animation: nm-orb-pulse 3s ease-in-out infinite; }
+        .nm-star { animation: nm-star ease-in-out infinite; }
+        .nm-divider {
           height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.45), transparent);
+          background: linear-gradient(90deg, transparent, rgba(201,168,127,0.35), transparent);
         }
+        .nm-btn-accept {
+          transition: box-shadow 0.25s, transform 0.2s, background 0.25s;
+        }
+        .nm-btn-accept:hover {
+          box-shadow: 0 4px 28px rgba(100,70,180,0.45) !important;
+          transform: translateY(-1px);
+        }
+        .nm-btn-accept:active { transform: scale(0.98); }
+        .nm-btn-decline {
+          transition: color 0.25s;
+        }
+        .nm-btn-decline:hover { color: rgba(201,168,127,0.70) !important; }
       `}</style>
 
-      {/* Backdrop */}
       <div
-        className="notif-backdrop fixed inset-0 z-50 flex items-center justify-center"
-        style={{ background: 'rgba(4,3,14,0.92)', backdropFilter: 'blur(8px)', padding: '24px' }}
+        className="nm-backdrop"
+        style={{
+          position: 'fixed', inset: 0, zIndex: 50,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(4,3,16,0.88)',
+          backdropFilter: 'blur(10px)',
+          padding: '24px',
+        }}
       >
-        {/* Card */}
         <div
-          className="notif-card relative w-full overflow-hidden"
+          className="nm-card"
           style={{
-            maxWidth: '340px',
-            borderRadius: '20px',
-            background: 'linear-gradient(160deg, #0e0b1e 0%, #100d22 50%, #0a0818 100%)',
-            border: '1px solid rgba(212,175,55,0.28)',
+            position: 'relative',
+            width: '100%', maxWidth: '340px',
+            borderRadius: '18px',
+            background: 'linear-gradient(160deg, #0d0b1f 0%, #110e26 55%, #090716 100%)',
+            border: '1px solid rgba(201,168,127,0.22)',
             boxShadow: `
-              0 0 0 1px rgba(212,175,55,0.08),
-              0 8px 40px rgba(0,0,0,0.85),
-              0 0 80px rgba(212,175,55,0.06),
-              inset 0 1px 0 rgba(212,175,55,0.12)
+              0 0 0 1px rgba(201,168,127,0.06),
+              0 12px 50px rgba(0,0,0,0.80),
+              0 0 60px rgba(80,50,150,0.12),
+              inset 0 1px 0 rgba(201,168,127,0.10)
             `,
+            overflow: 'hidden',
           }}
         >
-          {/* Top golden glow */}
-          <div
-            className="absolute top-0 left-0 right-0 pointer-events-none"
-            style={{
-              height: '140px',
-              background: 'radial-gradient(ellipse at 50% -20%, rgba(212,175,55,0.14) 0%, transparent 70%)',
-            }}
-          />
+          {/* Halo haut */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0,
+            height: '160px', pointerEvents: 'none',
+            background: 'radial-gradient(ellipse at 50% -10%, rgba(100,70,180,0.18) 0%, transparent 70%)',
+          }} />
 
-          {/* Floating stars background */}
+          {/* Étoiles flottantes */}
           {[
-            { top:'12%', left:'8%',  size:'3px', delay:'0s',   dur:'3.2s' },
-            { top:'8%',  left:'88%', size:'2px', delay:'0.6s', dur:'2.8s' },
-            { top:'22%', left:'92%', size:'2px', delay:'1.2s', dur:'3.6s' },
-            { top:'18%', left:'4%',  size:'2px', delay:'0.3s', dur:'4s'   },
-            { top:'55%', left:'96%', size:'2px', delay:'1.8s', dur:'3s'   },
-            { top:'70%', left:'3%',  size:'2px', delay:'0.9s', dur:'3.4s' },
+            { top:'10%', left:'7%',  size:'2px', delay:'0s',   dur:'3.2s' },
+            { top:'7%',  left:'90%', size:'2px', delay:'0.7s', dur:'2.6s' },
+            { top:'20%', left:'93%', size:'2px', delay:'1.3s', dur:'3.8s' },
+            { top:'16%', left:'3%',  size:'2px', delay:'0.4s', dur:'4.2s' },
+            { top:'60%', left:'97%', size:'2px', delay:'1.9s', dur:'3.0s' },
+            { top:'75%', left:'2%',  size:'2px', delay:'1.0s', dur:'3.5s' },
           ].map((s, i) => (
             <div
               key={i}
-              className="star-float absolute rounded-full"
+              className="nm-star"
               style={{
+                position: 'absolute',
                 top: s.top, left: s.left,
                 width: s.size, height: s.size,
-                background: '#d4af37',
+                borderRadius: '50%',
+                background: '#c9a87f',
                 animationDelay: s.delay,
                 animationDuration: s.dur,
               }}
             />
           ))}
 
-          <div className="relative px-6 pt-7 pb-6">
-            {/* Bell icon */}
-            <div className="flex justify-center mb-5">
-              <div className="relative">
+          <div style={{ position: 'relative', padding: '28px 24px 24px' }}>
+
+            {/* Icône cloche */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+              <div style={{ position: 'relative' }}>
                 <div
-                  className="orb absolute inset-0 rounded-full"
+                  className="nm-orb"
                   style={{
-                    background: 'radial-gradient(circle, rgba(212,175,55,0.22) 0%, transparent 70%)',
-                    filter: 'blur(12px)',
-                    transform: 'scale(1.8)',
+                    position: 'absolute', inset: '-20px', borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(100,70,180,0.25) 0%, transparent 70%)',
+                    filter: 'blur(14px)',
                   }}
                 />
-                <div
-                  className="relative flex items-center justify-center"
-                  style={{
-                    width: '68px', height: '68px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(145deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.05) 100%)',
-                    border: '1px solid rgba(212,175,55,0.30)',
-                    boxShadow: '0 0 20px rgba(212,175,55,0.12), inset 0 1px 0 rgba(212,175,55,0.20)',
-                  }}
-                >
-                  <span className="bell-icon text-3xl" style={{ display: 'inline-block' }}>🔔</span>
+                <div style={{
+                  position: 'relative',
+                  width: '64px', height: '64px',
+                  borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'linear-gradient(145deg, rgba(100,70,180,0.18) 0%, rgba(60,40,120,0.10) 100%)',
+                  border: '1px solid rgba(201,168,127,0.25)',
+                  boxShadow: '0 0 20px rgba(80,50,150,0.15), inset 0 1px 0 rgba(201,168,127,0.15)',
+                }}>
+                  <span className="nm-bell" style={{ fontSize: '28px' }}>🔔</span>
                 </div>
               </div>
             </div>
 
-            {/* Ornament */}
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="divider-line w-12" />
-              <span style={{ color: 'rgba(212,175,55,0.50)', fontSize: '9px', letterSpacing: '4px' }}>✦ ✦ ✦</span>
-              <div className="divider-line w-12" />
+            {/* Ornement */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '16px' }}>
+              <div className="nm-divider" style={{ width: '48px' }} />
+              <span style={{ color: 'rgba(201,168,127,0.45)', fontSize: '8px', letterSpacing: '5px' }}>✦ ✦ ✦</span>
+              <div className="nm-divider" style={{ width: '48px' }} />
             </div>
 
-            {/* Title */}
-            <h2
-              className="text-center font-bold mb-2"
-              style={{
-                fontFamily: 'Georgia, "Times New Roman", serif',
-                fontSize: '20px',
-                letterSpacing: '0.03em',
-                color: '#d4af37',
-                textShadow: '0 2px 16px rgba(212,175,55,0.35)',
-              }}
-            >
+            {/* Titre */}
+            <h2 style={{
+              textAlign: 'center',
+              fontFamily: "'Playfair Display', Georgia, serif",
+              fontSize: '20px', fontWeight: '700',
+              letterSpacing: '0.02em',
+              color: '#e8d4b8',
+              textShadow: '0 2px 16px rgba(201,168,127,0.25)',
+              margin: '0 0 10px',
+            }}>
               {t('notification.modal.title')}
             </h2>
 
             {/* Description */}
-            <p
-              className="text-center mb-5 leading-relaxed"
-              style={{ fontSize: '13px', color: 'rgba(220,210,255,0.65)', lineHeight: '1.6' }}
-            >
+            <p style={{
+              textAlign: 'center',
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: '14px', lineHeight: '1.65',
+              color: 'rgba(220, 205, 178, 0.78)',
+              margin: '0 0 20px',
+            }}>
               {t('notification.modal.description')}
             </p>
 
-            {/* Benefits */}
-            <div
-              className="rounded-xl mb-5 overflow-hidden"
-              style={{
-                background: 'rgba(212,175,55,0.04)',
-                border: '1px solid rgba(212,175,55,0.16)',
-              }}
-            >
+            {/* Bénéfices */}
+            <div style={{
+              borderRadius: '10px', marginBottom: '20px', overflow: 'hidden',
+              background: 'rgba(201,168,127,0.04)',
+              border: '1px solid rgba(201,168,127,0.14)',
+            }}>
               {[
                 'notification.modal.benefit1',
                 'notification.modal.benefit2',
@@ -282,77 +289,87 @@ export default function NotificationPermissionModal({ onClose }: NotificationPer
               ].map((key, i) => (
                 <div
                   key={key}
-                  className="flex items-center gap-3 px-4 py-3"
                   style={{
-                    borderBottom: i < 2 ? '1px solid rgba(212,175,55,0.10)' : 'none',
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '12px 16px',
+                    borderBottom: i < 2 ? '1px solid rgba(201,168,127,0.09)' : 'none',
                   }}
                 >
                   <span style={{
                     width: '5px', height: '5px',
-                    background: '#d4af37',
-                    borderRadius: '1px',
-                    transform: 'rotate(45deg)',
+                    background: '#c9a87f',
+                    borderRadius: '1px', transform: 'rotate(45deg)',
                     flexShrink: 0,
-                    boxShadow: '0 0 6px rgba(212,175,55,0.60)',
+                    boxShadow: '0 0 6px rgba(201,168,127,0.55)',
                   }} />
-                  <span style={{ fontSize: '12.5px', color: 'rgba(220,210,255,0.72)', lineHeight: '1.5' }}>
+                  <span style={{
+                    fontSize: '13px',
+                    color: 'rgba(225, 210, 185, 0.82)',
+                    lineHeight: '1.5',
+                    fontFamily: "'Cormorant Garamond', Georgia, serif",
+                  }}>
                     {t(key)}
                   </span>
                 </div>
               ))}
             </div>
 
-            {/* Accept button */}
+            {/* Bouton accepter — violet/améthyste sobre */}
             <button
+              className="nm-btn-accept"
               onClick={handleAccept}
-              className="w-full flex items-center justify-center transition-all duration-200 active:scale-[0.98]"
               style={{
-                height: '50px',
+                width: '100%', height: '52px',
                 borderRadius: '10px',
-                background: 'linear-gradient(180deg, #d4af37 0%, #b8942a 100%)',
-                boxShadow: '0 2px 16px rgba(212,175,55,0.25)',
-                border: '1px solid rgba(212,175,55,0.50)',
-                fontSize: '12px',
-                letterSpacing: '0.16em',
-                color: '#0a0818',
-                fontWeight: '700',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'linear-gradient(160deg, rgba(100,70,180,0.90) 0%, rgba(70,45,140,0.95) 100%)',
+                border: '1px solid rgba(150,110,220,0.45)',
+                boxShadow: '0 2px 20px rgba(80,50,150,0.30)',
+                fontSize: '13px', letterSpacing: '0.18em',
+                color: '#f0e6ff',
+                fontWeight: '600',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
+                fontFamily: "'Playfair Display', serif",
               }}
-              onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 24px rgba(212,175,55,0.42)')}
-              onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 2px 16px rgba(212,175,55,0.25)')}
             >
               {t('notification.modal.accept')}
             </button>
 
-            {/* Decline */}
+            {/* Bouton refuser */}
             <button
+              className="nm-btn-decline"
               onClick={handleDecline}
-              className="w-full mt-3 py-2 text-center transition-colors duration-200"
-              style={{ fontSize: '13px', color: 'rgba(212,175,55,0.38)', background: 'none', border: 'none' }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'rgba(212,175,55,0.65)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(212,175,55,0.38)')}
+              style={{
+                width: '100%', marginTop: '12px', padding: '10px',
+                textAlign: 'center',
+                fontSize: '13px',
+                color: 'rgba(201,168,127,0.40)',
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontFamily: "'Cormorant Garamond', Georgia, serif",
+                letterSpacing: '0.03em',
+              }}
             >
               {t('notification.modal.decline')}
             </button>
 
             {/* Note */}
-            <p
-              className="text-center mt-3 italic"
-              style={{ fontSize: '11px', color: 'rgba(212,175,55,0.28)', lineHeight: '1.4' }}
-            >
+            <p style={{
+              textAlign: 'center', marginTop: '10px',
+              fontSize: '11px', fontStyle: 'italic',
+              color: 'rgba(201,168,127,0.25)', lineHeight: '1.4',
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+            }}>
               {t('notification.modal.note')}
             </p>
           </div>
 
-          {/* Bottom golden glow line */}
-          <div
-            className="absolute bottom-0 left-8 right-8"
-            style={{
-              height: '1px',
-              background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.20), transparent)',
-            }}
-          />
+          {/* Ligne bas */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: '32px', right: '32px',
+            height: '1px',
+            background: 'linear-gradient(90deg, transparent, rgba(201,168,127,0.15), transparent)',
+          }} />
         </div>
       </div>
     </>

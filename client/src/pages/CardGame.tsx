@@ -158,7 +158,7 @@ export default function CardGame({
   // ── Loading screen ──
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420]">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-transparent">
         <div className="relative w-16 h-16 mb-6">
           <div
             className="absolute inset-0 border-2 border-[#c9a87f]/30 rounded-full animate-spin"
@@ -182,7 +182,7 @@ export default function CardGame({
   return (
     <>
       <div
-        className="min-h-screen flex flex-col bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420] relative overflow-hidden"
+        className="min-h-screen flex flex-col bg-transparent relative overflow-hidden"
         style={{
           touchAction: 'pan-y',
           paddingTop: 'max(64px, env(safe-area-inset-top, 0px) + 64px)',

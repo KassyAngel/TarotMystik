@@ -133,7 +133,7 @@ export default function CardRevealModal({
     return (
       <div
         className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-        style={{ background: 'radial-gradient(circle at center, rgba(10,14,26,0.98) 0%, rgba(15,20,32,0.99) 100%)' }}
+        style={{ background: 'rgba(6,8,16,0.92)' }}
       >
         {/* ✅ Étoiles réduites : 20 au lieu de 60 */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -233,7 +233,7 @@ export default function CardRevealModal({
       className="fixed inset-0 z-[100] backdrop-blur-md"
       onClick={onClose}
       style={{
-        background: 'radial-gradient(circle at center, rgba(10,20,32,0.96) 0%, rgba(13,27,46,0.98) 100%)',
+        background: 'rgba(6,8,16,0.88)',
         overflowY: 'auto',
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 70px)',
         paddingTop: 'max(16px, env(safe-area-inset-top, 0px) + 8px)',

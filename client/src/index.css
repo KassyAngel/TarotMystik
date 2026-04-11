@@ -134,9 +134,8 @@
   }
 
   body {
-    @apply font-serif antialiased bg-background text-foreground;
-    /* ✅ FIX : Noir pur — remplace tous les anciens fonds violet/bleu */
-    background: #080808 !important;
+    @apply font-serif antialiased text-foreground;
+    /* ✅ Fond géré dans index.html — ne pas écraser ici */
     min-height: 100vh;
     overflow-x: hidden;
   }
@@ -629,7 +628,6 @@
      REVELATION CARDS
      ======================================== */
   .revelation-cards { position: relative; }
-
   .revelation-cards > div { position: relative; }
 
   .revelation-cards .position-icon {
@@ -685,26 +683,8 @@
   * { scrollbar-width: none; }
 
   /* ========================================
-     ✅ FIX FINAL — Écrase TOUT ancien fond
-     violet, bleu nuit, ou gradient coloré
+     Textes couleurs ambrées pour les pages internes
      ======================================== */
-  html, body {
-    background: #080808 !important;
-  }
-
-  /* Supprime l'overlay body::before qui colorait le fond */
-  body::before {
-    display: none !important;
-  }
-
-  /* Supprime les classes Tailwind bg-purple-* qui pourraient rester */
-  .bg-purple-900, .bg-purple-800, .bg-purple-700,
-  .from-purple-900, .via-purple-900, .to-purple-900,
-  .bg-\[#0a1420\], .bg-\[#0d1b2e\], .bg-\[#152238\] {
-    background: #080808 !important;
-  }
-
-  /* Textes couleurs ambrées pour les pages internes */
   .text-amber-100\/90  { color: rgba(254, 243, 199, 0.90); }
   .text-amber-200\/80  { color: rgba(253, 230, 138, 0.80); }
   .text-amber-200\/60  { color: rgba(253, 230, 138, 0.60); }

@@ -303,7 +303,7 @@ export default function CrossSpreadGame({
   // ─── Chargement ─────────────────────────────────────────────
   if (randomCards.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0a1420] via-[#0d1b2e] to-[#0a1420]">
+        <div className="min-h-screen flex items-center justify-center bg-transparent">
         <div className="text-[#c9a87f] text-lg">{t('common.loading')}</div>
       </div>
     );
@@ -442,7 +442,7 @@ const CSS = `
     width: 100%;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, #0a1420 0%, #0d1b2e 50%, #0a1420 100%);
+     background: transparent;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-tap-highlight-color: transparent;

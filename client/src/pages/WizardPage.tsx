@@ -166,7 +166,7 @@ function WizardPage({ onBack, onSaveReading, shouldShowAdBeforeReading, onReadin
   }, []);
 
   return (
-    <div className="wizard-page fixed inset-0 flex flex-col overflow-hidden bg-[#030610]">
+    <div className="wizard-page fixed inset-0 flex flex-col overflow-hidden bg-[transparent]">
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');

@@ -165,7 +165,7 @@ export default function GameModeSelection({
           align-items: center;
           justify-content: center;
           padding: calc(env(safe-area-inset-top, 0px) + 56px) 1.25rem calc(env(safe-area-inset-bottom, 0px) + 100px);
-          background: linear-gradient(160deg, #08111e 0%, #0d1b2e 50%, #0a1220 100%);
+           background: transparent;
           position: relative;
           overflow: hidden;
         }

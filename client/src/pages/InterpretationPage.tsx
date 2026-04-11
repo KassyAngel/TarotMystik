@@ -206,7 +206,7 @@ export default function InterpretationPage({
 
   return (
     <div className="ip-page min-h-screen flex flex-col justify-between p-2 sm:p-3 pb-safe-banner relative overflow-hidden"
-      style={{ background: 'linear-gradient(to bottom, #0a1420, #0d1b2e, #0a1420)' }}>
+      style={{ background: 'transparent' }}>
 
       {/* ── Halos de fond — pure CSS, aucun nœud DOM dynamique ── */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden>
@@ -265,7 +265,8 @@ export default function InterpretationPage({
         <MysticalButton
           variant="primary"
           onClick={onBackToMode}
-          className="min-h-[48px] w-full max-w-sm px-8 bg-gradient-to-r from-[#a8896f]/90 via-[#c9a87f] to-[#a8896f]/90 text-[#0a1420] font-semibold border-2 border-[#c9a87f]/40 shadow-[0_4px_20px_rgba(201,168,127,0.4)] hover:shadow-[0_6px_30px_rgba(201,168,127,0.6)] hover:scale-105 transition-all duration-300"
+          className="w-full max-w-sm px-6 py-3 border border-[#b478dc]/25 text-[#c8a8e8] backdrop-blur-sm transition-all duration-300"
+          style={{ background: 'rgba(30, 18, 64, 0.35)', borderRadius: '50px' }}
           data-testid="button-new-reading"
         >
           {t('interpretation.newConsultation')}
@@ -274,7 +275,8 @@ export default function InterpretationPage({
         <MysticalButton
           variant="secondary"
           onClick={onHome}
-          className="w-full max-w-sm px-6 py-3 bg-gradient-to-r from-[#152238]/70 to-[#1a2d45]/70 border border-[#c9a87f]/30 text-[#e8d4b8]"
+          className="min-h-[48px] w-full max-w-sm px-8 font-semibold border border-[#b478dc]/50 text-[#f0e6ff] hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+          style={{ background: 'rgba(120, 48, 180, 0.35)', borderRadius: '50px' }}
         >
           ← {t('common.back') || 'Retour aux Tirages'}
         </MysticalButton>

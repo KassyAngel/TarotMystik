@@ -323,7 +323,7 @@ export default function LunarCardGame({
 
   if (!isInitialized || !isFullyLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#060810]"
+      <div className="min-h-screen flex items-center justify-center bg-[transparent]"
         style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
         <div className="text-center">
           <div className="relative mx-auto mb-6" style={{ width: '110px', height: '110px' }}>
@@ -359,7 +359,7 @@ export default function LunarCardGame({
         - On garde le fond plein écran via un pseudo-élément fixed séparé
       */}
       <div
-        className="bg-[#060810] relative overflow-hidden"
+        className="relative overflow-hidden"
         style={{
           // ✅ height:auto au lieu de minHeight:100vh
           // Le fond plein écran est géré par le div fixe ci-dessous
@@ -367,15 +367,7 @@ export default function LunarCardGame({
           transition: 'opacity 500ms ease-out',
         }}
       >
-        {/* Fond plein écran fixe — indépendant du flow du contenu */}
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: '#060810',
-          zIndex: -1,
-          pointerEvents: 'none',
-        }} />
-
+       
         {/* Halo phase */}
         <div style={{
           position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
@@ -402,13 +394,13 @@ export default function LunarCardGame({
           position: 'relative', zIndex: 10,
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           // ✅ paddingTop safe area + 72px de respiration pour la lune
-          paddingTop: 'max(72px, calc(env(safe-area-inset-top, 0px) + 72px))',
+        paddingTop: 'max(24px, calc(env(safe-area-inset-top, 0px) + 24px))',
           // ✅ paddingBottom minimal — le bouton Retour n'est plus chassé vers le bas
           paddingBottom: 'max(24px, env(safe-area-inset-bottom, 0px))',
         }}>
 
           {/* ═══ ZONE 1 — HEADER ═══ */}
-          <div style={{ textAlign: 'center', width: '100%', padding: '0 20px 14px' }}>
+          <div style={{ textAlign: 'center', width: '100%', padding: '0 20px 6px' }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '18px' }}>
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 <div style={{

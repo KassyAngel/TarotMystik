@@ -15,9 +15,10 @@ interface PremiumModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPurchase: () => void;
+  openOnRestore?: boolean; // ← nouveau : ouvre directement sur le formulaire de restauration
 }
 
-export default function PremiumModal({ isOpen, onClose, onPurchase }: PremiumModalProps) {
+export default function PremiumModal({ isOpen, onClose, onPurchase, openOnRestore = false }: PremiumModalProps) {
   const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -27,6 +28,16 @@ export default function PremiumModal({ isOpen, onClose, onPurchase }: PremiumMod
   const [error, setError] = useState('');
 
   const isNative = Capacitor.isNativePlatform();
+
+  // ← Synchronise showRestoreForm avec openOnRestore à chaque ouverture
+  useEffect(() => {
+    if (isOpen) {
+      setShowRestoreForm(openOnRestore);
+      setEmail('');
+      setEmailError('');
+      setError('');
+    }
+  }, [isOpen, openOnRestore]);
 
   useEffect(() => {
     if (isOpen && isNative) loadRevenueCatOfferings();
@@ -162,21 +173,27 @@ export default function PremiumModal({ isOpen, onClose, onPurchase }: PremiumMod
           <X className="w-6 h-6" style={{ color: 'rgba(255,255,255,0.65)' }} />
         </button>
 
-        {/* Header — titre blanc */}
+        {/* Header */}
         <div className="relative text-center mb-6">
-          <div className="text-4xl mb-2">✨</div>
+          <div className="text-4xl mb-2">{showRestoreForm ? '♻️' : '✨'}</div>
           <h2 className="text-2xl font-bold mb-2" style={{ color: 'rgba(255,255,255,0.95)' }}>
-            {t('premium.title') || 'Premium'}
+            {showRestoreForm
+              ? (t('premium.restore') || 'Restaurer')
+              : (t('premium.title') || 'Premium')}
           </h2>
           <p className="text-sm" style={{ color: 'rgba(255,255,255,0.60)' }}>
-            {t('premium.subtitle') || 'Débloquez toutes les fonctionnalités'}
+            {showRestoreForm
+              ? (t('premium.restore.subtitle') || 'Déjà Premium ? Récupérez votre accès')
+              : (t('premium.subtitle') || 'Débloquez toutes les fonctionnalités')}
           </p>
-          <p className="text-xs mt-2" style={{ color: 'rgba(167,139,250,0.55)' }}>
-            📱 {t('premium.payment.googlePlay') || 'Paiement via Google Play'}
-          </p>
+          {!showRestoreForm && (
+            <p className="text-xs mt-2" style={{ color: 'rgba(167,139,250,0.55)' }}>
+              📱 {t('premium.payment.googlePlay') || 'Paiement via Google Play'}
+            </p>
+          )}
         </div>
 
-        {/* Email */}
+        {/* Email (achat) */}
         {!showRestoreForm && (
           <div className="mb-6">
             <label className="block text-sm mb-2" style={{ color: 'rgba(255,255,255,0.70)' }}>
@@ -214,10 +231,8 @@ export default function PremiumModal({ isOpen, onClose, onPurchase }: PremiumMod
                         <h3 className="font-semibold" style={{ color: 'rgba(255,255,255,0.90)' }}>{pkg.product.title}</h3>
                         <p className="text-sm" style={{ color: 'rgba(167,139,250,0.60)' }}>{pkg.product.description}</p>
                       </div>
-                      {/* Prix — blanc, pas jaune */}
                       <div className="text-2xl font-bold" style={{ color: 'rgba(255,255,255,0.95)' }}>{pkg.product.priceString}</div>
                     </div>
-                    {/* Bouton violet */}
                     <button
                       onClick={() => handleRevenueCatPurchase(pkg)}
                       disabled={isLoading}
@@ -243,7 +258,7 @@ export default function PremiumModal({ isOpen, onClose, onPurchase }: PremiumMod
           </>
         )}
 
-        {/* Restauration */}
+        {/* Formulaire de restauration */}
         {showRestoreForm && (
           <div className="mb-6">
             <label className="block text-sm mb-2" style={{ color: 'rgba(255,255,255,0.70)' }}>
@@ -252,12 +267,13 @@ export default function PremiumModal({ isOpen, onClose, onPurchase }: PremiumMod
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
               placeholder="exemple@email.com"
               disabled={isLoading}
               className="w-full px-4 py-3 rounded-xl focus:outline-none disabled:opacity-50"
               style={inputStyle}
             />
+            {emailError && <p className="text-sm mt-1" style={{ color: '#f87171' }}>{emailError}</p>}
             <button
               onClick={handleRevenueCatRestore}
               disabled={isLoading}
@@ -283,7 +299,7 @@ export default function PremiumModal({ isOpen, onClose, onPurchase }: PremiumMod
 
         {/* Toggle restauration */}
         <button
-          onClick={() => setShowRestoreForm(!showRestoreForm)}
+          onClick={() => { setShowRestoreForm(!showRestoreForm); setEmail(''); setEmailError(''); setError(''); }}
           className="text-sm transition-colors w-full text-center mb-4"
           style={{ color: 'rgba(167,139,250,0.50)' }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(167,139,250,0.80)'; }}

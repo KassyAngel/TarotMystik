@@ -75,7 +75,7 @@ export default function LunarPhasePage({
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-[#060810] relative overflow-hidden"
+      className="min-h-screen flex flex-col bg-[transparent] relative overflow-hidden"
       style={{
         opacity: isNavigating ? 0 : 1,
         transition: 'opacity 0.35s ease',

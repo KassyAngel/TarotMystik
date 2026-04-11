@@ -112,7 +112,7 @@ export default function CrossSpreadInterpretation({
   }, [selectedCardIndices.join(',')]); // Only regenerate if card indices change
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-4 sm:p-6 pt-safe-top pb-safe-banner bg-gradient-to-br from-[#0a1e1a] via-[#1a1540] to-[#0a0e1a] relative overflow-hidden">
+    <div className="min-h-screen flex flex-col justify-between p-4 sm:p-6 pt-safe-top pb-safe-banner bg-transparent relative overflow-hidden">
 
       {/* Effets de fond */}
       <div className="absolute inset-0 pointer-events-none">
@@ -231,7 +231,8 @@ export default function CrossSpreadInterpretation({
         <MysticalButton 
           variant="primary" 
           onClick={onBackToMode}
-          className="min-h-[48px] w-full max-w-sm px-8 bg-gradient-to-r from-[#a8896f] via-[#c9a87f] to-[#a8896f] text-[#0a1420] font-semibold border-2 border-[#c9a87f]/50 shadow-[0_4px_20px_rgba(201,168,127,0.5)] hover:shadow-[0_6px_30px_rgba(201,168,127,0.7)] hover:scale-105"
+          className="min-h-[48px] w-full max-w-sm px-8 font-semibold border border-[#b478dc]/50 text-[#f0e6ff] hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+          style={{ background: 'rgba(120, 48, 180, 0.35)', borderRadius: '50px' }}
         >
            {t('crossSpread.interpretation.newConsultation') || 'Nouveau Tirage'}
         </MysticalButton>
@@ -239,7 +240,8 @@ export default function CrossSpreadInterpretation({
         <MysticalButton 
           variant="secondary" 
           onClick={onHome}
-          className="w-full max-w-sm px-6 py-3 bg-gradient-to-r from-[#152238]/70 to-[#1a2d45]/70 border border-[#c9a87f]/30 text-[#e8d4b8]"
+          className="min-h-[48px] w-full max-w-sm px-8 transition-all duration-300 backdrop-blur-sm"
+          style={{ background: 'rgba(30, 18, 64, 0.35)', border: '1px solid rgba(180, 120, 220, 0.25)', borderRadius: '50px', color: '#c8a8e8' }}
         >
           ← {t('common.back') || 'Retour aux Tirages'}
         </MysticalButton>

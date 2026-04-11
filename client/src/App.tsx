@@ -1,5 +1,5 @@
 // src/App.tsx
-// ✅ v3 — Scroll fiable via data-scroll-root + lazy imports + nettoyage
+// ✅ v5 — Préchargement immédiat du bundle principal pour réduire le délai d'affichage
 
 import { useState, useEffect, lazy, Suspense } from "react";
 import PremiumModal from './components/PremiumModal';
@@ -20,15 +20,21 @@ import { initializeRevenueCat, checkPremiumStatus } from './services/revenueCatS
 import { getUserEmail } from './lib/userStorage';
 import { useRatingPrompt } from './hooks/useRatingPrompt';
 
-// ✅ LAZY LOADING — pages lourdes chargées à la demande, pas au démarrage
-const OracleMystiqueApp = lazy(() => import("@/pages/OracleMystiqueApp"));
-const PaymentSuccessPage = lazy(() => import('./pages/PaymentSuccessPage'));
-const PaymentCancelPage = lazy(() => import('./pages/PaymentCancelPage'));
-const NotFound = lazy(() => import("@/pages/not-found"));
+// ✅ Import déclenché IMMÉDIATEMENT au niveau module — avant même le mount de React.
+// Le navigateur télécharge le bundle dès que App.tsx est parsé,
+// en parallèle du rendu du fond et de l'hydratation React.
+// Résultat : quand Suspense en a besoin, le bundle est souvent déjà prêt.
+const OracleMystiqueAppPromise = import("@/pages/OracleMystiqueApp");
+const OracleMystiqueApp = lazy(() => OracleMystiqueAppPromise);
 
-// ✅ Fallback minimaliste pendant le chargement lazy
+// Pages secondaires — lazy classique, pas critiques au démarrage
+const PaymentSuccessPage = lazy(() => import('./pages/PaymentSuccessPage'));
+const PaymentCancelPage  = lazy(() => import('./pages/PaymentCancelPage'));
+const NotFound           = lazy(() => import("@/pages/not-found"));
+
+// ✅ Fallback totalement transparent — le fond reste visible pendant le chargement
 const PageFallback = () => (
-  <div className="fixed inset-0 bg-[#080808]" />
+  <div style={{ minHeight: '100dvh' }} />
 );
 
 type AppStep =
@@ -44,16 +50,12 @@ interface OracleCounters {
   wheel: number;
 }
 
-// ✅ Fonction utilitaire centralisée pour le scroll en haut
-// Appelée à chaque changement d'étape ET à l'ouverture des modaux
 export function scrollToTop() {
-  // Priorité 1 : le conteneur principal marqué data-scroll-root
   const root = document.querySelector('[data-scroll-root]') as HTMLElement | null;
   if (root) {
     root.scrollTop = 0;
     return;
   }
-  // Priorité 2 : fallback window
   window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
 }
 
@@ -108,6 +110,7 @@ function Router({
 function AppContent() {
   const [isPremium, setIsPremium] = useState(false);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
+  const [premiumOpenOnRestore, setPremiumOpenOnRestore] = useState(false);
   const [currentStep, setCurrentStep] = useState<AppStep>('landing');
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [bannerShown, setBannerShown] = useState(false);
@@ -117,27 +120,16 @@ function AppContent() {
   const { updatePremiumStatus } = useUser();
 
   const [oracleCounters, setOracleCounters] = useState<OracleCounters>({
-    lunar: 0,
-    wizard: 0,
-    loveCalculator: 0,
-    cardDrawing: 0,
-    wheel: 0,
+    lunar: 0, wizard: 0, loveCalculator: 0, cardDrawing: 0, wheel: 0,
   });
 
   const { showRating, handleRate, handleClose } = useRatingPrompt({
-    minUsageCount: 2,
-    postponeDays: 3,
-    daysAfterInstall: 2,
+    minUsageCount: 2, postponeDays: 3, daysAfterInstall: 2,
   });
 
-  // ── Init services ──
   useEffect(() => {
     const initServices = async () => {
-      await Promise.allSettled([
-        initializeAdMob(),
-        initializeRevenueCat(),
-      ]);
-
+      await Promise.allSettled([initializeAdMob(), initializeRevenueCat()]);
       const savedEmail = await getUserEmail();
       if (savedEmail) {
         try {
@@ -161,7 +153,6 @@ function AppContent() {
     initServices();
   }, []);
 
-  // ── Bannière AdMob ──
   useEffect(() => {
     if (isPremium) {
       if (bannerShown) { hideBanner(); setBannerShown(false); }
@@ -176,24 +167,18 @@ function AppContent() {
     if (!shouldShow && bannerShown) { hideBanner(); setBannerShown(false); }
   }, [currentStep, isPremium, bannerShown]);
 
-  // ✅ SCROLL FIABLE — data-scroll-root est l'attribut cible
-  // Déclenché à chaque changement d'étape, avec double rAF pour laisser React finir le rendu
   useEffect(() => {
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        scrollToTop();
-      });
+      requestAnimationFrame(() => { scrollToTop(); });
     });
   }, [currentStep]);
 
-  // ── Notification modal ──
   useEffect(() => {
     if (!localStorage.getItem('notificationPermission') && currentStep === 'oracle') {
       setShowNotificationModal(true);
     }
   }, [currentStep]);
 
-  // ── Ferme menu/profil quand on quitte oracle ──
   useEffect(() => {
     if (currentStep !== 'oracle') {
       setIsMenuOpen(false);
@@ -201,66 +186,34 @@ function AppContent() {
     }
   }, [currentStep]);
 
-  const showTopBar = !['landing', 'name', 'date', 'gender', 'oracle'].includes(currentStep);
-
-  // ── Pub avant tirage ──
   const shouldShowAdBeforeReading = async (oracleType: string): Promise<boolean> => {
     if (isPremium) return false;
     if (oracleType === 'wheel') return false;
-
     let counterKey: keyof OracleCounters;
     let shouldShowPub = false;
-
     const currentCount = oracleCounters[
       oracleType === 'loveOracle' || oracleType === 'threeCards' || oracleType === 'crossSpread'
-        ? 'cardDrawing'
-        : oracleType as keyof OracleCounters
+        ? 'cardDrawing' : oracleType as keyof OracleCounters
     ];
     const nextCount = currentCount + 1;
-
     switch (oracleType) {
-      case 'lunar':
-        counterKey = 'lunar';
-        shouldShowPub = nextCount === 2 || (nextCount > 2 && (nextCount - 2) % 3 === 0);
-        break;
-      case 'wizard':
-        counterKey = 'wizard';
-        shouldShowPub = nextCount === 2 || (nextCount > 2 && (nextCount - 2) % 3 === 0);
-        break;
-      case 'loveCalculator':
-        counterKey = 'loveCalculator';
-        shouldShowPub = nextCount % 2 === 0;
-        break;
-      case 'loveOracle':
-      case 'threeCards':
-      case 'crossSpread':
-        counterKey = 'cardDrawing';
-        shouldShowPub = nextCount === 2 || (nextCount > 2 && (nextCount - 2) % 3 === 0);
-        break;
-      default:
-        return false;
+      case 'lunar': counterKey = 'lunar'; shouldShowPub = nextCount === 2 || (nextCount > 2 && (nextCount - 2) % 3 === 0); break;
+      case 'wizard': counterKey = 'wizard'; shouldShowPub = nextCount === 2 || (nextCount > 2 && (nextCount - 2) % 3 === 0); break;
+      case 'loveCalculator': counterKey = 'loveCalculator'; shouldShowPub = nextCount % 2 === 0; break;
+      case 'loveOracle': case 'threeCards': case 'crossSpread': counterKey = 'cardDrawing'; shouldShowPub = nextCount === 2 || (nextCount > 2 && (nextCount - 2) % 3 === 0); break;
+      default: return false;
     }
-
-    if (shouldShowPub) {
-      try { await showInterstitialAd(`before_${oracleType}`); } catch {}
-    }
-
-    // Précharge la prochaine pub en idle
+    if (shouldShowPub) { try { await showInterstitialAd(`before_${oracleType}`); } catch {} }
     const followingCount = nextCount + 1;
     let shouldPreload = false;
     switch (counterKey!) {
-      case 'lunar': case 'wizard': case 'cardDrawing':
-        shouldPreload = followingCount === 2 || (followingCount > 2 && (followingCount - 2) % 3 === 0);
-        break;
-      case 'loveCalculator':
-        shouldPreload = followingCount % 2 === 0;
-        break;
+      case 'lunar': case 'wizard': case 'cardDrawing': shouldPreload = followingCount === 2 || (followingCount > 2 && (followingCount - 2) % 3 === 0); break;
+      case 'loveCalculator': shouldPreload = followingCount % 2 === 0; break;
     }
     if (shouldPreload) {
       if ('requestIdleCallback' in window) (window as any).requestIdleCallback(() => preloadInterstitial());
       else setTimeout(() => preloadInterstitial(), 2000);
     }
-
     return shouldShowPub;
   };
 
@@ -268,47 +221,25 @@ function AppContent() {
     setOracleCounters(prev => {
       const n = { ...prev };
       switch (oracleType) {
-        case 'lunar':          n.lunar += 1; break;
-        case 'wizard':         n.wizard += 1; break;
+        case 'lunar': n.lunar += 1; break;
+        case 'wizard': n.wizard += 1; break;
         case 'loveCalculator': n.loveCalculator += 1; break;
         case 'loveOracle': case 'threeCards': case 'crossSpread': n.cardDrawing += 1; break;
-        case 'wheel':          n.wheel += 1; break;
+        case 'wheel': n.wheel += 1; break;
       }
       return n;
     });
   };
 
-  const handleWheelComplete = () => handleReadingComplete('wheel');
-
-  const handlePremiumActivated = () => {
-    setIsPremium(true);
-    updatePremiumStatus(true);
-    setIsPremiumModalOpen(false);
-  };
-
-  const handleOpenPremium = () => {
-    setIsMenuOpen(false);
-    setIsProfileOpen(false);
-    setIsPremiumModalOpen(true);
-  };
-
-  const handleOpenMenu = () => {
-    setIsProfileOpen(false);
-    setIsMenuOpen(true);
-  };
-
-  const handleOpenProfile = () => {
-    setIsMenuOpen(false);
-    setIsProfileOpen(true);
-  };
-
-  const handleCloseAll = () => {
-    setIsMenuOpen(false);
-    setIsProfileOpen(false);
-  };
+  const handleWheelComplete     = () => handleReadingComplete('wheel');
+  const handlePremiumActivated  = () => { setIsPremium(true); updatePremiumStatus(true); setIsPremiumModalOpen(false); };
+  const handleOpenPremium       = (openOnRestore = false) => { setIsMenuOpen(false); setIsProfileOpen(false); setPremiumOpenOnRestore(openOnRestore); setIsPremiumModalOpen(true); };
+  const handleOpenMenu          = () => { setIsProfileOpen(false); setIsMenuOpen(true); };
+  const handleOpenProfile       = () => { setIsMenuOpen(false); setIsProfileOpen(true); };
+  const handleCloseAll          = () => { setIsMenuOpen(false); setIsProfileOpen(false); };
 
   return (
-    <div className="dark relative w-screen overflow-hidden" style={{ height: '100dvh' }}>
+    <div className="dark relative w-screen" style={{ height: '100dvh', overflow: 'hidden' }}>
 
       {!isPremium && bannerShown && (
         <style>{`
@@ -330,43 +261,15 @@ function AppContent() {
         `}</style>
       )}
 
-      {showTopBar && (
-        <TopBar
-          onOpenPremium={handleOpenPremium}
-          isPremium={isPremium}
-        />
-      )}
-
-      <MenuDrawer
-        isOpen={isMenuOpen}
-        onClose={handleCloseAll}
-        onOpenPremium={handleOpenPremium}
-        isPremium={isPremium}
-      />
-
-      {!isMenuOpen && isProfileOpen && (
-        <UserProfileModal isOpen={isProfileOpen} onClose={handleCloseAll} />
-      )}
-
-      {showNotificationModal && (
-        <NotificationPermissionModal onClose={() => setShowNotificationModal(false)} />
-      )}
-
+      <MenuDrawer isOpen={isMenuOpen} onClose={handleCloseAll} onOpenPremium={handleOpenPremium} isPremium={isPremium} />
+      {!isMenuOpen && isProfileOpen && <UserProfileModal isOpen={isProfileOpen} onClose={handleCloseAll} />}
+      {showNotificationModal && <NotificationPermissionModal onClose={() => setShowNotificationModal(false)} />}
       {isPremiumModalOpen && (
-        <PremiumModal
-          isOpen={isPremiumModalOpen}
-          onClose={() => setIsPremiumModalOpen(false)}
-          onPurchase={handlePremiumActivated}
-        />
+        <PremiumModal isOpen={isPremiumModalOpen} onClose={() => setIsPremiumModalOpen(false)} onPurchase={handlePremiumActivated} openOnRestore={premiumOpenOnRestore} />
       )}
-
       <RatingModal isOpen={showRating} onClose={handleClose} onRate={handleRate} />
       <Toaster />
 
-      {/*
-        ✅ data-scroll-root — attribut ciblé par scrollToTop()
-        Toujours présent, jamais renommé. Plus fragile que .overflow-y-auto
-      */}
       <div
         data-scroll-root
         className={`w-full h-full overflow-y-auto ${!isPremium && bannerShown ? 'main-content' : ''}`}

@@ -115,7 +115,7 @@ export function LoveCalculatorPage({
   return (
     <div style={{
       position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column',
-      overflow: 'hidden', background: '#020510',
+      overflow: 'hidden', background: 'transparent',
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');

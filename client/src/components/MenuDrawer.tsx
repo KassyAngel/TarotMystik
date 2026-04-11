@@ -2,12 +2,11 @@ import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { useEffect, useState } from 'react';
 import { Globe, ChevronDown, ChevronUp } from 'lucide-react';
 import LegalModal from './LegalModal';
-// ✅ RestorePremiumModal supprimé — le restore passe par PremiumModal
 
 interface MenuDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onOpenPremium: () => void;
+  onOpenPremium: (openOnRestore?: boolean) => void; // ← param optionnel pour ouvrir directement sur le restore
   isPremium: boolean;
 }
 
@@ -45,10 +44,10 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
 
   const currentLanguage = languages.find(l => l.code === language);
 
-  // ✅ Ouvre PremiumModal (qui contient déjà le restore intégré)
+  // ← Ouvre PremiumModal directement sur le formulaire de restauration
   const handleOpenRestore = () => {
-    onClose();         // Ferme le drawer
-    onOpenPremium();   // Ouvre PremiumModal → l'utilisateur clique sur "♻️ Restaurer"
+    onClose();
+    onOpenPremium(true);
   };
 
   return (
@@ -112,7 +111,7 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
             </div>
           </button>
 
-          {/* ✅ Restaurer — ouvre PremiumModal (qui contient déjà le restore via RevenueCat) */}
+          {/* ← Restaurer : ouvre PremiumModal directement sur le formulaire restore */}
           {!isPremium && (
             <button
               type="button"
@@ -208,7 +207,6 @@ export default function MenuDrawer({ isOpen, onClose, onOpenPremium, isPremium }
       </div>
 
       <LegalModal isOpen={legalModal !== null} onClose={() => setLegalModal(null)} type={legalModal || 'legal'} />
-      {/* ✅ RestorePremiumModal supprimé — le restore est intégré dans PremiumModal */}
     </>
   );
 }
