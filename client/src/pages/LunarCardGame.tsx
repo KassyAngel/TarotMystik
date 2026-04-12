@@ -1,5 +1,5 @@
 // client/src/pages/LunarCardGame.tsx
-// ✅ FIX: bouton Retour collé sous les cartes (plus de minHeight 100vh qui crée un vide)
+// ✅ FIX espace : header compact sur petits écrans, cartes visibles sans scroll
 
 import { useState, useEffect } from 'react';
 import CardRevealModal from '@/components/CardRevealModal';
@@ -131,13 +131,13 @@ function MysticOracle({ accent, visible }: { accent: string; visible: boolean })
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '8px 0 4px',
+      padding: '4px 0 2px',
       opacity: visible ? 1 : 0,
       transition: 'opacity 0.6s ease',
       pointerEvents: 'none',
     }}>
-      <svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"
-        style={{ display: 'block', marginBottom: '10px' }}>
+      <svg width="64" height="64" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"
+        style={{ display: 'block', marginBottom: '6px' }}>
         <circle cx="40" cy="40" r="36" fill="none" stroke={accent} strokeWidth="0.6"
           strokeOpacity="0.4" strokeDasharray="4 8"
           style={{ animation: 'mo-spin-cw 12s linear infinite', transformOrigin: '40px 40px' }} />
@@ -190,7 +190,7 @@ function RotatingMessage({ accent, phase, t }: { accent: string; phase: string; 
   return (
     <p style={{
       fontFamily: "'Cinzel', serif",
-      fontSize: '12px', fontWeight: 500,
+      fontSize: '11px', fontWeight: 500,
       color: accent, letterSpacing: '0.14em',
       textTransform: 'uppercase', margin: 0,
       opacity: fade ? 0.92 : 0,
@@ -220,6 +220,15 @@ export default function LunarCardGame({
   const [isVisible, setIsVisible]           = useState(false);
   const [isInitialized, setIsInitialized]   = useState(false);
   const [isFullyLoaded, setIsFullyLoaded]   = useState(false);
+
+  // ✅ Détection petits écrans pour adapter les tailles
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  useEffect(() => {
+    const check = () => setIsSmallScreen(window.innerHeight < 700);
+    check();
+    window.addEventListener('resize', check, { passive: true });
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const playFlip   = useSound('Flip-card.wav');
   const playReveal = useSound('Bouton-reveal.wav');
@@ -288,7 +297,10 @@ export default function LunarCardGame({
     setTimeout(() => onCardSelected({ card: selectedCard, phase: selectedPhase }), 100);
   };
 
-  const RISE = 110;
+  // ✅ RISE adaptatif selon la hauteur d'écran
+  // Petit écran → les cartes montent moins haut pour rester visibles
+  const RISE = isSmallScreen ? 70 : 110;
+  const CARD_ZONE_H = RISE + CARD_H + 20;
 
   const getCardStyle = (localIndex: number): React.CSSProperties => {
     const fan      = FAN[localIndex] ?? FAN[2];
@@ -323,10 +335,9 @@ export default function LunarCardGame({
 
   if (!isInitialized || !isFullyLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[transparent]"
-        style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
-        <div className="text-center">
-          <div className="relative mx-auto mb-6" style={{ width: '110px', height: '110px' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ position: 'relative', width: '110px', height: '110px', margin: '0 auto 24px' }}>
             <div style={{
               position: 'absolute', inset: 0, borderRadius: '50%',
               border: `1.5px solid transparent`, borderTopColor: accent,
@@ -348,30 +359,22 @@ export default function LunarCardGame({
     );
   }
 
-  const CARD_ZONE_H = RISE + CARD_H + 28;
-
   return (
     <>
-      {/*
-        ✅ FIX PRINCIPAL : 
-        - Suppression de minHeight:'100vh' qui créait un grand vide sous les cartes
-        - Le conteneur s'adapte maintenant à son contenu (height auto)
-        - On garde le fond plein écran via un pseudo-élément fixed séparé
-      */}
       <div
-        className="relative overflow-hidden"
         style={{
-          // ✅ height:auto au lieu de minHeight:100vh
-          // Le fond plein écran est géré par le div fixe ci-dessous
+          // ✅ Pas de minHeight:100vh — s'adapte au contenu
+          // Le scroll est géré par le parent (data-scroll-root dans App.tsx)
           opacity: isVisible ? 1 : 0,
           transition: 'opacity 500ms ease-out',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-       
         {/* Halo phase */}
         <div style={{
           position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-          width: '380px', height: '280px', pointerEvents: 'none',
+          width: '380px', height: '240px', pointerEvents: 'none',
           background: `radial-gradient(ellipse at 50% 0%, ${accent}18 0%, transparent 65%)`,
           filter: 'blur(55px)',
         }} />
@@ -393,63 +396,81 @@ export default function LunarCardGame({
         <div style={{
           position: 'relative', zIndex: 10,
           display: 'flex', flexDirection: 'column', alignItems: 'center',
-          // ✅ paddingTop safe area + 72px de respiration pour la lune
-        paddingTop: 'max(24px, calc(env(safe-area-inset-top, 0px) + 24px))',
-          // ✅ paddingBottom minimal — le bouton Retour n'est plus chassé vers le bas
-          paddingBottom: 'max(24px, env(safe-area-inset-bottom, 0px))',
+          // ✅ paddingTop compact — safe area + respiration minimale
+          paddingTop: 'max(16px, calc(env(safe-area-inset-top, 0px) + 16px))',
+          paddingBottom: 'max(16px, env(safe-area-inset-bottom, 0px))',
         }}>
 
-          {/* ═══ ZONE 1 — HEADER ═══ */}
-          <div style={{ textAlign: 'center', width: '100%', padding: '0 20px 6px' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '18px' }}>
+          {/* ═══ ZONE 1 — HEADER compact ═══ */}
+          <div style={{ textAlign: 'center', width: '100%', padding: '0 20px 4px' }}>
+
+            {/* Lune — taille réduite sur petits écrans */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: isSmallScreen ? '10px' : '16px' }}>
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 <div style={{
-                  position: 'absolute', inset: '-26px', borderRadius: '50%',
+                  position: 'absolute', inset: '-20px', borderRadius: '50%',
                   background: `radial-gradient(circle, ${accent}40 0%, transparent 68%)`,
-                  filter: 'blur(20px)',
+                  filter: 'blur(16px)',
                   animation: 'lcg-glow-pulse 3s ease-in-out infinite',
                 }} />
                 <img src={phaseImage} alt={phaseName} style={{
-                  width: '88px', height: '88px', objectFit: 'contain', position: 'relative',
-                  filter: `drop-shadow(0 0 22px ${accent}ee) brightness(1.1)`,
+                  // ✅ Lune plus petite sur petits écrans
+                  width: isSmallScreen ? '64px' : '80px',
+                  height: isSmallScreen ? '64px' : '80px',
+                  objectFit: 'contain', position: 'relative',
+                  filter: `drop-shadow(0 0 18px ${accent}ee) brightness(1.1)`,
                   animation: 'lcg-float 3.5s ease-in-out infinite',
                 }} />
               </div>
             </div>
 
+            {/* Titre phase */}
             <h2 style={{
-              fontFamily: "'Cinzel', serif", fontSize: '22px', fontWeight: 700,
+              fontFamily: "'Cinzel', serif",
+              // ✅ Titre plus petit sur petits écrans
+              fontSize: isSmallScreen ? '17px' : '22px',
+              fontWeight: 700,
               color: '#f0e8d4', letterSpacing: '0.18em', textTransform: 'uppercase',
-              margin: '0 0 10px',
+              margin: `0 0 ${isSmallScreen ? '6px' : '10px'}`,
               textShadow: `0 0 28px ${accent}55, 0 2px 4px rgba(0,0,0,0.9)`,
             }}>
               {phaseName}
             </h2>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '12px' }}>
-              <div style={{ width: '40px', height: '0.5px', background: `linear-gradient(90deg, transparent, ${accent}65)` }} />
+            {/* Séparateur */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: isSmallScreen ? '8px' : '12px' }}>
+              <div style={{ width: '36px', height: '0.5px', background: `linear-gradient(90deg, transparent, ${accent}65)` }} />
               <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: accent, opacity: 0.8, boxShadow: `0 0 8px ${accent}` }} />
-              <div style={{ width: '40px', height: '0.5px', background: `linear-gradient(270deg, transparent, ${accent}65)` }} />
+              <div style={{ width: '36px', height: '0.5px', background: `linear-gradient(270deg, transparent, ${accent}65)` }} />
             </div>
 
+            {/* Instructions — une seule ligne sur petit écran */}
             <p style={{
-              fontFamily: "'Cinzel', serif", fontSize: '13px', fontWeight: 600,
-              color: '#d8cdb8', letterSpacing: '0.07em', textTransform: 'uppercase', margin: '0 0 5px',
+              fontFamily: "'Cinzel', serif",
+              fontSize: isSmallScreen ? '11px' : '13px',
+              fontWeight: 600,
+              color: '#d8cdb8', letterSpacing: '0.07em', textTransform: 'uppercase',
+              margin: `0 0 ${isSmallScreen ? '2px' : '5px'}`,
             }}>
               {t('lunar.cardGame.instruction') || 'Choisissez la carte qui vous attire'}
             </p>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', fontWeight: 300,
-              color: '#7c8899', letterSpacing: '0.03em', fontStyle: 'italic', margin: 0,
-            }}>
-              {t('lunar.cardGame.singleCard') || 'Une seule carte révélera le message de la lune'}
-            </p>
+
+            {/* Sous-titre — masqué sur très petit écran */}
+            {!isSmallScreen && (
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: '12.5px', fontWeight: 300,
+                color: '#7c8899', letterSpacing: '0.03em', fontStyle: 'italic', margin: 0,
+              }}>
+                {t('lunar.cardGame.singleCard') || 'Une seule carte révélera le message de la lune'}
+              </p>
+            )}
           </div>
 
-          {/* ═══ ZONE 2 — ORACLE MYSTIQUE ═══ */}
+          {/* ═══ ZONE 2 — ORACLE MYSTIQUE compressé ═══ */}
           <div style={{
             width: '100%',
-            height: selectedIdx !== null ? '0px' : '110px',
+            // ✅ Hauteur réduite sur petits écrans : 80px au lieu de 110px
+            height: selectedIdx !== null ? '0px' : (isSmallScreen ? '80px' : '110px'),
             overflow: 'hidden',
             transition: 'height 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
             display: 'flex',
@@ -508,13 +529,10 @@ export default function LunarCardGame({
             )}
           </div>
 
-          {/* ═══ ZONE 4 — BOUTON RETOUR ═══
-              ✅ FIX: marginTop fixe de 24px — le bouton suit immédiatement les cartes
-              sans être chassé vers le bas par un minHeight 100vh
-          */}
+          {/* ═══ ZONE 4 — BOUTON RETOUR ═══ */}
           <div style={{
             width: '100%',
-            padding: '24px 24px 0',
+            padding: `${isSmallScreen ? '16px' : '24px'} 24px 0`,
             textAlign: 'center',
           }}>
             <button
@@ -558,7 +576,7 @@ export default function LunarCardGame({
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
 
         @keyframes lcg-spin       { to { transform: rotate(360deg); } }
-        @keyframes lcg-float      { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+        @keyframes lcg-float      { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
         @keyframes lcg-twinkle    { 0%,100%{opacity:0.1} 50%{opacity:0.45} }
         @keyframes lcg-fade-pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
         @keyframes lcg-glow-pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
