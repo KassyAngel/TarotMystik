@@ -1,7 +1,5 @@
 // client/src/pages/OracleSelection.tsx
-// ✅ v9 — Swipe ultra-perf : zéro React pendant le drag, GPU composite only
-// Fix vieux smartphones : passive:false manuel, pas de setState dans onTouchMove,
-// orbs via CSS custom properties (pas de transition:background), momentum au lâcher
+// ✅ v10 — Perf vieux smartphones : fix contain, filter image, gradients CSS, étoiles layer, 100vw→px
 
 import { UserSession } from '@shared/schema';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -160,18 +158,16 @@ export default function OracleSelection({
   const { t, language } = useLanguage();
   const playFlipSound = useSound('Flip-card.wav');
 
-  // ✅ React state UNIQUEMENT pour ce qui affecte le rendu React (dots, couleurs header)
   const [current, setCurrent] = useState(0);
   const [isLoadingAd, setIsLoadingAd] = useState(false);
   const [showLongAdMessage, setShowLongAdMessage] = useState(false);
 
-  // ── Refs swipe — lecture/écriture directe, zéro setState pendant le drag ──
   const trackRef       = useRef<HTMLDivElement>(null);
   const containerRef   = useRef<HTMLDivElement>(null);
   const rootRef        = useRef<HTMLDivElement>(null);
   const touchStartX    = useRef(0);
   const touchStartY    = useRef(0);
-  const touchStartTime = useRef(0); // ✅ pour le calcul de vélocité
+  const touchStartTime = useRef(0);
   const isDragging     = useRef(false);
   const isHoriz        = useRef<boolean | null>(null);
   const dragOffset     = useRef(0);
@@ -199,9 +195,7 @@ export default function OracleSelection({
     return () => window.removeEventListener('resize', measure);
   }, []);
 
-  // ✅ Listener touchmove natif avec passive:false
-  // React synthétique ne peut pas appeler preventDefault sur passive listener (warning chrome)
-  // On gère UNIQUEMENT la prévention du scroll ici — le déplacement reste dans onTouchMove React
+  // ✅ Listener touchmove natif avec passive:false pour preventDefault
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -221,8 +215,7 @@ export default function OracleSelection({
     return val;
   }, [t, language]);
 
-  // ✅ Orbs via CSS custom properties — PAS de transition:background (force repaint)
-  // Le navigateur interpole les custom properties sans déclencher layout ni paint
+  // ✅ Orbs via CSS custom properties
   const updateOrbs = useCallback((idx: number) => {
     const o = ORACLES[idx];
     if (!o || !rootRef.current) return;
@@ -239,25 +232,24 @@ export default function OracleSelection({
     const track = trackRef.current;
     if (!track) return;
 
-    // ✅ Durée adaptée à la vélocité — plus rapide si l'utilisateur a swipé fort
-    // Même sensation qu'Instagram/TikTok : le momentum est respecté
+    // ✅ FIX v10 : utiliser containerW.current (px réels) au lieu de 100vw
+    // évite le décalage sur Android quand la scrollbar compte dans 100vw
+    const W = containerW.current || (containerRef.current?.offsetWidth ?? window.innerWidth);
+
     const velocityFactor = Math.min(Math.abs(velocityPx) / 1500, 0.4);
     const duration = animate ? Math.max(0.18, 0.32 - velocityFactor) : 0;
 
     track.style.transition = animate
       ? `transform ${duration}s cubic-bezier(0.25,0.46,0.45,0.94)`
       : 'none';
-    track.style.transform = `translate3d(${-(clamped * containerW.current)}px,0,0)`;
+    track.style.transform = `translate3d(${-(clamped * W)}px,0,0)`;
 
-    // ✅ setCurrent APRÈS l'animation pour ne pas bloquer le thread JS pendant le swipe
-    // requestAnimationFrame garantit que le GPU a démarré l'animation avant React
     requestAnimationFrame(() => {
       setCurrent(clamped);
       updateOrbs(clamped);
     });
   }, [updateOrbs]);
 
-  // ✅ onTouchStart : capture position + timestamp pour la vélocité
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
     touchStartX.current   = touch.clientX;
@@ -271,14 +263,11 @@ export default function OracleSelection({
     if (track) track.style.transition = 'none';
   }, []);
 
-  // ✅ onTouchMove : AUCUN setState, AUCUN React update
-  // Uniquement : calcul direction + transform DOM direct
   const onTouchMove = useCallback((e: React.TouchEvent) => {
     if (!isDragging.current) return;
     const dx = e.touches[0].clientX - touchStartX.current;
     const dy = e.touches[0].clientY - touchStartY.current;
 
-    // Décision direction — seuil bas pour réactivité immédiate
     if (isHoriz.current === null) {
       const adx = Math.abs(dx);
       const ady = Math.abs(dy);
@@ -287,25 +276,22 @@ export default function OracleSelection({
       if (!isHoriz.current) return;
     }
     if (!isHoriz.current) return;
-    // Note: preventDefault géré par le listener natif passif:false dans useEffect
 
     dragOffset.current = dx;
     const track = trackRef.current;
     if (!track) return;
 
-    const W = containerW.current;
+    // ✅ FIX v10 : containerW.current au lieu de containerW.current (déjà ok, on s'assure)
+    const W = containerW.current || (containerRef.current?.offsetWidth ?? window.innerWidth);
     const base = -(currentRef.current * W);
 
-    // ✅ Résistance élastique aux bords — feel premium
     const atStart = currentRef.current === 0 && dx > 0;
     const atEnd   = currentRef.current === TOTAL - 1 && dx < 0;
     const bounded = (atStart || atEnd) ? dx * 0.15 : dx;
 
-    // ✅ SEULE opération GPU : translate3d. Jamais layout, jamais paint.
     track.style.transform = `translate3d(${base + bounded}px,0,0)`;
   }, []);
 
-  // ✅ onTouchEnd : calcule vélocité pour le momentum, décide direction
   const onTouchEnd = useCallback(() => {
     isDragging.current = false;
     if (isHoriz.current !== true) { isHoriz.current = null; return; }
@@ -313,22 +299,19 @@ export default function OracleSelection({
 
     const offset   = dragOffset.current;
     const elapsed  = performance.now() - touchStartTime.current;
-    // px/s — signe indique la direction
     const velocity = offset / (elapsed / 1000);
 
     dragOffset.current = 0;
 
-    // ✅ Seuil combiné : distance OU vélocité (comme iOS/Android natif)
-    // Swipe rapide mais court → passe quand même à la carte suivante
     const byDistance = Math.abs(offset) > 50;
-    const byVelocity = Math.abs(velocity) > 400; // px/s
+    const byVelocity = Math.abs(velocity) > 400;
 
     if ((byDistance || byVelocity) && offset < 0) {
       goTo(currentRef.current + 1, true, velocity);
     } else if ((byDistance || byVelocity) && offset > 0) {
       goTo(currentRef.current - 1, true, velocity);
     } else {
-      goTo(currentRef.current, true); // snap back
+      goTo(currentRef.current, true);
     }
   }, [goTo]);
 
@@ -415,21 +398,28 @@ export default function OracleSelection({
           min-width: unset !important;
         }
 
-        /* ✅ Track GPU — un seul layer promu, will-change déclaré une seule fois */
+        /* ✅ Track GPU */
         .oracle-track {
           will-change: transform;
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
         }
 
-        /* ✅ Orbs : transition sur opacity uniquement — composite only, pas de repaint */
+        /* ✅ Orbs : transition sur opacity uniquement */
         .oracle-orb {
           border-radius: 50%;
           pointer-events: none;
           transition: opacity 0.4s ease;
         }
 
-        /* ✅ Étoiles : 3 groupes CSS, pas 50 animations SMIL */
+        /* ✅ FIX v10 : étoiles dans leur propre layer GPU — évite overdraw avec le carousel */
+        .oracle-stars {
+          will-change: transform;
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
+        }
+
+        /* ✅ Étoiles : 3 groupes CSS */
         .star-g1 { animation: starTwinkle 3.1s ease-in-out infinite; }
         .star-g2 { animation: starTwinkle 4.2s ease-in-out infinite 0.8s; }
         .star-g3 { animation: starTwinkle 2.7s ease-in-out infinite 1.5s; }
@@ -438,7 +428,7 @@ export default function OracleSelection({
           50%      { opacity: 0.40; }
         }
 
-        /* ✅ Dots : transition CSS, pas de setState forcé à chaque frame */
+        /* ✅ Dots */
         .oracle-dot {
           border: none;
           cursor: pointer;
@@ -447,6 +437,43 @@ export default function OracleSelection({
           display: block;
           height: 6px;
           border-radius: 3px;
+        }
+
+        /* ✅ FIX v10 : gradients des cartes en CSS — mis en cache comme textures GPU */
+        .oracle-card-bg-loveOracle {
+          background: linear-gradient(160deg, rgba(109,40,217,0.18) 0%, rgba(88,28,135,0.10) 60%, rgba(6,9,23,0.0) 100%);
+        }
+        .oracle-card-bg-lunar {
+          background: linear-gradient(160deg, rgba(29,78,216,0.18) 0%, rgba(15,55,140,0.10) 60%, rgba(6,9,23,0.0) 100%);
+        }
+        .oracle-card-bg-wizard {
+          background: linear-gradient(160deg, rgba(67,56,202,0.18) 0%, rgba(49,46,129,0.10) 60%, rgba(6,9,23,0.0) 100%);
+        }
+        .oracle-card-bg-loveCalculator {
+          background: linear-gradient(160deg, rgba(134,25,143,0.18) 0%, rgba(112,26,117,0.10) 60%, rgba(6,9,23,0.0) 100%);
+        }
+        .oracle-card-bg-wheel {
+          background: linear-gradient(160deg, rgba(67,56,202,0.22) 0%, rgba(55,48,163,0.14) 60%, rgba(6,9,23,0.0) 100%);
+        }
+
+        /* ✅ FIX v10 : image oracle sans filter CSS — supprime repaint GPU à chaque frame */
+        /* Les images doivent être pré-traitées en brightness/saturation si nécessaire */
+        .oracle-img-inner {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 50%;
+          display: block;
+          position: relative;
+          z-index: 1;
+        }
+
+        /* ✅ FIX v10 : contain size layout au lieu de strict
+           - size  : empêche l'enfant d'affecter la taille du parent
+           - layout: isole le layout sans briser la composition GPU du track
+           - on retire 'paint' et 'style' qui fragmentaient les layers */
+        .oracle-card-slot {
+          contain: size layout;
         }
       `}</style>
 
@@ -463,14 +490,14 @@ export default function OracleSelection({
           background: 'transparent',
           paddingBottom: bottomSafePad,
           isolation: 'isolate',
-          // ✅ Custom properties pour les orbs — interpolées par le navigateur sans repaint
           '--orb1-color-a': ORACLES[0].accent,
           '--orb1-color-b': ORACLES[0].accentAlt,
           '--orb2-color': ORACLES[0].accentAlt,
         } as React.CSSProperties}
       >
-        {/* ÉTOILES — SVG statique, 3 groupes CSS */}
+        {/* ✅ FIX v10 : classe oracle-stars pour layer GPU dédié */}
         <svg
+          className="oracle-stars"
           style={{ position: 'fixed', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden
@@ -498,12 +525,7 @@ export default function OracleSelection({
           </g>
         </svg>
 
-        {/*
-          ✅ ORBS — radial-gradient via CSS custom properties
-          Pas de transition:background (force repaint à chaque frame)
-          Pas de filter:blur (force repaint de toute la page)
-          Juste un gradient doux avec opacity stable
-        */}
+        {/* ORBS */}
         <div
           className="oracle-orb"
           style={{
@@ -618,8 +640,6 @@ export default function OracleSelection({
             minHeight: 300,
             overflow: 'hidden',
             flexShrink: 0,
-            // ✅ pan-y uniquement — le navigateur sait immédiatement
-            // qu'on gère le horizontal nous-mêmes
             touchAction: 'pan-y',
             userSelect: 'none',
             WebkitUserSelect: 'none',
@@ -634,38 +654,42 @@ export default function OracleSelection({
             style={{
               display: 'flex',
               height: '100%',
-              // ✅ translateZ(0) force la promotion en layer GPU dès le montage
-              // Le navigateur n'attend pas le premier swipe pour créer le layer
               transform: `translate3d(0,0,0)`,
             }}
           >
             {ORACLES.map((oracle, idx) => {
               const ba = BADGE_ACCENT[oracle.id];
-              // ✅ Seules les cartes adjacentes sont "riches" — les autres sont simplifiées
               const isNear = Math.abs(idx - current) <= 1;
 
               return (
                 <div
                   key={oracle.id}
+                  className="oracle-card-slot"
                   style={{
-                    minWidth: '100vw',
+                    // ✅ FIX v10 : largeur en px réels via containerW, fallback 100vw
+                    // évite le décalage scrollbar Android + permet au GPU de calculer
+                    // les positions des cartes sans reflow à chaque frame
+                    width: containerW.current > 0 ? containerW.current : '100vw',
+                    minWidth: containerW.current > 0 ? containerW.current : '100vw',
                     height: '100%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     padding: '14px 24px 4px',
-                    // ✅ contain: strict — isole complètement chaque carte du layout global
-                    // Critique sur vieux GPU : empêche les repaints de se propager
-                    contain: 'strict',
+                    // ✅ FIX v10 : contain déplacé en classe CSS (contain: size layout)
+                    // 'strict' fragmentait les layers GPU et empêchait la composition du track
+                    flexShrink: 0,
                   }}
                 >
                   <div
                     onClick={() => handleOracleSelect(oracle)}
+                    // ✅ FIX v10 : gradient via className CSS (mis en cache GPU)
+                    // au lieu de background: oracle.bgGradient inline (recalculé à chaque render)
+                    className={`oracle-card-bg-${oracle.id}`}
                     style={{
                       position: 'relative',
                       width: '100%', maxWidth: 300,
                       height: '100%', maxHeight: 420,
-                      background: oracle.bgGradient,
                       border: `1.5px solid ${oracle.borderColorStrong}`,
                       borderRadius: 28,
                       display: 'flex', flexDirection: 'column',
@@ -728,7 +752,6 @@ export default function OracleSelection({
                       className="oracle-img-wrap"
                       style={{ position: 'relative', width: 110, height: 110, borderRadius: '50%', flexShrink: 0, marginBottom: 20 }}
                     >
-                      {/* Halo statique — uniquement carte active */}
                       {idx === current && (
                         <div style={{
                           position: 'absolute', inset: -10, borderRadius: '50%',
@@ -743,21 +766,17 @@ export default function OracleSelection({
                         boxShadow: `0 0 18px ${oracle.glowColor}`,
                         zIndex: 2, pointerEvents: 'none',
                       }} />
-                      {/* ✅ eager pour cartes adjacentes, lazy pour les autres */}
+                      {/* ✅ FIX v10 : filter brightness/saturate supprimé
+                          → plus de repaint GPU à chaque frame pendant le swipe
+                          Pré-traiter les images avec sharp/squoosh si ajustement nécessaire */}
                       <img
                         src={oracle.image}
                         alt={t(oracle.titleKey)}
                         loading={isNear ? 'eager' : 'lazy'}
                         decoding="async"
-                        className="oracle-img"
+                        className="oracle-img oracle-img-inner"
                         onLoad={(e) => {
                           (e.currentTarget as HTMLImageElement).classList.add('loaded');
-                        }}
-                        style={{
-                          width: '100%', height: '100%',
-                          objectFit: 'cover', borderRadius: '50%',
-                          filter: 'brightness(1.06) saturate(1.1)',
-                          display: 'block', position: 'relative', zIndex: 1,
                         }}
                       />
                     </div>
