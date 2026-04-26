@@ -1,5 +1,5 @@
 // client/src/pages/WheelPage.tsx
-// 🎡 Page Roue - bouton Retour au-dessus de la bannière pub (safe-area corrigé)
+// 🎡 Page Roue - avec fix pub récompensée bloquante
 
 import { useState, useEffect } from 'react';
 import Wheel from '@/components/Wheel';
@@ -35,7 +35,7 @@ export default function WheelPage({
   isPremium = false,
   wheelCounter = 0,
   onWheelComplete,
-  onReadingComplete
+  onReadingComplete,
 }: WheelPageProps) {
   const { t } = useLanguage();
   const [isComplete, setIsComplete] = useState(false);
@@ -63,32 +63,64 @@ export default function WheelPage({
       setVariation(getRandomVariation());
 
       if (nextCount === 1) {
+        let loadingTimeoutId: NodeJS.Timeout | null = null;
         let messageTimeoutId: NodeJS.Timeout | null = null;
+
+        // ✅ Timeout de garde UI : si tout plante côté service,
+        // on renvoie l'utilisateur au bout de 35s max
+        const guardTimeout = setTimeout(() => {
+          console.warn('⚠️ [WHEEL] Guard timeout déclenché — forçage retour');
+          if (loadingTimeoutId) clearTimeout(loadingTimeoutId);
+          if (messageTimeoutId) clearTimeout(messageTimeoutId);
+          setIsLoadingAd(false);
+          setShowLongAdMessage(false);
+          onBack();
+        }, 35000);
+
         try {
           const adPromise = showRewardedAd('wheel_first');
-          const loadingTimeoutId = setTimeout(() => {
+
+          // On affiche l'écran de chargement après 500ms seulement
+          // (évite un flash si la pub charge vite)
+          loadingTimeoutId = setTimeout(() => {
             setIsLoadingAd(true);
-            messageTimeoutId = setTimeout(() => setShowLongAdMessage(true), 45000);
+            // ✅ Message "ça prend du temps" après 15s au lieu de 45s
+            messageTimeoutId = setTimeout(() => setShowLongAdMessage(true), 15000);
           }, 500);
+
           const rewardGranted = await adPromise;
-          clearTimeout(loadingTimeoutId);
+
+          // Nettoyage de tous les timers dès qu'on a une réponse
+          clearTimeout(guardTimeout);
+          if (loadingTimeoutId) clearTimeout(loadingTimeoutId);
           if (messageTimeoutId) clearTimeout(messageTimeoutId);
+
           setIsLoadingAd(false);
           setShowLongAdMessage(false);
           setAdShownThisSession(true);
+
           if (rewardGranted) {
             setWheelUnlocked(true);
           } else {
-            alert(t('oracle.wheel.adNotCompleted') || 'Veuillez regarder la publicité jusqu\'à la fin.');
+            alert(
+              t('oracle.wheel.adNotCompleted') ||
+              "Veuillez regarder la publicité jusqu'à la fin."
+            );
             onBack();
           }
         } catch (error) {
+          clearTimeout(guardTimeout);
+          if (loadingTimeoutId) clearTimeout(loadingTimeoutId);
           if (messageTimeoutId) clearTimeout(messageTimeoutId);
           setIsLoadingAd(false);
           setShowLongAdMessage(false);
-          alert(t('oracle.wheel.adError') || 'Une erreur est survenue. Réessayez.');
+          alert(
+            t('oracle.wheel.adError') ||
+            'Une erreur est survenue. Réessayez.'
+          );
           onBack();
         }
+
       } else if ((nextCount - 1) % 3 === 0 && nextCount > 1) {
         try {
           await showInterstitialAd(`wheel_${nextCount}`);
@@ -138,8 +170,6 @@ export default function WheelPage({
             overflowX: 'hidden',
             WebkitOverflowScrolling: 'touch',
             paddingTop: '56px',
-            // ✅ Clé : on réserve exactement la hauteur de la bannière pub
-            // pour que le bouton Retour reste toujours visible au-dessus
             paddingBottom: `${AD_BANNER_HEIGHT}px`,
           }}
         >

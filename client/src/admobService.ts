@@ -24,26 +24,26 @@ console.log('🔍 Détection plateforme AdMob:', {
 const BANNER_AD_ID = isNative 
   ? (IS_PRODUCTION 
       ? 'ca-app-pub-5733508257471048/9858415317'
-      : 'ca-app-pub-3940256099942544/6300978111') // Test
+      : 'ca-app-pub-3940256099942544/6300978111')
   : '';
 
 const INTERSTITIAL_AD_ID = isNative
   ? (IS_PRODUCTION 
       ? 'ca-app-pub-5733508257471048/3903381053'
-      : 'ca-app-pub-3940256099942544/1033173712') // Test
+      : 'ca-app-pub-3940256099942544/1033173712')
   : '';
 
 const REWARDED_AD_ID = isNative
   ? (IS_PRODUCTION
       ? 'ca-app-pub-5733508257471048/7285041100'
-      : 'ca-app-pub-3940256099942544/5224354917') // Test
+      : 'ca-app-pub-3940256099942544/5224354917')
   : '';
 
 console.log('📱 IDs AdMob TarotMystik:', {
   banner: BANNER_AD_ID,
   interstitial: INTERSTITIAL_AD_ID,
   rewarded: REWARDED_AD_ID,
-  mode: IS_PRODUCTION ? 'PRODUCTION' : 'TEST'
+  mode: IS_PRODUCTION ? 'PRODUCTION' : 'TEST',
 });
 
 // ⛔️ Gestion des listeners
@@ -63,7 +63,7 @@ function _removeAllListenersSafe() {
 }
 
 // 🎯 Variables état
-let isAdMobInitialized = false; // ✅ FIX CRASH : Flag pour savoir si AdMob est prêt
+let isAdMobInitialized = false;
 let isInterstitialReady = false;
 let isInterstitialLoading = false;
 let isInterstitialShowing = false;
@@ -72,8 +72,7 @@ let isInterstitialShowing = false;
 let consentStatus: 'unknown' | 'required' | 'not_required' | 'obtained' = 'unknown';
 let isConsentFormShowing = false;
 
-// ✅ FIX CRASH : Fonction utilitaire pour attendre que AdMob soit prêt
-// Utilisée par showBanner() pour éviter le NullPointerException
+// ✅ Attendre que AdMob soit prêt avant d'afficher la bannière
 async function waitForInitialization(maxWaitMs = 10000): Promise<boolean> {
   if (isAdMobInitialized) return true;
 
@@ -186,7 +185,6 @@ export async function initialize() {
   }
 
   try {
-    // ÉTAPE 1 : Demander le consentement AVANT d'initialiser AdMob
     console.log('🔐 [INIT] Étape 1/2 : Demande de consentement...');
     const consentGranted = await requestConsent();
 
@@ -194,14 +192,12 @@ export async function initialize() {
       console.warn('⚠️ [INIT] Consentement non obtenu - AdMob initialisé mais pubs limitées');
     }
 
-    // ÉTAPE 2 : Initialiser AdMob
     console.log('🔐 [INIT] Étape 2/2 : Initialisation AdMob...');
     await AdMob.initialize({
       testingDevices: IS_PRODUCTION ? [] : ['1763659614607'],
       initializeForTesting: !IS_PRODUCTION,
     });
 
-    // Enregistrement des listeners interstitielle
     _addListener('interstitialAdLoaded', () => {
       console.log('✅ Pub interstitielle chargée et prête');
       isInterstitialReady = true;
@@ -232,8 +228,6 @@ export async function initialize() {
       isInterstitialShowing = false;
     });
 
-    // ✅ FIX CRASH CLÉ : On marque AdMob comme prêt SEULEMENT ici,
-    // après que tout soit initialisé. showBanner() attend ce flag.
     isAdMobInitialized = true;
 
     console.log(`✅ AdMob TarotMystik initialisé en mode ${IS_PRODUCTION ? 'PRODUCTION' : 'TEST'}`);
@@ -241,8 +235,6 @@ export async function initialize() {
 
   } catch (error) {
     console.error('❌ Erreur init AdMob:', error);
-    // ✅ FIX : On ne met PAS isAdMobInitialized à true en cas d'erreur
-    // Ça évite que showBanner() soit appelé avec un AdMob cassé
   }
 }
 
@@ -323,12 +315,10 @@ export async function showInterstitialAd(context: string = 'unknown'): Promise<b
   }
 }
 
-// ✅ FIX CRASH BANNIÈRE : showBanner attend que AdMob soit initialisé
-// C'est ici que le NullPointerException était causé sur vieux Android
+// ✅ showBanner attend que AdMob soit initialisé
 export async function showBanner() {
   if (!isNative) return;
 
-  // ✅ PROTECTION CRASH : On attend que AdMob soit prêt avant d'afficher la bannière
   const ready = await waitForInitialization(10000);
   if (!ready) {
     console.warn('⚠️ [BANNIÈRE] AdMob pas initialisé, bannière annulée');
@@ -347,13 +337,12 @@ export async function showBanner() {
     console.log('✅ Bannière TarotMystik affichée');
   } catch (error) {
     console.error('❌ Erreur bannière:', error);
-    // ✅ On catch l'erreur sans crasher l'app
   }
 }
 
 export async function hideBanner() {
   if (!isNative) return;
-  if (!isAdMobInitialized) return; // ✅ Protection supplémentaire
+  if (!isAdMobInitialized) return;
 
   try {
     await AdMob.hideBanner();
@@ -365,7 +354,7 @@ export async function hideBanner() {
 
 export async function removeBanner() {
   if (!isNative) return;
-  if (!isAdMobInitialized) return; // ✅ Protection supplémentaire
+  if (!isAdMobInitialized) return;
 
   try {
     await AdMob.removeBanner();
@@ -375,7 +364,7 @@ export async function removeBanner() {
   }
 }
 
-// 🎁 PUB RÉCOMPENSÉE - VERSION ULTRA-ROBUSTE
+// 🎁 PUB RÉCOMPENSÉE - VERSION CORRIGÉE
 let rewardedAdCounter = 0;
 let currentRewardedAdPromise: Promise<boolean> | null = null;
 
@@ -394,28 +383,29 @@ export async function showRewardedAd(context: string = 'bonus_roll'): Promise<bo
   const adNumber = rewardedAdCounter;
 
   const promise = new Promise<boolean>(async (resolve) => {
-    let adShown = false;
     let resolved = false;
-    let rewardReceived = false;
+    let adShown = false;
+    let adLoaded = false;
+
+    let loadedListener: any;
     let showedListener: any;
     let rewardListener: any;
     let dismissListener: any;
     let failedToShowListener: any;
     let failedToLoadListener: any;
 
+    // ✅ Timeout réduit à 30s au lieu de 120s
     const safetyTimeout = setTimeout(() => {
       if (!resolved) {
-        console.log(`⏰ [PUB RÉCOMPENSÉE #${adNumber}] TIMEOUT (120s) - Résolution forcée`);
-        cleanup();
-        resolved = true;
-        currentRewardedAdPromise = null;
-        resolve(false);
+        console.warn(`⏰ [PUB RÉCOMPENSÉE #${adNumber}] TIMEOUT 30s - résolution forcée`);
+        safeResolve(false);
       }
-    }, 120000);
+    }, 30000);
 
     const cleanup = () => {
       clearTimeout(safetyTimeout);
       try {
+        if (loadedListener) loadedListener.remove();
         if (showedListener) showedListener.remove();
         if (rewardListener) rewardListener.remove();
         if (dismissListener) dismissListener.remove();
@@ -426,17 +416,28 @@ export async function showRewardedAd(context: string = 'bonus_roll'): Promise<bo
       }
     };
 
+    // ✅ Résolution centralisée pour éviter les double-résolutions
+    const safeResolve = (value: boolean) => {
+      if (!resolved) {
+        resolved = true;
+        cleanup();
+        currentRewardedAdPromise = null;
+        resolve(value);
+      }
+    };
+
     try {
       console.log(`🎁 [PUB RÉCOMPENSÉE #${adNumber}] === DÉMARRAGE === Context: ${context}`);
 
+      // ✅ On écoute le "loaded" avant de préparer pour être sûr de ne pas le manquer
+      loadedListener = _addListener('onRewardedVideoAdLoaded', () => {
+        console.log(`✅ [PUB RÉCOMPENSÉE #${adNumber}] Chargée et prête !`);
+        adLoaded = true;
+      });
+
       failedToLoadListener = _addListener('onRewardedVideoAdFailedToLoad', (error: any) => {
-        if (!resolved) {
-          console.error(`❌ [PUB RÉCOMPENSÉE #${adNumber}] ÉCHEC CHARGEMENT:`, error);
-          cleanup();
-          resolved = true;
-          currentRewardedAdPromise = null;
-          resolve(false);
-        }
+        console.error(`❌ [PUB RÉCOMPENSÉE #${adNumber}] ÉCHEC CHARGEMENT:`, error);
+        safeResolve(false);
       });
 
       showedListener = _addListener('onRewardedVideoAdShowed', () => {
@@ -445,57 +446,41 @@ export async function showRewardedAd(context: string = 'bonus_roll'): Promise<bo
       });
 
       rewardListener = _addListener('onRewarded', (reward: AdMobRewardItem) => {
-        console.log(`🎁 [PUB RÉCOMPENSÉE #${adNumber}] RÉCOMPENSE:`, reward);
-        rewardReceived = true;
+        console.log(`🎁 [PUB RÉCOMPENSÉE #${adNumber}] RÉCOMPENSE REÇUE:`, reward);
       });
 
+      // ✅ Résolution sur dismiss : si la pub s'est affichée = on débloque
       dismissListener = _addListener('onRewardedVideoAdDismissed', () => {
-        if (!resolved) {
-          console.log(`🚪 [PUB RÉCOMPENSÉE #${adNumber}] FERMÉE`);
-          console.log(`   📊 Affichée=${adShown}, Récompense=${rewardReceived}`);
-
-          const shouldUnlock = adShown;
-          console.log(`   🎯 RÉSULTAT: ${shouldUnlock ? '✅ DÉBLOQUÉ' : '❌ BLOQUÉ'}`);
-
-          cleanup();
-          resolved = true;
-          currentRewardedAdPromise = null;
-          resolve(shouldUnlock);
-        }
+        console.log(`🚪 [PUB RÉCOMPENSÉE #${adNumber}] FERMÉE — adShown=${adShown}`);
+        safeResolve(adShown);
       });
 
       failedToShowListener = _addListener('onRewardedVideoAdFailedToShow', (error: any) => {
-        if (!resolved) {
-          console.error(`❌ [PUB RÉCOMPENSÉE #${adNumber}] ÉCHEC AFFICHAGE:`, error);
-          cleanup();
-          resolved = true;
-          currentRewardedAdPromise = null;
-          resolve(false);
-        }
+        console.error(`❌ [PUB RÉCOMPENSÉE #${adNumber}] ÉCHEC AFFICHAGE:`, error);
+        safeResolve(false);
       });
 
-      const options: RewardAdOptions = { adId: REWARDED_AD_ID };
-
+      // Préparation de la pub
       console.log(`🔄 [PUB RÉCOMPENSÉE #${adNumber}] Préparation...`);
-      await AdMob.prepareRewardVideoAd(options);
+      await AdMob.prepareRewardVideoAd({ adId: REWARDED_AD_ID });
 
-      console.log(`⏳ [PUB RÉCOMPENSÉE #${adNumber}] Attente 2s...`);
-      await new Promise(r => setTimeout(r, 2000));
+      // ✅ Attente du callback "loaded" au lieu d'un délai fixe de 2s
+      const loadStart = Date.now();
+      while (!adLoaded && (Date.now() - loadStart) < 10000) {
+        await new Promise(r => setTimeout(r, 150));
+      }
+
+      if (!adLoaded) {
+        console.warn(`⚠️ [PUB RÉCOMPENSÉE #${adNumber}] Pas de confirmation "loaded" après 10s, tentative quand même...`);
+      }
 
       console.log(`🎬 [PUB RÉCOMPENSÉE #${adNumber}] Affichage...`);
       await AdMob.showRewardVideoAd();
-
       console.log(`✅ [PUB RÉCOMPENSÉE #${adNumber}] Commande envoyée`);
 
     } catch (error: any) {
       console.error(`💥 [PUB RÉCOMPENSÉE #${adNumber}] ERREUR:`, error);
-      cleanup();
-
-      if (!resolved) {
-        resolved = true;
-        currentRewardedAdPromise = null;
-        resolve(false);
-      }
+      safeResolve(false);
     }
   });
 
